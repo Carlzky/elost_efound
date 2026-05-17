@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-LOST KOH, E-FOUND MOH</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1F5D4A;      
+            --primary-dark: #143F32;
+            --bg-green-start: #3D4434; 
+            --bg-green-end: #6B735C;   
+            --accent-green: #9CD83B;   
+            --gold: #F1B846;          
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, var(--bg-green-start), var(--bg-green-end));
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Full page overlay wrapper for a smooth exit fade transition */
+        .splash-wrapper {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1), transform 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* The exit utility class triggered via JS */
+        .splash-wrapper.fade-out {
+            opacity: 0;
+            transform: scale(1.05);
+            pointer-events: none;
+        }
+
+        /* Massive Iconic Brand Box with breathing pulse effect */
+        .logo-container {
+            width: 240px;       
+            height: 240px;      
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border: 6px solid var(--gold); 
+            border-radius: 48px;       
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 105px;    
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45), 
+                        inset 0 4px 8px rgba(255, 255, 255, 0.25);
+            animation: heroPulse 3s ease-in-out infinite, dynamicEntrance 1.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        /* Punchy Brand Header */
+        .brand-title {
+            color: #FFFFFF;
+            font-weight: 900;   
+            font-size: 52px;    
+            margin: 40px 0 35px 0;
+            line-height: 1.1;
+            letter-spacing: 1.5px;
+            text-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+            animation: textEntrance 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
+        }
+
+        .brand-title span {
+            color: var(--accent-green);
+        }
+
+        /* Modern Linear Wave Progress Loader Container */
+        .loader-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            height: 20px;
+            margin-top: 15px;
+            animation: textEntrance 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both;
+        }
+
+        /* Premium Staggered Flowing Bars */
+        .loader-bar {
+            width: 12px;
+            height: 12px;
+            border-radius: 4px;
+            background-color: #FFFFFF;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+            animation: barWave 1.2s ease-in-out infinite;
+        }
+
+        /* Cohesive brand accent color cycling */
+        .loader-bar:nth-child(1) {
+            background-color: var(--accent-green);
+            box-shadow: 0 0 15px rgba(156, 216, 59, 0.4);
+            animation-delay: -0.3s;
+        }
+
+        .loader-bar:nth-child(2) {
+            background-color: #FFFFFF;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+            animation-delay: -0.2s;
+        }
+
+        .loader-bar:nth-child(3) {
+            background-color: var(--gold);
+            box-shadow: 0 0 15px rgba(241, 184, 70, 0.4);
+            animation-delay: -0.1s;
+        }
+
+        .loader-bar:nth-child(4) {
+            background-color: var(--primary);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 0 15px rgba(31, 93, 74, 0.4);
+            animation-delay: 0s;
+        }
+
+        /* Smooth Hardware-Accelerated Keyframe Sets */
+        @keyframes dynamicEntrance {
+            from { opacity: 0; transform: translateY(50px) scale(0.9) rotate(-3deg); }
+            to { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+        }
+
+        @keyframes textEntrance {
+            from { opacity: 0; transform: translateY(25px); filter: blur(4px); }
+            to { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+
+        @keyframes heroPulse {
+            0% { transform: translateY(0) scale(1); box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45); }
+            50% { transform: translateY(-6px) scale(1.02); box-shadow: 0 35px 80px rgba(0, 0, 0, 0.55); }
+            100% { transform: translateY(0) scale(1); box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45); }
+        }
+
+        /* Fluid bar resizing indicator pattern */
+        @keyframes barWave {
+            0%, 100% {
+                transform: scaleY(1);
+            }
+            50% {
+                transform: scaleY(2.8); /* Stretches blocks vertically to make an interactive wave look */
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="splash-wrapper" id="splashScreen">
+        <div class="logo-container">🔍</div>
+        
+        <h1 class="brand-title">E-LOST <span>KOH</span><br>E-FOUND <span>MOH</span></h1>
+        
+        <div class="loader-container">
+            <div class="loader-bar"></div>
+            <div class="loader-bar"></div>
+            <div class="loader-bar"></div>
+            <div class="loader-bar"></div>
+        </div>
+    </div>
+
+    <script>
+        // Deliberate cinematic timer configuration delay steps (e.g., 3.5 seconds)
+        // Gives your client plenty of time to appreciate the premium fluid layout structure
+        const holdDuration = 3500; 
+
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(() => {
+                const splashWrapper = document.getElementById('splashScreen');
+                
+                // Step 1: Initiate hardware accelerated scale & blur out transition sequence
+                splashWrapper.classList.add('fade-out');
+                
+                // Step 2: Once CSS fade animation has safely concluded, route seamlessly to destination
+                setTimeout(() => {
+                    window.location.href = 'AAAAAAAAA';
+                }, 800); // Matches the 0.8s CSS wrapper transition duration perfectly
+
+            }, holdDuration);
+        });
+    </script>
+</body>
+</html>
