@@ -3,10 +3,12 @@ session_start();
 include 'db.php';
 
 $message = "";
-$step = 1; // Step 1: Request Code, Step 2: Validate & Reset
+$step = 1; // Step 1: Verify Email & Security Question, Step 2: Overwrite Password
+$fetched_question = "";
 
-if (isset($_SESSION['reset_email'])) {
+if (isset($_SESSION['recovery_email']) && isset($_SESSION['recovery_question'])) {
     $step = 2;
+    $fetched_question = $_SESSION['recovery_question'];
 }
 
 if (isset($_SESSION['redirect_message'])) {
@@ -16,8 +18,8 @@ if (isset($_SESSION['redirect_message'])) {
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
-    // ---- STEP 1: GENERATE TOKEN ----
-    if (isset($_POST['action']) && $_POST['action'] == 'request_token') {
+    // ---- STEP 1: VERIFY INSTALMENT ACCOUNT ----
+    if (isset($_POST['action']) && $_POST['action'] == 'verify_account') {
         $email = trim($_POST['email']);
         
         if (!str_ends_with(strtolower($email), '@cvsu.edu.ph')) {
@@ -26,40 +28,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit();
         }
 
-        $check = $conn->prepare("SELECT id FROM users WHERE email = ?");
-        $check->bind_param("s", $email);
-        $check->execute();
-        $check->store_result();
+        // Fetch selected question profile variables metrics directly from the users table context
+        $stmt = $conn->prepare("SELECT security_question FROM users WHERE email = ?");
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $stmt->store_result();
 
-        if ($check->num_rows > 0) {
-            $token  = strval(rand(100000, 999999)); 
-            $expiry = date('Y-m-d H:i:s', time() + 1800); // 30-minute validation timeframe
+        if ($stmt->num_rows > 0) {
+            $stmt->bind_result($security_question);
+            $stmt->fetch();
             
-            $del = $conn->prepare("DELETE FROM password_resets WHERE email = ?");
-            $del->bind_param("s", $email);
-            $del->execute();
-            $del->close();
-
-            $stmt = $conn->prepare("INSERT INTO password_resets (email, token, expiry) VALUES (?, ?, ?)");
-            $stmt->bind_param("sss", $email, $token, $expiry);
-            $stmt->execute();
-            $stmt->close();
-
-            // Local simulation helper notice for offline development environments
-            $_SESSION['redirect_message'] = "<div class='msg success'>Reset code dispatched! Local debugging code token is: <b>$token</b></div>";
-            $_SESSION['reset_email'] = $email;
+            $_SESSION['recovery_email'] = $email;
+            $_SESSION['recovery_question'] = $security_question;
+            $_SESSION['redirect_message'] = "<div class='msg success'>Account found! Please answer your chosen challenge question below.</div>";
         } else {
-            $_SESSION['redirect_message'] = "<div class='msg error'>Email address is not registered!</div>";
+            $_SESSION['redirect_message'] = "<div class='msg error'>Email address is not registered in the system!</div>";
         }
-        $check->close();
+        $stmt->close();
         header("Location: forgot_password.php");
         exit();
     }
 
-    // ---- STEP 2: OVERWRITE PASSWORD ----
-    if (isset($_POST['action']) && $_POST['action'] == 'reset_password') {
-        $email            = $_SESSION['reset_email'] ?? '';
-        $token            = trim($_POST['token']);
+    // ---- STEP 2: CHALLENGE VERIFICATION & PASSWORD RESET ----
+    if (isset($_POST['action']) && $_POST['action'] == 'submit_recovery') {
+        $email            = $_SESSION['recovery_email'] ?? '';
+        $security_answer  = trim($_POST['security_answer']);
         $new_password     = $_POST['new_password'];
         $confirm_password = $_POST['confirm_password'];
 
@@ -75,31 +68,38 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit();
         }
 
-        $stmt = $conn->prepare("SELECT id FROM password_resets WHERE email = ? AND token = ? AND expiry > NOW()");
-        $stmt->bind_param("ss", $email, $token);
+        // Fetch answer token hash validation mapping bounds
+        $stmt = $conn->prepare("SELECT security_answer FROM users WHERE email = ?");
+        $stmt->bind_param("s", $email);
         $stmt->execute();
         $stmt->store_result();
 
         if ($stmt->num_rows > 0) {
-            $hashed_password = password_hash($new_password, PASSWORD_BCRYPT);
+            $stmt->bind_result($hashed_answer);
+            $stmt->fetch();
             
-            $update = $conn->prepare("UPDATE users SET password = ? WHERE email = ?");
-            $update->bind_param("ss", $hashed_password, $email);
-            
-            if ($update->execute()) {
-                $del = $conn->prepare("DELETE FROM password_resets WHERE email = ?");
-                $del->bind_param("s", $email);
-                $del->execute();
-                $del->close();
-
-                unset($_SESSION['reset_email']);
-                $_SESSION['redirect_message'] = "<div class='msg success'>Password reset successfully! Proceed to sign in.</div>";
-                header("Location: registration.php");
-                exit();
+            // Check challenge input value matching condition metrics securely
+            if (password_verify(strtolower($security_answer), $hashed_answer)) {
+                $hashed_password = password_hash($new_password, PASSWORD_BCRYPT);
+                
+                $update = $conn->prepare("UPDATE users SET password = ? WHERE email = ?");
+                $update->bind_param("ss", $hashed_password, $email);
+                
+                if ($update->execute()) {
+                    unset($_SESSION['recovery_email']);
+                    unset($_SESSION['recovery_question']);
+                    $_SESSION['redirect_message'] = "<div class='msg success'>Password updated successfully! Proceed to log in.</div>";
+                    header("Location: registration.php");
+                    exit();
+                }
+                $update->close();
+            } else {
+                $_SESSION['redirect_message'] = "<div class='msg error'>Incorrect answer to security question challenge!</div>";
             }
-            $update->close();
         } else {
-            $_SESSION['redirect_message'] = "<div class='msg error'>Invalid, wrong, or expired reset token!</div>";
+            $_SESSION['redirect_message'] = "<div class='msg error'>Session sync error. Restart process.</div>";
+            unset($_SESSION['recovery_email']);
+            unset($_SESSION['recovery_question']);
         }
         $stmt->close();
         header("Location: forgot_password.php");
@@ -134,11 +134,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <div class="form-section">
                         <h2>Recover Account</h2>
                         <form action="forgot_password.php" method="POST">
-                            <input type="hidden" name="action" value="request_token">
+                            <input type="hidden" name="action" value="verify_account">
                             <div class="input-group">
                                 <input type="email" name="email" placeholder="Enter your @cvsu.edu.ph email" required>
                             </div>
-                            <button type="submit" class="btn-primary">Send Reset Token</button>
+                            <button type="submit" class="btn-primary">Find Account</button>
                         </form>
                         <div class="footer-text">
                             Remembered details? <a href="registration.php" style="color:var(--primary); font-weight:700; text-decoration:none;">Back to Log In</a>
@@ -146,11 +146,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     </div>
                 <?php else: ?>
                     <div class="form-section">
-                        <h2>Reset Password</h2>
+                        <h2>Identity Verification</h2>
                         <form action="forgot_password.php" method="POST">
-                            <input type="hidden" name="action" value="reset_password">
+                            <input type="hidden" name="action" value="submit_recovery">
+                            
+                            <div class="challenge-box" style="margin-bottom:20px; font-weight:600; color:var(--primary); text-align:center; font-size:15.5px;">
+                                📋 <?php echo htmlspecialchars($fetched_question); ?>
+                            </div>
+
                             <div class="input-group">
-                                <input type="text" name="token" placeholder="6-Digit Reset Token" required>
+                                <input type="text" name="security_answer" placeholder="Type your security answer" required>
                             </div>
                             <div class="input-group">
                                 <input type="password" name="new_password" id="new-password" placeholder="New Password (Min 6 chars)" minlength="6" required>

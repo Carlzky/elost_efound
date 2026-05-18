@@ -4,14 +4,39 @@ include 'db.php'; // Keeps your database credentials separate and secure
 
 $message = "";
 $active_form = "login"; // Default state on page load
-$registration_success = false; // Flag to tell JS to run a smooth success view change
+$registration_success = false; 
+
+// ---- AUTOMATIC "REMEMBER ME" COOKIE CHECK ----
+if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_me'])) {
+    if (strpos($_COOKIE['remember_me'], ':') !== false) {
+        list($selector, $validator) = explode(':', $_COOKIE['remember_me']);
+        
+        $stmt = $conn->prepare("SELECT ut.user_id, ut.hashed_validator, u.username FROM user_tokens ut JOIN users u ON ut.user_id = u.id WHERE ut.selector = ? AND ut.expiry > NOW()");
+        $stmt->bind_param("s", $selector);
+        $stmt->execute();
+        $stmt->store_result();
+        
+        if ($stmt->num_rows > 0) {
+            $stmt->bind_result($user_id, $hashed_validator, $username);
+            $stmt->fetch();
+            
+            if (hash_equals($hashed_validator, hash('sha256', $validator))) {
+                $_SESSION['user_id'] = $user_id;
+                $_SESSION['username'] = $username;
+                
+                header("Location: loading.html");
+                exit();
+            }
+        }
+        $stmt->close();
+    }
+}
 
 // Check for redirect flash messages waiting in the session lifecycle
 if (isset($_SESSION['redirect_message'])) {
     $message = $_SESSION['redirect_message'];
     $active_form = $_SESSION['redirect_active_form'] ?? 'login';
     
-    // If registration was successful, we set this flag to animate the container form swap
     if (str_contains($message, 'successful')) {
         $registration_success = true;
     }
@@ -23,28 +48,33 @@ if (isset($_SESSION['redirect_message'])) {
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // ---- REGISTRATION PROCESSING ----
     if (isset($_POST['action']) && $_POST['action'] == 'register') {
-        $email            = trim($_POST['email']);
-        $username         = trim($_POST['username']);
-        $password         = $_POST['password'];
-        $confirm_password = $_POST['confirm_password'];
+        $email             = trim($_POST['email']);
+        $username          = trim($_POST['username']);
+        $password          = $_POST['password'];
+        $confirm_password  = $_POST['confirm_password'];
+        $security_question = $_POST['security_question'];
+        $security_answer   = trim($_POST['security_answer']);
 
-        // Enforce minimum password length of 6 characters
         if (strlen($password) < 6) {
             $_SESSION['redirect_message'] = "<div class='msg error'>Password must be at least 6 characters long!</div>";
             $_SESSION['redirect_active_form'] = "register";
         }
-        // Match confirm password field mapping
         elseif ($password !== $confirm_password) {
             $_SESSION['redirect_message'] = "<div class='msg error'>Passwords do not match!</div>";
             $_SESSION['redirect_active_form'] = "register";
         } 
-        // Restrict system registration exclusively to official university accounts
         elseif (!filter_var($email, FILTER_VALIDATE_EMAIL) || !str_ends_with(strtolower($email), '@cvsu.edu.ph')) {
             $_SESSION['redirect_message'] = "<div class='msg error'>Registration restricted! Only official @cvsu.edu.ph emails are allowed.</div>";
             $_SESSION['redirect_active_form'] = "register";
         } 
+        elseif (empty($security_question) || empty($security_answer)) {
+            $_SESSION['redirect_message'] = "<div class='msg error'>Please select a security question and provide an answer!</div>";
+            $_SESSION['redirect_active_form'] = "register";
+        }
         else {
             $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+            // Lowercase hash for answer to make verification input user-friendly
+            $hashed_answer = password_hash(strtolower($security_answer), PASSWORD_BCRYPT);
 
             $check = $conn->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
             $check->bind_param("ss", $username, $email);
@@ -55,11 +85,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['redirect_message'] = "<div class='msg error'>Username or Email already exists!</div>";
                 $_SESSION['redirect_active_form'] = "register";
             } else {
-                $stmt = $conn->prepare("INSERT INTO users (email, username, password) VALUES (?, ?, ?)");
-                $stmt->bind_param("sss", $email, $username, $hashed_password);
+                $stmt = $conn->prepare("INSERT INTO users (email, username, password, security_question, security_answer) VALUES (?, ?, ?, ?, ?)");
+                $stmt->bind_param("sssss", $email, $username, $hashed_password, $security_question, $hashed_answer);
                 
                 if ($stmt->execute()) {
-                    // FIXED: Redirect back to the LOGIN form view instead of register view or loading.html
                     $_SESSION['redirect_message'] = "<div class='msg success'>Registration successful! Please log in with your new credentials below.</div>";
                     $_SESSION['redirect_active_form'] = "login"; 
                 } else {
@@ -94,7 +123,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['user_id']  = $user_id;
                 $_SESSION['username'] = $username;
                 
-                // Handle secure Remember Me Token Creation
                 if ($remember) {
                     $selector  = bin2hex(random_bytes(6)); 
                     $validator = bin2hex(random_bytes(32)); 
@@ -107,15 +135,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     $tokStmt->execute();
                     $tokStmt->close();
                     
-                    setcookie(
-                        'remember_me',
-                        $selector . ':' . $validator,
-                        time() + (86400 * 30),
-                        "/",
-                        "",
-                        false, 
-                        true   
-                    );
+                    setcookie('remember_me', $selector . ':' . $validator, time() + (86400 * 30), "/", "", false, true);
                 }
                 
                 header("Location: loading.html");
@@ -162,26 +182,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <h2>Welcome Back</h2>
                     <form action="registration.php" method="POST">
                         <input type="hidden" name="action" value="login">
-                        
                         <div class="input-group">
                             <input type="text" name="username" placeholder="Username" required>
                         </div>
-                        
                         <div class="input-group">
                             <input type="password" name="password" id="login-password" placeholder="Password" required>
                             <button type="button" class="password-toggle" onclick="togglePasswordVisibility('login-password', this)">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                    <circle cx="12" cy="12" r="3"></circle>
-                                </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                             </button>
                         </div>
-                        
                         <div class="options-row">
                             <label><input type="checkbox" name="remember"> Remember me</label>
                             <a href="forgot_password.php">Forgot Password?</a>
                         </div>
-                        
                         <button type="submit" class="btn-primary">Log In</button>
                     </form>
                     <div class="footer-text">
@@ -193,35 +206,36 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <h2>Create Account</h2>
                     <form action="registration.php" method="POST">
                         <input type="hidden" name="action" value="register">
-                        
                         <div class="input-group">
                             <input type="email" name="email" placeholder="Email (must be @cvsu.edu.ph)" pattern="[a-zA-Z0-9._%+-]+@cvsu\.edu\.ph$" title="Please use your official university account ending in @cvsu.edu.ph" required>
                         </div>
-                        
                         <div class="input-group">
                             <input type="text" name="username" placeholder="Username" required>
                         </div>
-                        
+                        <div class="input-group">
+                            <select name="security_question" class="custom-select" required>
+                                <option value="" disabled selected>Select a Security Question</option>
+                                <option value="What is your elementary school name?">What is your elementary school name?</option>
+                                <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+                                <option value="In what city or town were you born?">In what city or town were you born?</option>
+                                <option value="What is your mother's maiden name?">What is your mother's maiden name?</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <input type="text" name="security_answer" placeholder="Your Security Answer" required>
+                        </div>
                         <div class="input-group">
                             <input type="password" name="password" id="register-password" placeholder="Password (Min 6 characters)" minlength="6" required>
                             <button type="button" class="password-toggle" onclick="togglePasswordVisibility('register-password', this)">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                    <circle cx="12" cy="12" r="3"></circle>
-                                </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                             </button>
                         </div>
-                        
                         <div class="input-group">
                             <input type="password" name="confirm_password" id="register-confirm-password" placeholder="Confirm Password" minlength="6" required>
                             <button type="button" class="password-toggle" onclick="togglePasswordVisibility('register-confirm-password', this)">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                    <circle cx="12" cy="12" r="3"></circle>
-                                </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
                             </button>
                         </div>
-                        
                         <button type="submit" class="btn-primary">Register</button>
                     </form>
                     <div class="footer-text">
@@ -239,19 +253,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 function togglePasswordVisibility(fieldId, toggleButton) {
     const passwordField = document.getElementById(fieldId);
     const svgIcon = toggleButton.querySelector('svg');
-    
     if (passwordField.type === 'password') {
         passwordField.type = 'text';
-        svgIcon.innerHTML = `
-            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-            <line x1="1" y1="1" x2="23" y2="23"></line>
-        `;
+        svgIcon.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>`;
     } else {
         passwordField.type = 'password';
-        svgIcon.innerHTML = `
-            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-            <circle cx="12" cy="12" r="3"></circle>
-        `;
+        svgIcon.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>`;
     }
 }
 
@@ -259,51 +266,34 @@ function hideMessageSmoothly() {
     const msgContainer = document.getElementById('message-container');
     if (msgContainer && msgContainer.classList.contains('reveal-smooth')) {
         msgContainer.classList.remove('reveal-smooth');
-        setTimeout(() => {
-            msgContainer.innerHTML = '';
-        }, 500);
+        setTimeout(() => { msgContainer.innerHTML = ''; }, 500);
     }
 }
 
 function toggleForm(formType) {
-    const card           = document.getElementById('dynamic-card');
-    const loginSection   = document.getElementById('login-section');
+    const card = document.getElementById('dynamic-card');
+    const loginSection = document.getElementById('login-section');
     const registerSection = document.getElementById('register-section');
-    
     hideMessageSmoothly();
 
     if (formType === 'register') {
         loginSection.classList.add('hidden');
         card.classList.add('register-mode');
-        setTimeout(() => {
-            registerSection.classList.remove('hidden');
-        }, 200); 
+        setTimeout(() => { registerSection.classList.remove('hidden'); }, 200); 
     } else {
         registerSection.classList.add('hidden');
         card.classList.remove('register-mode');
-        setTimeout(() => {
-            loginSection.classList.remove('hidden');
-        }, 200);
+        setTimeout(() => { loginSection.classList.remove('hidden'); }, 200);
     }
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-    const msgContainer  = document.getElementById('message-container');
-    const masterWrapper = document.getElementById('masterWrapper');
-
+    const msgContainer = document.getElementById('message-container');
     if (msgContainer && msgContainer.innerHTML.trim() !== "") {
-        setTimeout(() => {
-            msgContainer.classList.add('reveal-smooth');
-        }, 50);
-
-        // FIXED: The success message stays visible for 4 seconds, then slides away cleanly 
-        // without causing an unwanted page exit or jumping straight to loading.html
-        setTimeout(() => {
-            hideMessageSmoothly();
-        }, 4000); 
+        setTimeout(() => { msgContainer.classList.add('reveal-smooth'); }, 50);
+        setTimeout(() => { hideMessageSmoothly(); }, 4000); 
     }
 });
 </script>
-
 </body>
 </html>
