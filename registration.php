@@ -1,9 +1,10 @@
 <?php
 session_start();
-include 'db.php'; // Keeps your database credentials separate and secure
+// Path updated to match the new config folder location
+include 'config/db.php'; 
 
 $message = "";
-$active_form = "login"; // Default state on page load
+$active_form = "login"; 
 $registration_success = false; 
 
 // ---- AUTOMATIC "REMEMBER ME" COOKIE CHECK ----
@@ -32,7 +33,6 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_me'])) {
     }
 }
 
-// Check for redirect flash messages waiting in the session lifecycle
 if (isset($_SESSION['redirect_message'])) {
     $message = $_SESSION['redirect_message'];
     $active_form = $_SESSION['redirect_active_form'] ?? 'login';
@@ -160,7 +160,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>E-LOST KOH, E-FOUND MOH</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="registrationstyle.css">
+    <link rel="stylesheet" href="assets/css/registrationstyle.css">
 </head>
 <body>
 

@@ -1,9 +1,10 @@
 <?php
 session_start();
-include 'db.php';
+// Path updated to match the new config folder location
+include 'config/db.php'; 
 
 $message = "";
-$step = 1; // Step 1: Verify Email & Security Question, Step 2: Overwrite Password
+$step = 1; 
 $fetched_question = "";
 
 if (isset($_SESSION['recovery_email']) && isset($_SESSION['recovery_question'])) {
@@ -28,7 +29,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit();
         }
 
-        // Fetch selected question profile variables metrics directly from the users table context
         $stmt = $conn->prepare("SELECT security_question FROM users WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
@@ -68,7 +68,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             exit();
         }
 
-        // Fetch answer token hash validation mapping bounds
         $stmt = $conn->prepare("SELECT security_answer FROM users WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
@@ -78,7 +77,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $stmt->bind_result($hashed_answer);
             $stmt->fetch();
             
-            // Check challenge input value matching condition metrics securely
             if (password_verify(strtolower($security_answer), $hashed_answer)) {
                 $hashed_password = password_hash($new_password, PASSWORD_BCRYPT);
                 
@@ -114,7 +112,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Account Recovery - E-LOST KOH, E-FOUND MOH</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="registrationstyle.css">
+    <link rel="stylesheet" href="assets/css/registrationstyle.css">
 </head>
 <body>
 
@@ -197,7 +195,7 @@ window.addEventListener('DOMContentLoaded', () => {
     const msgContainer = document.getElementById('message-container');
     if (msgContainer && msgContainer.innerHTML.trim() !== "") {
         setTimeout(() => { msgContainer.classList.add('reveal-smooth'); }, 50);
-        setTimeout(() => { msgContainer.classList.remove('reveal-smooth'); setTimeout(() => { msgContainer.innerHTML = ''; }, 500); }, 5000); 
+        setTimeout(() => { hideMessageSmoothly(); }, 4000); 
     }
 });
 </script>
