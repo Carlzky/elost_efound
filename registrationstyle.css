@@ -21,7 +21,6 @@ body {
     min-height: 100vh;
     box-sizing: border-box;
     overflow-x: hidden;
-    transition: background 1s ease; 
 }
 
 .page-wrapper {
@@ -92,7 +91,7 @@ body {
     box-shadow: 0 35px 80px rgba(0, 0, 0, 0.55), inset 0 4px 8px rgba(255, 255, 255, 0.3);
 }
 
-/* Morphing Card Framework Modules */
+/* FIXED ARCHITECTURE: Optimized heights to balance whitespace distributions */
 .form-card {
     background-color: var(--card-white);
     border-radius: 36px; 
@@ -101,15 +100,15 @@ body {
     overflow: hidden;
     animation: slideUpCard 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
     width: 500px;      
-    min-height: 560px; 
+    height: 510px; /* FIXED: Reduced from 560px to remove the empty bottom gap */
     display: flex;
     flex-direction: column;
-    transition: width 0.85s cubic-bezier(0.25, 1, 0.5, 1), min-height 0.85s cubic-bezier(0.25, 1, 0.5, 1);
+    transition: width 0.65s cubic-bezier(0.25, 1, 0.5, 1), height 0.65s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .form-card.register-mode {
     width: 530px;      
-    min-height: 720px; 
+    height: 760px; /* FIXED: Increased from 720px to allow clean element breathing room */
 }
 
 .form-card::before {
@@ -124,13 +123,9 @@ body {
 }
 
 .form-padding-wrapper {
-    padding: 60px 55px; 
-    box-sizing: border-box;
-    width: 100%;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
     position: relative;
+    width: 100%;
+    height: 100%;
 }
 
 .form-card h2 {
@@ -138,32 +133,33 @@ body {
     color: var(--primary);
     text-align: center;
     margin-top: 0;
-    margin-bottom: 40px;
-    font-size: 36px; 
+    margin-bottom: 30px; /* Unified text pacing */
+    font-size: 34px; 
     font-weight: 700;
     letter-spacing: -0.5px;
 }
 
 /* Form Structural Inputs and Alignment Groups */
 .input-group {
-    margin-bottom: 26px; 
+    margin-bottom: 20px; /* Perfectly uniform gaps between input groups */
     position: relative;
+    width: 100%;
 }
 
-.input-group input {
+.input-group input, .custom-select {
     width: 100%;
-    padding: 18px 55px 18px 24px; 
+    padding: 16px 55px 16px 22px; /* Standardized symmetrical inner input padding box */
     border: 1.5px solid #E2E8F0;
-    border-radius: 18px; 
+    border-radius: 16px; 
     box-sizing: border-box;
     font-family: 'Inter', sans-serif;
-    font-size: 16px; 
+    font-size: 15.5px; 
     background-color: #F8FAFC;
     color: var(--text-dark);
     transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
 }
 
-.input-group input:focus {
+.input-group input:focus, .custom-select:focus {
     outline: none;
     border-color: var(--primary);
     background-color: #FFFFFF;
@@ -174,7 +170,7 @@ body {
 /* Vector SVG Interactive Password Toggle */
 .password-toggle {
     position: absolute;
-    right: 22px;
+    right: 20px;
     top: 50%;
     transform: translateY(-50%);
     background: none;
@@ -213,22 +209,22 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    font-size: 15px; 
+    font-size: 14.5px; 
     color: var(--text-muted);
-    margin-bottom: 35px;
+    margin-bottom: 25px;
 }
 
 .options-row label {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     cursor: pointer;
 }
 
 .options-row input[type="checkbox"] {
     accent-color: var(--primary);
-    width: 20px; 
-    height: 20px;
+    width: 18px; 
+    height: 18px;
     cursor: pointer;
 }
 
@@ -249,10 +245,10 @@ body {
     background: linear-gradient(135deg, var(--primary), var(--primary-dark));
     color: #FFFFFF;
     border: none;
-    padding: 18px; 
-    border-radius: 18px;
+    padding: 16px; 
+    border-radius: 16px;
     font-family: 'Poppins', sans-serif;
-    font-size: 17px; 
+    font-size: 16px; 
     font-weight: 600;
     cursor: pointer;
     text-transform: uppercase;
@@ -266,14 +262,16 @@ body {
     box-shadow: 0 12px 28px rgba(31, 93, 74, 0.4);
 }
 
+/* Standardized Footer Layout and Transitions */
 .footer-text {
     text-align: center;
-    font-size: 15.5px; 
+    font-size: 15px; 
     color: var(--text-muted);
     margin-top: auto; 
-    padding-top: 30px;
+    padding-top: 25px;
 }
 
+/* RESTORED: Growing Underline Hover Animation functionality */
 .footer-text button {
     background: none;
     border: none;
@@ -281,7 +279,7 @@ body {
     font-weight: 700;
     cursor: pointer;
     font-family: 'Inter', sans-serif;
-    font-size: 15.5px;
+    font-size: 15px;
     padding: 0 4px;
     text-decoration: none;
     position: relative;
@@ -312,51 +310,70 @@ body {
 
 /* Card Section View Animation Modules */
 .form-section {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-    transition: opacity 0.6s cubic-bezier(0.25, 1, 0.5, 1), transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.6s;
+    position: absolute; 
+    top: 0;
+    left: 0;
     width: 100%;
+    height: 100%;
+    padding: 50px 45px 35px; /* Clean internal padding parameters */
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    transition: opacity 0.5s cubic-bezier(0.25, 1, 0.5, 1), transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.5s;
+    will-change: opacity, transform;
 }
 
 .form-section.hidden {
     opacity: 0;
-    position: absolute;
-    transform: translateY(20px) scale(0.97); 
     visibility: hidden;
     pointer-events: none;
-    width: calc(100% - 110px); 
+    transform: translateY(15px) scale(0.98); 
 }
 
-/* Fluid Sliding Drop Notice Animations */
+/* Floating Notification alerts overlay */
 #message-container {
-    max-height: 0;
+    position: absolute;
+    top: 15px;
+    left: 50%;
+    width: calc(100% - 90px); 
+    transform: translateX(-50%) translateY(-15px);
     opacity: 0;
-    overflow: hidden;
-    transform: translateY(-8px);
-    transition: max-height 0.5s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.4s cubic-bezier(0.25, 1, 0.5, 1), transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), margin-bottom 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+    pointer-events: none;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    z-index: 100;
 }
 
 #message-container.reveal-smooth {
-    max-height: 120px; 
     opacity: 1;
-    transform: translateY(0);
-    margin-bottom: 24px;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
 }
 
 .msg {
     text-align: center;
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 500;
-    padding: 14px;
-    border-radius: 14px;
+    padding: 12px;
+    border-radius: 12px;
+    margin: 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
 }
 
 .msg.error { color: #C53030; background-color: #FFF5F5; border: 1px solid #FED7D7; }
 .msg.success { color: var(--primary); background-color: #F0FDF4; border: 1px solid #DCFCE7; }
 
-/* Structural Grid Animations and Responsive Breakpoints */
+.custom-select {
+    padding-right: 45px;
+    appearance: none; 
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23718096' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 20px center;
+    background-size: 16px;
+}
+
 @keyframes fadeInAndScale {
     from { opacity: 0; transform: scale(0.88); }
     to { opacity: 1; transform: scale(1); }
@@ -370,33 +387,6 @@ body {
 @media (max-width: 1024px) {
     .container { flex-direction: column; width: 100%; gap: 50px; padding: 25px 0; }
     .brand-side { max-width: 100%; }
-    .form-card, .form-card.register-mode { width: 100%; max-width: 500px; min-height: auto; }
-    .form-section.hidden { position: absolute; width: calc(100% - 110px); }
-}
-
-/* Custom styling to make security dropdown look premium and match inputs */
-.custom-select {
-    width: 100%;
-    padding: 18px 24px;
-    border: 1.5px solid #E2E8F0;
-    border-radius: 18px;
-    box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
-    font-size: 16px;
-    background-color: #F8FAFC;
-    color: var(--text-dark);
-    cursor: pointer;
-    appearance: none; /* Removes native browser arrow */
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23718096' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 20px center;
-    background-size: 16px;
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
-}
-
-.custom-select:focus {
-    outline: none;
-    border-color: var(--primary);
-    background-color: #FFFFFF;
-    box-shadow: 0 0 0 5px rgba(31, 93, 74, 0.15);
+    .form-card, .form-card.register-mode { width: 100%; max-width: 500px; height: auto; }
+    .form-section { position: relative; padding: 40px 25px; }
 }

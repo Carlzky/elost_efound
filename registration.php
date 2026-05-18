@@ -73,7 +73,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         }
         else {
             $hashed_password = password_hash($password, PASSWORD_BCRYPT);
-            // Lowercase hash for answer to make verification input user-friendly
             $hashed_answer = password_hash(strtolower($security_answer), PASSWORD_BCRYPT);
 
             $check = $conn->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
@@ -278,12 +277,12 @@ function toggleForm(formType) {
 
     if (formType === 'register') {
         loginSection.classList.add('hidden');
+        registerSection.classList.remove('hidden');
         card.classList.add('register-mode');
-        setTimeout(() => { registerSection.classList.remove('hidden'); }, 200); 
     } else {
         registerSection.classList.add('hidden');
+        loginSection.classList.remove('hidden');
         card.classList.remove('register-mode');
-        setTimeout(() => { loginSection.classList.remove('hidden'); }, 200);
     }
 }
 
