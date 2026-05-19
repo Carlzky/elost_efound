@@ -24,7 +24,6 @@ $user = $_SESSION['username'];
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
 
 <style>
-
     :root {
         --primary: #1F5D4A;
         --primary-dark: #143F32;
@@ -59,7 +58,6 @@ $user = $_SESSION['username'];
     /* ========================
        SIDEBAR
     ========================= */
-
     .sidebar {
         width: var(--sidebar-width);
         background: var(--primary-green);
@@ -78,6 +76,7 @@ $user = $_SESSION['username'];
         margin-bottom: 40px;
     }
 
+    /* Your Original Logo Box Design Restored */
     .logo-icon {
         width: 58px;
         height: 58px;
@@ -131,16 +130,30 @@ $user = $_SESSION['username'];
         font-weight: 500;
     }
 
-    .nav-item a:hover,
+    .nav-item a:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: white;
+    }
+
+    /* Target Page Active Wrap Formatting */
     .nav-item.active a {
         background: rgba(255, 255, 255, 0.12);
         color: white;
+        font-weight: 500;
+    }
+
+    .nav-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        opacity: 0.8;
     }
 
     /* ========================
        MAIN CONTENT
     ========================= */
-
     .main-content {
         margin-left: var(--sidebar-width);
         width: 100%;
@@ -150,7 +163,6 @@ $user = $_SESSION['username'];
     /* ========================
        TOP BAR
     ========================= */
-
     .top-bar {
         display: flex;
         justify-content: space-between;
@@ -161,6 +173,8 @@ $user = $_SESSION['username'];
     .search-wrapper {
         position: relative;
         width: 300px;
+        display: flex;
+        align-items: center;
     }
 
     .search-wrapper input {
@@ -174,24 +188,33 @@ $user = $_SESSION['username'];
         outline: none;
     }
 
-    .search-icon {
+    .search-icon-svg {
         position: absolute;
         left: 14px;
-        top: 50%;
-        transform: translateY(-50%);
         color: #888;
-        font-size: 14px;
+        pointer-events: none;
     }
 
     .user-profile {
         display: flex;
         align-items: center;
-        gap: 16px;
+        gap: 24px;
     }
 
-    .notif-bell {
-        font-size: 18px;
+    .notif-bell-btn {
+        background: transparent;
+        border: none;
         cursor: pointer;
+        color: #555;
+        transition: transform 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+    }
+
+    .notif-bell-btn:hover {
+        transform: scale(1.08);
     }
 
     .avatar {
@@ -202,9 +225,8 @@ $user = $_SESSION['username'];
     }
 
     /* ========================
-       PAGE TITLE
+       PAGE COMPONENT ELEMENTS
     ========================= */
-
     .page-title {
         font-family: 'Poppins', sans-serif;
         font-size: 30px;
@@ -216,10 +238,6 @@ $user = $_SESSION['username'];
         font-size: 14px;
         margin-bottom: 30px;
     }
-
-    /* ========================
-       STAT CARDS
-    ========================= */
 
     .stats-grid {
         display: grid;
@@ -252,19 +270,11 @@ $user = $_SESSION['username'];
         color: var(--primary-green);
     }
 
-    /* ========================
-       CONTENT GRID
-    ========================= */
-
     .content-grid {
         display: grid;
         grid-template-columns: 2fr 1fr;
         gap: 24px;
     }
-
-    /* ========================
-       SHARED PANEL CARD
-    ========================= */
 
     .panel-card {
         background: var(--pure-white);
@@ -281,10 +291,6 @@ $user = $_SESSION['username'];
         margin-bottom: 22px;
         color: var(--text-dark);
     }
-
-    /* ========================
-       ACTIVITY LIST
-    ========================= */
 
     .activity-item {
         display: flex;
@@ -308,10 +314,6 @@ $user = $_SESSION['username'];
         color: #9A9A9A;
         font-size: 12px;
     }
-
-    /* ========================
-       RECENT ITEMS LIST
-    ========================= */
 
     .recent-item {
         display: flex;
@@ -345,9 +347,8 @@ $user = $_SESSION['username'];
     }
 
     /* ========================
-       LOGOUT MODAL
+       LOGOUT MODAL LAYOUT
     ========================= */
-
     .logout-overlay {
         position: fixed;
         top: 0;
@@ -413,9 +414,7 @@ $user = $_SESSION['username'];
         transition: 0.2s;
     }
 
-    .cancel-btn:hover {
-        background: #E8E8E8;
-    }
+    .cancel-btn:hover { background: #E8E8E8; }
 
     .logout-btn {
         flex: 1;
@@ -431,61 +430,28 @@ $user = $_SESSION['username'];
         transition: 0.2s;
     }
 
-    .logout-btn:hover {
-        background: var(--primary-dark);
-    }
+    .logout-btn:hover { background: var(--primary-dark); }
 
     /* ========================
-       RESPONSIVE
+       RESPONSIVE MATRIX BREAKPOINTS
     ========================= */
-
     @media (max-width: 1024px) {
-        .content-grid {
-            grid-template-columns: 1fr;
-        }
+        .content-grid { grid-template-columns: 1fr; }
     }
 
     @media (max-width: 768px) {
-        .sidebar {
-            width: 78px;
-            padding: 20px 12px;
-        }
-
-        .logo-text,
-        .nav-text {
-            display: none;
-        }
-
-        .nav-item a {
-            justify-content: center;
-            padding: 14px;
-        }
-
-        .main-content {
-            margin-left: 78px;
-            padding: 22px;
-        }
-
-        .top-bar {
-            flex-direction: column;
-            gap: 14px;
-            align-items: stretch;
-        }
-
-        .search-wrapper {
-            width: 100%;
-        }
-
-        .page-title {
-            font-size: 24px;
-        }
+        .sidebar { width: 78px; padding: 20px 12px; }
+        .logo-text, .nav-text { display: none; }
+        .nav-item a { justify-content: center; padding: 14px; }
+        .main-content { margin-left: 78px; padding: 22px; }
+        .top-bar { flex-direction: column; gap: 14px; align-items: stretch; }
+        .search-wrapper { width: 100%; }
+        .page-title { font-size: 24px; }
     }
-
 </style>
 </head>
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
 
     <div class="logo-section">
@@ -494,80 +460,86 @@ $user = $_SESSION['username'];
     </div>
 
     <ul class="nav-menu">
-
         <li class="nav-item active">
             <a href="dashboard.php">
-                🏠
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                </span>
                 <span class="nav-text">Dashboard</span>
             </a>
         </li>
-
         <li class="nav-item">
             <a href="report-item.php">
-                📦
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+                </span>
                 <span class="nav-text">Report Item</span>
             </a>
         </li>
-
         <li class="nav-item">
             <a href="browse-items.php">
-                🔎
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </span>
                 <span class="nav-text">Browse Items</span>
             </a>
         </li>
-
         <li class="nav-item">
             <a href="claim.php">
-                📄
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                </span>
                 <span class="nav-text">My Claims</span>
             </a>
         </li>
-
         <li class="nav-item">
             <a href="notif.php">
-                🔔
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                </span>
                 <span class="nav-text">Notifications</span>
             </a>
         </li>
-
+        <li class="nav-item">
+            <a href="messages.php">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                </span>
+                <span class="nav-text">Messages</span>
+            </a>
+        </li>
         <li class="nav-item" style="margin-top: auto;">
             <a href="#" onclick="openLogoutModal()">
-                🚪
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                </span>
                 <span class="nav-text">Logout</span>
             </a>
         </li>
-
     </ul>
 
 </div>
 
-<!-- MAIN CONTENT -->
 <div class="main-content">
 
-    <!-- TOP BAR -->
     <div class="top-bar">
-
         <div class="search-wrapper">
-            <span class="search-icon">🔍</span>
+            <svg class="search-icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             <input type="text" placeholder="Search items...">
         </div>
 
         <div class="user-profile">
-            <a href="notif.php" style="text-decoration: none; color: inherit;">
-                <span class="notif-bell">🔔</span>
+            <a href="notif.php" class="notif-bell-btn">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
             </a>
             <div class="avatar"></div>
         </div>
-
     </div>
 
-    <!-- PAGE TITLE -->
     <h1 class="page-title">Dashboard</h1>
     <p class="page-subtitle">Welcome back, <?php echo htmlspecialchars($user); ?>!</p>
 
-    <!-- STAT CARDS -->
     <div class="stats-grid">
-
         <div class="stat-card">
             <h3>Total Lost Items</h3>
             <div class="stat-number">
@@ -603,107 +575,63 @@ $user = $_SESSION['username'];
                 ?>
             </div>
         </div>
-
     </div>
 
-    <!-- CONTENT GRID -->
     <div class="content-grid">
-
-        <!-- RECENT ACTIVITY -->
         <div class="panel-card">
-
             <h2>Recent Activity</h2>
-
             <?php
             $sql = "SELECT * FROM report_history ORDER BY action_date DESC LIMIT 5";
             $result = $conn->query($sql);
             while($row = $result->fetch_assoc()):
             ?>
-
             <div class="activity-item">
                 <div>
                     <h4><?php echo htmlspecialchars($row['action_done']); ?></h4>
                     <span><?php echo htmlspecialchars($row['action_date']); ?></span>
                 </div>
             </div>
-
             <?php endwhile; ?>
-
         </div>
 
- <!-- RECENTLY POSTED ITEMS -->
-<div class="panel-card">
-
-    <h2>Recently Posted Items</h2>
-
-    <?php
-    $sql = "SELECT * FROM lost_items
-            ORDER BY created_at DESC
-            LIMIT 3";
-
-    $result = $conn->query($sql);
-    ?>
-
-    <?php if($result->num_rows > 0): ?>
-
-        <?php while($row = $result->fetch_assoc()): ?>
-
+        <div class="panel-card">
+            <h2>Recently Posted Items</h2>
+            <?php
+            $sql = "SELECT * FROM lost_items ORDER BY created_at DESC LIMIT 3";
+            $result = $conn->query($sql);
+            if($result->num_rows > 0):
+                while($row = $result->fetch_assoc()):
+                    $image = !empty($row['item_image']) ? $row['item_image'] : 'uploads/default.png';
+            ?>
             <div class="recent-item">
-
-                <?php
-                $image = !empty($row['item_image'])
-                ? $row['item_image']
-                : 'uploads/default.png';
-                ?>
-
                 <img src="<?php echo htmlspecialchars($image); ?>" alt="">
-
                 <div class="recent-item-info">
-
-                    <h4>
-                        <?php echo htmlspecialchars($row['item_name']); ?>
-                    </h4>
-
-                    <p>
-                        Lost ·
-                        <?php echo htmlspecialchars($row['location_lost']); ?>
-                    </p>
-
+                    <h4><?php echo htmlspecialchars($row['item_name']); ?></h4>
+                    <p>Lost · <?php echo htmlspecialchars($row['location_lost']); ?></p>
                 </div>
-
             </div>
-
-        <?php endwhile; ?>
-
-    <?php else: ?>
-
-        <p style="color:gray;font-size:14px;">
-            No recent items found.
-        </p>
-
-    <?php endif; ?>
-
+            <?php 
+                endwhile;
+            else: 
+            ?>
+            <p style="color:gray;font-size:14px;">No recent items found.</p>
+            <?php endif; ?>
+        </div>
+    </div>
 </div>
 
-<!-- LOGOUT MODAL -->
 <div class="logout-overlay" id="logoutOverlay">
-
     <div class="logout-modal">
-
         <h2>Logout</h2>
         <p>Are you sure you want to logout?</p>
-
         <div class="logout-buttons">
             <button class="cancel-btn" onclick="closeLogoutModal()">Cancel</button>
             <button class="logout-btn" onclick="confirmLogout()">Confirm</button>
         </div>
-
     </div>
-
 </div>
 
 <script>
-    
 function openLogoutModal(){
     document.getElementById("logoutOverlay").style.display = "flex";
 }
