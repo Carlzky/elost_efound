@@ -40,9 +40,7 @@
             color:var(--text-dark);
         }
 
-        /* =========================
-           SIDEBAR
-        ========================== */
+        /* SIDEBAR */
 
         .sidebar{
             width:var(--sidebar-width);
@@ -80,22 +78,6 @@
             align-items:center;
 
             font-size:26px;
-
-            box-shadow:
-                0 12px 30px rgba(0,0,0,0.35),
-                inset 0 3px 6px rgba(255,255,255,0.18);
-
-            transition:
-                transform 0.7s cubic-bezier(0.2,0.8,0.2,1),
-                box-shadow 0.7s cubic-bezier(0.2,0.8,0.2,1);
-        }
-
-        .logo-icon:hover{
-            transform:scale(1.08) translateY(-5px) rotate(4deg);
-
-            box-shadow:
-                0 18px 40px rgba(0,0,0,0.45),
-                inset 0 3px 6px rgba(255,255,255,0.25);
         }
 
         .logo-text{
@@ -136,9 +118,7 @@
             color:white;
         }
 
-        /* =========================
-           MAIN CONTENT
-        ========================== */
+        /* MAIN CONTENT */
 
         .main-content{
             margin-left:var(--sidebar-width);
@@ -152,9 +132,7 @@
             margin-bottom:26px;
         }
 
-        /* =========================
-           CLAIM CARD
-        ========================== */
+        /* CLAIM CARD */
 
         .claim-card{
             background:white;
@@ -173,9 +151,7 @@
             margin-bottom:24px;
         }
 
-        /* =========================
-           TABS
-        ========================== */
+        /* TABS */
 
         .tabs{
             display:flex;
@@ -192,11 +168,6 @@
             cursor:pointer;
             position:relative;
             padding-bottom:10px;
-            transition:0.25s ease;
-        }
-
-        .tab:hover{
-            color:var(--primary);
         }
 
         .tab.active{
@@ -216,9 +187,7 @@
             border-radius:10px;
         }
 
-        /* =========================
-           TABLE
-        ========================== */
+        /* TABLE */
 
         .table-wrapper{
             overflow-x:auto;
@@ -251,9 +220,7 @@
             background:#FCFCFC;
         }
 
-        /* =========================
-           STATUS
-        ========================== */
+        /* STATUS */
 
         .status{
             padding:6px 12px;
@@ -278,31 +245,81 @@
             color:var(--rejected);
         }
 
-        /* =========================
-           ACTIONS
-        ========================== */
+        /* CLICKABLE ITEM */
 
-        .actions{
-            display:flex;
-            gap:12px;
+        .item-link{
+            color:var(--primary);
+            cursor:pointer;
+            font-weight:600;
+        }
+
+        .item-link:hover{
+            text-decoration:underline;
+        }
+
+        /* MODAL */
+
+        .modal{
+            display:none;
+            position:fixed;
+            z-index:999;
+            left:0;
+            top:0;
+            width:100%;
+            height:100%;
+            background:rgba(0,0,0,0.45);
+
+            justify-content:center;
             align-items:center;
         }
 
-        .action-btn{
-            border:none;
-            background:none;
+        .modal-content{
+            background:white;
+            width:760px;
+            max-width:95%;
+            border-radius:20px;
+            padding:28px;
+            position:relative;
+        }
+
+        .close-btn{
+            position:absolute;
+            top:16px;
+            right:20px;
+            font-size:28px;
             cursor:pointer;
-            font-size:16px;
-            transition:0.2s ease;
+            color:#777;
         }
 
-        .action-btn:hover{
-            transform:scale(1.2);
+        .modal-body{
+            display:flex;
+            gap:28px;
         }
 
-        /* =========================
-           RESPONSIVE
-        ========================== */
+        .modal-image img{
+            width:240px;
+            height:280px;
+            object-fit:cover;
+            border-radius:14px;
+            background:#EEE;
+        }
+
+        .modal-details{
+            flex:1;
+        }
+
+        .modal-details h2{
+            font-size:28px;
+            margin-bottom:10px;
+        }
+
+        .detail-row{
+            margin-top:14px;
+            font-size:14px;
+            line-height:1.5;
+        }
+
+        /* RESPONSIVE */
 
         @media(max-width:768px){
 
@@ -332,6 +349,15 @@
 
             .claim-card{
                 padding:20px;
+            }
+
+            .modal-body{
+                flex-direction:column;
+            }
+
+            .modal-image img{
+                width:100%;
+                height:auto;
             }
         }
 
@@ -454,7 +480,6 @@
                             <th>Claimant</th>
                             <th>Date</th>
                             <th>Status</th>
-                            <th>Actions</th>
                         </tr>
 
                     </thead>
@@ -464,7 +489,21 @@
                         <!-- ROW -->
                         <tr data-status="pending">
 
-                            <td>Black Backpack</td>
+                            <td>
+                                <span class="item-link"
+                                    onclick="openModal(
+                                        'Black Backpack',
+                                        'pending',
+                                        'Bag',
+                                        'Bleachers',
+                                        'May 20, 2025 - 10:00 AM',
+                                        'Black backpack with minimal design. Left near the basketball court.',
+                                        'Juan Dela Cruz',
+                                        'https://via.placeholder.com/250'
+                                    )">
+                                    Black Backpack
+                                </span>
+                            </td>
 
                             <td>Juan Dela Cruz</td>
 
@@ -476,57 +515,35 @@
                                 </span>
                             </td>
 
-                            <td>
-
-                                <div class="actions">
-
-                                    <button class="action-btn"
-                                        onclick="approveClaim(this)">
-                                        ✔️
-                                    </button>
-
-                                    <button class="action-btn"
-                                        onclick="rejectClaim(this)">
-                                        ❌
-                                    </button>
-
-                                </div>
-
-                            </td>
-
                         </tr>
 
                         <!-- ROW -->
-                        <tr data-status="pending">
+                        <tr data-status="approved">
 
-                            <td>Silver Watch</td>
+                            <td>
+                                <span class="item-link"
+                                    onclick="openModal(
+                                        'Silver Watch',
+                                        'approved',
+                                        'Watch',
+                                        'Library',
+                                        'May 19, 2025 - 9:30 AM',
+                                        'Silver watch found near the library entrance.',
+                                        'Maria Santos',
+                                        'https://via.placeholder.com/250'
+                                    )">
+                                    Silver Watch
+                                </span>
+                            </td>
 
                             <td>Maria Santos</td>
 
                             <td>May 19, 2025</td>
 
                             <td>
-                                <span class="status pending">
-                                    Pending
+                                <span class="status approved">
+                                    Approved
                                 </span>
-                            </td>
-
-                            <td>
-
-                                <div class="actions">
-
-                                    <button class="action-btn"
-                                        onclick="approveClaim(this)">
-                                        ✔️
-                                    </button>
-
-                                    <button class="action-btn"
-                                        onclick="rejectClaim(this)">
-                                        ❌
-                                    </button>
-
-                                </div>
-
                             </td>
 
                         </tr>
@@ -534,7 +551,21 @@
                         <!-- ROW -->
                         <tr data-status="rejected">
 
-                            <td>ID Card</td>
+                            <td>
+                                <span class="item-link"
+                                    onclick="openModal(
+                                        'ID Card',
+                                        'rejected',
+                                        'Identification',
+                                        'Gym',
+                                        'May 18, 2025 - 1:15 PM',
+                                        'Student ID card found near the gym area.',
+                                        'Joshua Garcia',
+                                        'https://via.placeholder.com/250'
+                                    )">
+                                    ID Card
+                                </span>
+                            </td>
 
                             <td>Joshua Garcia</td>
 
@@ -544,59 +575,6 @@
                                 <span class="status rejected">
                                     Rejected
                                 </span>
-                            </td>
-
-                            <td>
-
-                                <div class="actions">
-
-                                    <button class="action-btn"
-                                        onclick="approveClaim(this)">
-                                        ✔️
-                                    </button>
-
-                                    <button class="action-btn"
-                                        onclick="rejectClaim(this)">
-                                        ❌
-                                    </button>
-
-                                </div>
-
-                            </td>
-
-                        </tr>
-
-                        <!-- ROW -->
-                        <tr data-status="approved">
-
-                            <td>Wallet</td>
-
-                            <td>Carlo Reyes</td>
-
-                            <td>May 17, 2025</td>
-
-                            <td>
-                                <span class="status approved">
-                                    Approved
-                                </span>
-                            </td>
-
-                            <td>
-
-                                <div class="actions">
-
-                                    <button class="action-btn"
-                                        onclick="approveClaim(this)">
-                                        ✔️
-                                    </button>
-
-                                    <button class="action-btn"
-                                        onclick="rejectClaim(this)">
-                                        ❌
-                                    </button>
-
-                                </div>
-
                             </td>
 
                         </tr>
@@ -611,23 +589,84 @@
 
     </div>
 
+    <!-- MODAL -->
+    <div class="modal" id="itemModal">
+
+        <div class="modal-content">
+
+            <span class="close-btn"
+                onclick="closeModal()">
+                &times;
+            </span>
+
+            <div class="modal-body">
+
+                <div class="modal-image">
+
+                    <img id="modalImage"
+                        src=""
+                        alt="Item">
+
+                </div>
+
+                <div class="modal-details">
+
+                    <h2 id="modalTitle">
+                        Item Name
+                    </h2>
+
+                    <span class="status"
+                        id="modalStatus">
+                        Pending
+                    </span>
+
+                    <div class="detail-row">
+                        <strong>Category:</strong>
+                        <span id="modalCategory"></span>
+                    </div>
+
+                    <div class="detail-row">
+                        <strong>Location:</strong>
+                        <span id="modalLocation"></span>
+                    </div>
+
+                    <div class="detail-row">
+                        <strong>Date:</strong>
+                        <span id="modalDate"></span>
+                    </div>
+
+                    <div class="detail-row">
+                        <strong>Description:</strong>
+                        <span id="modalDescription"></span>
+                    </div>
+
+                    <div class="detail-row">
+                        <strong>Posted By:</strong>
+                        <span id="modalUser"></span>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
     <!-- JAVASCRIPT -->
     <script>
 
         // FILTER CLAIMS
         function filterClaims(status, clickedTab){
 
-            // REMOVE ACTIVE CLASS
             const tabs = document.querySelectorAll('.tab');
 
             tabs.forEach(tab => {
                 tab.classList.remove('active');
             });
 
-            // ADD ACTIVE CLASS
             clickedTab.classList.add('active');
 
-            // FILTER ROWS
             const rows = document.querySelectorAll('#claimsTable tr');
 
             rows.forEach(row => {
@@ -654,33 +693,70 @@
 
         }
 
-        // APPROVE CLAIM
-        function approveClaim(button){
+        // OPEN MODAL
+        function openModal(
+            title,
+            status,
+            category,
+            location,
+            date,
+            description,
+            user,
+            image
+        ){
 
-            const row = button.closest('tr');
+            document.getElementById('modalTitle').innerText =
+                title;
 
-            row.dataset.status = 'approved';
+            document.getElementById('modalCategory').innerText =
+                category;
 
-            row.querySelector('.status').className =
-                'status approved';
+            document.getElementById('modalLocation').innerText =
+                location;
 
-            row.querySelector('.status').innerText =
-                'Approved';
+            document.getElementById('modalDate').innerText =
+                date;
 
+            document.getElementById('modalDescription').innerText =
+                description;
+
+            document.getElementById('modalUser').innerText =
+                user;
+
+            document.getElementById('modalImage').src =
+                image;
+
+            const statusElement =
+                document.getElementById('modalStatus');
+
+            statusElement.innerText =
+                status.charAt(0).toUpperCase() + status.slice(1);
+
+            statusElement.className =
+                'status ' + status;
+
+            document.getElementById('itemModal').style.display =
+                'flex';
         }
 
-        // REJECT CLAIM
-        function rejectClaim(button){
+        // CLOSE MODAL
+        function closeModal(){
 
-            const row = button.closest('tr');
+            document.getElementById('itemModal').style.display =
+                'none';
+        }
 
-            row.dataset.status = 'rejected';
+        // CLOSE WHEN CLICK OUTSIDE
+        window.onclick = function(event){
 
-            row.querySelector('.status').className =
-                'status rejected';
+            const modal =
+                document.getElementById('itemModal');
 
-            row.querySelector('.status').innerText =
-                'Rejected';
+            if(event.target === modal){
+
+                closeModal();
+
+            }
 
         }
 
