@@ -386,7 +386,7 @@ body{
         <li><a href="#">Report Found Item</a></li>
         <li><a href="browse-items.php">Browse Items</a></li>
         <li><a href="#">My Claims</a></li>
-        <li><a href="#">Notifications</a></li>
+        <li><a href="notif.php">Notifications</a></li>
         <li><a href="#" onclick="openLogoutModal()">Logout</a></li>
     </ul>
 

@@ -331,7 +331,7 @@
             <li class="nav-item active"><a href="report-item.php"><span class="nav-text">Report Item</span></a></li>
             <li class="nav-item"><a href="browse-items.php"><span class="nav-text">Browse Items</span></a></li>
             <li class="nav-item"><a href="#"><span class="nav-text">My Claims</span></a></li>
-            <li class="nav-item"><a href="#"><span class="nav-text">Notifications</span></a></li>
+            <li class="nav-item"><a href="notif.php"><span class="nav-text">Notifications</span></a></li>
             <li class="nav-item" style="margin-top: auto;"><a href="logout.php"><span class="nav-text">Logout</span></a></li>
         </ul>
     </div>
