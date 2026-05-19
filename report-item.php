@@ -50,7 +50,7 @@
         .logo-section {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 14px;
             margin-bottom: 40px;
         }
 
@@ -86,9 +86,10 @@
         
 
         .logo-text {
-            font-family: 'Poppins', sans-serif;
-            font-size: 14px;
-            line-height: 1.2;
+            font-family:'Poppins', sans-serif;
+            font-size:15px;
+            line-height:1.3;
+            font-weight:600;
         }
 
         .nav-menu {
@@ -96,6 +97,7 @@
             display: flex;
             flex-direction: column;
             gap: 8px;
+            height:100%;
         }
 
         .nav-item a {
@@ -327,12 +329,12 @@
             <div class="logo-text">E-LOST KOH<br>E-FOUND MOH</div>
         </div>
         <ul class="nav-menu">
-            <li class="nav-item"><a href="dashboard.php"><span class="nav-text">Dashboard</span></a></li>
-            <li class="nav-item active"><a href="report-item.php"><span class="nav-text">Report Item</span></a></li>
-            <li class="nav-item"><a href="browse-items.php"><span class="nav-text">Browse Items</span></a></li>
-            <li class="nav-item"><a href="#"><span class="nav-text">My Claims</span></a></li>
-            <li class="nav-item"><a href="notif.php"><span class="nav-text">Notifications</span></a></li>
-            <li class="nav-item" style="margin-top: auto;"><a href="logout.php"><span class="nav-text">Logout</span></a></li>
+            <li class="nav-item"><a href="dashboard.php">🏠<span class="nav-text">Dashboard</span></a></li>
+            <li class="nav-item active"><a href="report-item.php">📦<span class="nav-text">Report Item</span></a></li>
+            <li class="nav-item"><a href="browse-items.php">🔎<span class="nav-text">Browse Items</span></a></li>
+            <li class="nav-item"><a href="claim.php">📄<span class="nav-text">My Claims</span></a></li>
+            <li class="nav-item"><a href="notif.php">🔔<span class="nav-text">Notifications</span></a></li>
+            <li class="nav-item" style="margin-top: auto;"><a href="logout.php">🚪<span class="nav-text">Logout</span></a></li>
         </ul>
     </div>
 
