@@ -25,7 +25,7 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_me'])) {
                 $_SESSION['user_id'] = $user_id;
                 $_SESSION['username'] = $username;
                 
-                header("Location: loading.html");
+                header("Location: loading.html?redirect=dashboard");
                 exit();
             }
         }
@@ -137,8 +137,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     setcookie('remember_me', $selector . ':' . $validator, time() + (86400 * 30), "/", "", false, true);
                 }
                 
-                header("Location: loading.html");
-                exit();
+               header("Location: loading.html?redirect=dashboard");
+               exit();
             } else {
                 $_SESSION['redirect_message'] = "<div class='msg error'>Invalid password!</div>";
             }
