@@ -327,8 +327,7 @@
         </div>
         <ul class="nav-menu">
             <li class="nav-item"><a href=" dashboard.php"><span class="nav-text">Dashboard</span></a></li>
-            <li class="nav-item"><a href="report-item.php"><span class="nav-text">Report Lost Item</span></a></li>
-            <li class="nav-item"><a href="report-item.php"><span class="nav-text">Report Found Item</span></a></li>
+            <li class="nav-item"><a href="report-item.php"><span class="nav-text">Report Item</span></a></li>
             <li class="nav-item active"><a href="browse-items.php"><span class="nav-text">Browse Items</span></a></li>
             <li class="nav-item"><a href="#"><span class="nav-text">My Claims</span></a></li>
             <li class="nav-item"><a href="#"><span class="nav-text">Notifications</span></a></li>
