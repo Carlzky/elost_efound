@@ -344,7 +344,9 @@
                 <input type="text" placeholder="Search items...">
             </div>
             <div class="user-profile">
-                <span>🔔</span>
+                <a href="notif.php" style="text-decoration: none; color: inherit;">
+                    <span class="notif-bell">🔔</span>
+                </a>
                 <div class="avatar"></div>
             </div>
         </div>
