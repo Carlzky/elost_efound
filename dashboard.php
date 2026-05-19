@@ -553,7 +553,9 @@ $user = $_SESSION['username'];
         </div>
 
         <div class="user-profile">
-            <span class="notif-bell">🔔</span>
+            <a href="notif.php" style="text-decoration: none; color: inherit;">
+                <span class="notif-bell">🔔</span>
+            </a>
             <div class="avatar"></div>
         </div>
 
