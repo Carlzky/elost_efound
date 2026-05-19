@@ -553,7 +553,9 @@ $user = $_SESSION['username'];
         </div>
 
         <div class="user-profile">
-            <span class="notif-bell">🔔</span>
+            <a href="notif.php" style="text-decoration: none; color: inherit;">
+                <span class="notif-bell">🔔</span>
+            </a>
             <div class="avatar"></div>
         </div>
 
@@ -629,30 +631,57 @@ $user = $_SESSION['username'];
 
         </div>
 
-        <!-- RECENTLY POSTED ITEMS -->
-        <div class="panel-card">
+ <!-- RECENTLY POSTED ITEMS -->
+<div class="panel-card">
 
-            <h2>Recently Posted Items</h2>
+    <h2>Recently Posted Items</h2>
 
-            <?php
-            $sql = "SELECT * FROM lost_items ORDER BY created_at DESC LIMIT 3";
-            $result = $conn->query($sql);
-            while($row = $result->fetch_assoc()):
-            ?>
+    <?php
+    $sql = "SELECT * FROM lost_items
+            ORDER BY created_at DESC
+            LIMIT 3";
+
+    $result = $conn->query($sql);
+    ?>
+
+    <?php if($result->num_rows > 0): ?>
+
+        <?php while($row = $result->fetch_assoc()): ?>
 
             <div class="recent-item">
-                <img src="<?php echo htmlspecialchars($row['item_image']); ?>" alt="">
+
+                <?php
+                $image = !empty($row['item_image'])
+                ? $row['item_image']
+                : 'uploads/default.png';
+                ?>
+
+                <img src="<?php echo htmlspecialchars($image); ?>" alt="">
+
                 <div class="recent-item-info">
-                    <h4><?php echo htmlspecialchars($row['item_name']); ?></h4>
-                    <p>Lost · <?php echo htmlspecialchars($row['location_lost']); ?></p>
+
+                    <h4>
+                        <?php echo htmlspecialchars($row['item_name']); ?>
+                    </h4>
+
+                    <p>
+                        Lost ·
+                        <?php echo htmlspecialchars($row['location_lost']); ?>
+                    </p>
+
                 </div>
+
             </div>
 
-            <?php endwhile; ?>
+        <?php endwhile; ?>
 
-        </div>
+    <?php else: ?>
 
-    </div>
+        <p style="color:gray;font-size:14px;">
+            No recent items found.
+        </p>
+
+    <?php endif; ?>
 
 </div>
 
