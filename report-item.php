@@ -345,8 +345,9 @@
         </div>
 
         <div class="form-card">
-            <form action="#" method="POST" enctype="multipart/form-data">
-                
+            <form action="save_report.php" method="POST" enctype="multipart/form-data">
+            <input type="hidden" name="type" id="item-type" value="lost">
+            
                 <div class="toggle-container">
                     <button type="button" class="toggle-btn active" id="btn-lost">Lost Item</button>
                     <button type="button" class="toggle-btn" id="btn-found">Found Item</button>
@@ -357,29 +358,29 @@
                     <div class="fields-left">
                         <div class="form-group">
                             <label>Item Name</label>
-                            <input type="text" placeholder="e.g. Black Backpack" required>
+                            <input type="text" name="item_name" placeholder="e.g. Black Backpack" required>
                         </div>
 
                         <div class="form-group">
                             <label>Location</label>
-                            <input type="text" placeholder="e.g. Canteen" required>
+                            <input type="text" name="location" placeholder="e.g. Canteen" required>
                         </div>
 
                         <div class="form-group">
                             <label id="date-label">Date Lost</label>
-                            <input type="date" required>
+                            <input type="date" name="date" required>
                         </div>
 
                         <div class="form-group" style="margin-bottom: 0;">
                             <label>Description</label>
-                            <textarea placeholder="Provide more details..." required></textarea>
+                            <textarea name="description" placeholder="Provide more details..." required></textarea>
                         </div>
                     </div>
 
                     <div class="fields-right">
                         <div class="form-group">
                             <label>Category</label>
-                            <select required>
+                            <select name="category" required>
                                 <option value="" disabled open selected>Select category</option>
                                 <option value="bags">Bag / Backpack</option>
                                 <option value="electronics">Electronics / Gadgets</option>
@@ -424,12 +425,14 @@
             btnLost.classList.add('active');
             btnFound.classList.remove('active');
             dateLabel.textContent = 'Date Lost';
+            document.getElementById('item-type').value = "lost";
         });
 
         btnFound.addEventListener('click', () => {
             btnFound.classList.add('active');
             btnLost.classList.remove('active');
             dateLabel.textContent = 'Date Found';
+            document.getElementById('item-type').value = "found";
         });
 
         // Click-to-upload hook handler
