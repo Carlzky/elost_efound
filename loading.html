@@ -182,7 +182,18 @@
                 
                 // Step 2: Once CSS fade animation has safely concluded, route seamlessly to destination
                 setTimeout(() => {
-                    window.location.href = 'AAAAAAAAA';
+                    const params = new URLSearchParams(window.location.search);
+                    const redirect = params.get("redirect");
+
+                    if (redirect === "dashboard") {
+                     window.location.href = "/elost_efound/dashboard.php";
+                    }
+                    else if (redirect === "login") {
+                     window.location.href = "/elost_efound/registration.php";
+                    }
+                    else {
+                     window.location.href = "/elost_efound/registration.php";
+                    }
                 }, 800); // Matches the 0.8s CSS wrapper transition duration perfectly
 
             }, holdDuration);
