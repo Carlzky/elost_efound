@@ -325,7 +325,7 @@
     <div class="sidebar">
         <div class="logo-section">
             <div class="logo-icon">🔍</div>
-            <div class="logo-text">E-LOST KOH<br>E-FOUND MOH</div>
+            <div class="logo-text">E-LOST MOH<br>E-FOUND KOH</div>
         </div>
         <ul class="nav-menu">
             <li class="nav-item"><a href=" dashboard.php">🏠<span class="nav-text">Dashboard</span></a></li>
@@ -402,7 +402,11 @@
         </div>
     </div>
 
+
+
+</div>
     <script>
+        
         const tabs = document.querySelectorAll('.tab');
         const cards = document.querySelectorAll('.item-card');
         const searchInput = document.querySelector('.search-wrapper input');

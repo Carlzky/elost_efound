@@ -377,8 +377,8 @@
             </div>
 
             <div class="logo-text">
-                E-LOST KOH<br>
-                E-FOUND MOH
+                E-LOST MOH<br>
+                E-FOUND KOH
             </div>
 
         </div>

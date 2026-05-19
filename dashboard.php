@@ -490,7 +490,7 @@ $user = $_SESSION['username'];
 
     <div class="logo-section">
         <div class="logo-icon">🔍</div>
-        <div class="logo-text">E-LOST KOH<br>E-FOUND MOH</div>
+        <div class="logo-text">E-LOST MOH<br>E-FOUND KOH</div>
     </div>
 
     <ul class="nav-menu">
@@ -674,6 +674,7 @@ $user = $_SESSION['username'];
 </div>
 
 <script>
+    
 function openLogoutModal(){
     document.getElementById("logoutOverlay").style.display = "flex";
 }
