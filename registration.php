@@ -1,11 +1,17 @@
 <?php
 session_start();
-// Path updated to match the new config folder location
+// Dynamic path aligned to your config folder structure
 include 'config/db.php'; 
 
 $message = "";
 $active_form = "login"; 
 $registration_success = false; 
+
+// Defaults to "Welcome" for first-time visitors
+$greeting = "Welcome"; 
+if (isset($_COOKIE['has_visited'])) {
+    $greeting = "Welcome Back";
+}
 
 // ---- AUTOMATIC "REMEMBER ME" COOKIE CHECK ----
 if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_me'])) {
@@ -137,8 +143,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     setcookie('remember_me', $selector . ':' . $validator, time() + (86400 * 30), "/", "", false, true);
                 }
                 
-               header("Location: loading.html?redirect=dashboard");
-               exit();
+                header("Location: loading.html?redirect=dashboard");
+                exit();
             } else {
                 $_SESSION['redirect_message'] = "<div class='msg error'>Invalid password!</div>";
             }
@@ -169,7 +175,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         
         <div class="brand-side">
             <div class="logo-box">🔍</div>
-            <h1>E-LOST <span>MOH</span><br>E-FOUND <span>KOH</span></h1>
+            <h1>E-LOST <span>KOH</span><br>E-FOUND <span>MOH</span></h1>
         </div>
 
         <div id="dynamic-card" class="form-card <?php echo ($active_form == 'register') ? 'register-mode' : ''; ?>">
@@ -178,7 +184,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <div id="message-container"><?php echo $message; ?></div>
 
                 <div id="login-section" class="form-section <?php echo ($active_form == 'login') ? '' : 'hidden'; ?>">
-                    <h2>Welcome Back</h2>
+                    <h2><?php echo htmlspecialchars($greeting); ?></h2>
+                    
                     <form action="registration.php" method="POST">
                         <input type="hidden" name="action" value="login">
                         <div class="input-group">

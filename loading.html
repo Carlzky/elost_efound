@@ -169,8 +169,7 @@
     </div>
 
     <script>
-        // Deliberate cinematic timer configuration delay steps (e.g., 3.5 seconds)
-        // Gives your client plenty of time to appreciate the premium fluid layout structure
+        // Deliberate cinematic timer configuration delay steps (3.5 seconds)
         const holdDuration = 3500; 
 
         window.addEventListener('DOMContentLoaded', () => {
@@ -185,14 +184,15 @@
                     const params = new URLSearchParams(window.location.search);
                     const redirect = params.get("redirect");
 
+                    // FIXED: Replaced absolute server routing subfolders with secure relative paths
                     if (redirect === "dashboard") {
-                     window.location.href = "/elost_efound/dashboard.php";
+                        window.location.href = "dashboard.php";
                     }
                     else if (redirect === "login") {
-                     window.location.href = "/elost_efound/registration.php";
+                        window.location.href = "registration.php";
                     }
                     else {
-                     window.location.href = "/elost_efound/registration.php";
+                        window.location.href = "registration.php";
                     }
                 }, 800); // Matches the 0.8s CSS wrapper transition duration perfectly
 
