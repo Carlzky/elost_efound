@@ -1,3 +1,8 @@
+<?php
+session_start();
+include "config/db.php";
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -359,47 +364,135 @@
         </div>
 
         <div class="filter-bar">
-            <select class="select-input"><option>Category</option></select>
-            <select class="select-input"><option>Location</option></select>
-            <select class="select-input"><option>Newest</option></select>
-            <button class="btn-filter">🎛️ Filter</button>
-        </div>
 
+    <select class="select-input" id="categoryFilter">
+        <option value="">All Categories</option>
+        <option value="bags">Bag / Backpack</option>
+        <option value="electronics">Electronics / Gadgets</option>
+        <option value="documents">Documents / ID Cards</option>
+        <option value="wallets">Wallets / Purses</option>
+    </select>
+
+    <select class="select-input" id="locationFilter">
+        <option value="">All Locations</option>
+        <option value="canteen">Canteen</option>
+        <option value="library">Library</option>
+        <option value="gym">Gym</option>
+        <option value="admin bldg">Admin Bldg</option>
+    </select>
+
+    <select class="select-input" id="sortFilter">
+        <option value="newest">Newest</option>
+        <option value="oldest">Oldest</option>
+    </select>
+
+    <button class="btn-filter" onclick="filterItems()">🎛️ Filter</button>
+
+</div>
         <div id="no-results-message" style="display: none; text-align: center; color: var(--dark-gray); padding: 40px; font-weight: 500; font-size: 16px;"></div>
 
         <div class="items-grid">
             
-            <div class="item-card">
-                <div class="card-image-box">🎒 Backpack Image</div>
-                <div class="card-title">Black Backpack</div>
-                <div class="card-meta"><span class="status-lost">Lost</span> • Canteen</div>
-                <div class="card-date">May 20, 2026</div>
-                <a href="item-details.php?id=1" class="btn-view-details">View Details</a>
-            </div>
+            <?php
 
-            <div class="item-card">
-                <div class="card-image-box">⌚ Watch Image</div>
-                <div class="card-title">Silver Watch</div>
-                <div class="card-meta"><span class="status-found">Found</span> • Library</div>
-                <div class="card-date">May 19, 2026</div>
-                <a href="item-details.php?id=2" class="btn-view-details">View Details</a>
-            </div>
+$sql = "
 
-            <div class="item-card">
-                <div class="card-image-box">🎧 Earbuds Image</div>
-                <div class="card-title">White Earbuds</div>
-                <div class="card-meta"><span class="status-lost">Lost</span> • Gym</div>
-                <div class="card-date">May 18, 2026</div>
-                <a href="item-details.php?id=3" class="btn-view-details">View Details</a>
-            </div>
+SELECT 
+    lost_id AS item_id,
+    item_name,
+    category,
+    location_lost AS location,
+    date_lost AS item_date,
+    item_image,
+    'lost' AS item_type
+FROM lost_items
 
-            <div class="item-card">
-                <div class="card-image-box">🪪 ID Image</div>
-                <div class="card-title">ID Card</div>
-                <div class="card-meta"><span class="status-found">Found</span> • Admin Bldg</div>
-                <div class="card-date">May 18, 2026</div>
-                <a href="item-details.php?id=4" class="btn-view-details">View Details</a>
-            </div>
+UNION ALL
+
+SELECT 
+    found_id AS item_id,
+    item_name,
+    category,
+    location_found AS location,
+    date_found AS item_date,
+    item_image,
+    'found' AS item_type
+FROM found_items
+
+ORDER BY item_date DESC
+
+";
+
+$result = $conn->query($sql);
+
+if($result && $result->num_rows > 0):
+
+    while($row = $result->fetch_assoc()):
+
+        $image = !empty($row['item_image'])
+            ? $row['item_image']
+            : 'uploads/default.png';
+
+?>
+
+<div class="item-card"
+    data-category="<?php echo strtolower($row['category']); ?>"
+    data-location="<?php echo strtolower($row['location']); ?>"
+    data-type="<?php echo strtolower($row['item_type']); ?>"
+    data-date="<?php echo $row['item_date']; ?>"
+>
+
+    <div class="card-image-box">
+
+        <img 
+            src="<?php echo htmlspecialchars($image); ?>" 
+            alt="Item Image"
+            style="width:100%; height:100%; object-fit:cover;"
+        >
+
+    </div>
+
+    <div class="card-title">
+        <?php echo htmlspecialchars($row['item_name']); ?>
+    </div>
+
+    <div class="card-meta">
+
+        <?php if($row['item_type'] == 'lost'): ?>
+
+            <span class="status-lost">Lost</span>
+
+        <?php else: ?>
+
+            <span class="status-found">Found</span>
+
+        <?php endif; ?>
+
+        • <?php echo htmlspecialchars($row['location']); ?>
+
+    </div>
+
+    <div class="card-date">
+        <?php echo date("F d, Y", strtotime($row['item_date'])); ?>
+    </div>
+
+    <a href="item-details.php?id=<?php echo $row['item_id']; ?>" class="btn-view-details">
+        View Details
+    </a>
+
+</div>
+
+<?php
+
+    endwhile;
+
+else:
+
+?>
+
+<p style="color:gray;">No items found.</p>
+
+<?php endif; ?>
 
         </div>
     </div>
@@ -408,70 +501,153 @@
 
 </div>
     <script>
-        
-        const tabs = document.querySelectorAll('.tab');
-        const cards = document.querySelectorAll('.item-card');
-        const searchInput = document.querySelector('.search-wrapper input');
-        const noResultsMessage = document.getElementById('no-results-message');
 
-        function filterItems() {
-            const searchText = searchInput.value.toLowerCase().trim();
-            const originalSearchText = searchInput.value.trim();
-            const activeTab = document.querySelector('.tab.active').textContent.trim().toLowerCase();
-            
-            let visibleCardsCount = 0;
+const tabs = document.querySelectorAll('.tab');
 
-            cards.forEach(card => {
-                const cardTitle = card.querySelector('.card-title').textContent.toLowerCase();
-                const cardMeta = card.querySelector('.card-meta').textContent.toLowerCase();
+const searchInput = document.querySelector('.search-wrapper input');
 
-                // If user is typing something, search EVERYTHING
-                if (searchText !== "") {
-                    if (cardTitle.includes(searchText) || cardMeta.includes(searchText)) {
-                        card.style.display = ''; // Clears display to fall back on native CSS grid rule
-                        visibleCardsCount++;
-                    } else {
-                        card.style.display = 'none';
-                    }
-                } 
-                // If search bar is empty, fall back to normal tab filtering
-                else {
-                    const matchesTab = activeTab.includes('lost') ? cardMeta.includes('lost') : cardMeta.includes('found');
-                    if (matchesTab) {
-                        card.style.display = ''; // Clears display to fall back on native CSS grid rule
-                        visibleCardsCount++;
-                    } else {
-                        card.style.display = 'none';
-                    }
-                }
-            });
+const noResultsMessage = document.getElementById('no-results-message');
 
-            // Handle empty search feedback response
-            if (visibleCardsCount === 0 && searchText !== "") {
-                noResultsMessage.textContent = `No "${originalSearchText}" Found`;
-                noResultsMessage.style.display = 'block';
-            } else {
-                noResultsMessage.style.display = 'none';
-            }
+function filterItems() {
+
+    const cards = document.querySelectorAll('.item-card');
+
+    const searchText = searchInput.value.toLowerCase().trim();
+
+    const category =
+        document.getElementById('categoryFilter')
+        .value
+        .toLowerCase();
+
+    const location =
+        document.getElementById('locationFilter')
+        .value
+        .toLowerCase();
+
+    const sort =
+        document.getElementById('sortFilter')
+        .value;
+
+    const activeTab =
+        document.querySelector('.tab.active')
+        .textContent
+        .toLowerCase();
+
+    let visibleCards = [];
+
+    cards.forEach(card => {
+
+        const title =
+            card.querySelector('.card-title')
+            .textContent
+            .toLowerCase();
+
+        const meta =
+            card.querySelector('.card-meta')
+            .textContent
+            .toLowerCase();
+
+        const cardCategory =
+            card.dataset.category;
+
+        const cardLocation =
+            card.dataset.location;
+
+        const cardType =
+            card.dataset.type;
+
+        let matches = true;
+
+        if(searchText &&
+           !title.includes(searchText) &&
+           !meta.includes(searchText)) {
+
+            matches = false;
         }
 
-        // Listener 1: Tab Switching Event
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                searchInput.value = ""; 
-                tabs.forEach(t => t.classList.remove('active'));
-                tab.classList.add('active');
-                filterItems(); 
-            });
-        });
+        if(category &&
+           cardCategory !== category) {
 
-        // Listener 2: Typing Event
-        searchInput.addEventListener('input', () => {
-            filterItems(); 
-        });
+            matches = false;
+        }
 
-        // Initialize layout on page load
+        if(location &&
+           !cardLocation.includes(location)) {
+
+            matches = false;
+        }
+
+        if(activeTab.includes('lost') &&
+           cardType !== 'lost') {
+
+            matches = false;
+        }
+
+        if(activeTab.includes('found') &&
+           cardType !== 'found') {
+
+            matches = false;
+        }
+
+        if(matches) {
+
+            card.style.display = '';
+
+            visibleCards.push(card);
+
+        } else {
+
+            card.style.display = 'none';
+        }
+    });
+
+    const grid = document.querySelector('.items-grid');
+
+    visibleCards.sort((a, b) => {
+
+        const dateA = new Date(a.dataset.date);
+
+        const dateB = new Date(b.dataset.date);
+
+        return sort === 'newest'
+            ? dateB - dateA
+            : dateA - dateB;
+    });
+
+    visibleCards.forEach(card => {
+        grid.appendChild(card);
+    });
+
+
+    if(visibleCards.length === 0) {
+
+        noResultsMessage.style.display = 'block';
+
+        noResultsMessage.textContent =
+            "No matching items found.";
+
+    } else {
+
+        noResultsMessage.style.display = 'none';
+    }
+}
+
+tabs.forEach(tab => {
+
+    tab.addEventListener('click', () => {
+
+        tabs.forEach(t => t.classList.remove('active'));
+
+        tab.classList.add('active');
+
         filterItems();
-    </script>
+    });
+});
+
+searchInput.addEventListener('input', filterItems);
+
+filterItems();
+
+</script>
 </body>
 </html>
