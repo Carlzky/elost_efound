@@ -74,9 +74,45 @@ if ($type == "lost") {
 }
 
 if ($stmt->execute()) {
+
+
+    $report_id = $conn->insert_id;
+
+
+    if ($type == "lost") {
+
+        $report_type = "Lost";
+        $action_done = "Reported a lost item: " . $item_name;
+
+    } else {
+
+        $report_type = "Found";
+        $action_done = "Reported a found item: " . $item_name;
+    }
+
+    
+    $history_sql = "INSERT INTO report_history
+    (user_id, report_type, report_id, action_done)
+    VALUES (?, ?, ?, ?)";
+
+    $history_stmt = $conn->prepare($history_sql);
+
+    $history_stmt->bind_param(
+        "isis",
+        $user_id,
+        $report_type,
+        $report_id,
+        $action_done
+    );
+
+    $history_stmt->execute();
+
+
     header("Location: browse-items.php?success=1");
     exit();
+
 } else {
+
     echo "Error: " . $stmt->error;
 }
 

@@ -597,7 +597,28 @@ $user = $_SESSION['username'];
         <div class="panel-card">
             <h2>Recently Posted Items</h2>
             <?php
-            $sql = "SELECT * FROM lost_items ORDER BY created_at DESC LIMIT 3";
+            $sql = "
+                SELECT 
+                item_name,
+                item_image,
+                location_lost AS location,
+                created_at,
+                'Lost' AS item_type
+                FROM lost_items
+
+                UNION ALL
+
+                SELECT 
+                item_name,
+                item_image,
+                location_found AS location,
+                created_at,
+                'Found' AS item_type
+                FROM found_items
+
+                ORDER BY created_at DESC
+                LIMIT 3
+                ";
             $result = $conn->query($sql);
             if($result->num_rows > 0):
                 while($row = $result->fetch_assoc()):
@@ -607,7 +628,10 @@ $user = $_SESSION['username'];
                 <img src="<?php echo htmlspecialchars($image); ?>" alt="">
                 <div class="recent-item-info">
                     <h4><?php echo htmlspecialchars($row['item_name']); ?></h4>
-                    <p>Lost · <?php echo htmlspecialchars($row['location_lost']); ?></p>
+                    <p>
+    <?php echo htmlspecialchars($row['item_type']); ?> ·
+    <?php echo htmlspecialchars($row['location']); ?>
+</p>
                 </div>
             </div>
             <?php 
