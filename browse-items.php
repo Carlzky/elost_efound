@@ -7,6 +7,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600&display=swap" rel="stylesheet">
     <style>
         :root {
+            --primary: #1F5D4A;
+            --primary-dark: #143F32;
+            --gold: #F1B846;
             --primary-green: #1F5D4A;
             --light-green: #BBC34A;
             --dark-gray: #68735C;
@@ -52,15 +55,33 @@
         }
 
         .logo-icon {
-            background-color: var(--light-green);
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
+            width: 58px;
+            height: 58px;
+            background: linear-gradient(135deg, #1F5D4A, #143F32);
+            border: 2px solid #F1B846;
+            border-radius: 16px;
+
             display: flex;
-            align-items: center;
             justify-content: center;
-            color: var(--primary-green);
-            font-weight: bold;
+            align-items: center;
+
+            font-size: 26px;
+
+            box-shadow:
+                0 12px 30px rgba(0, 0, 0, 0.35),
+                inset 0 3px 6px rgba(255, 255, 255, 0.18);
+
+            transition:
+                transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1),
+                box-shadow 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .logo-icon:hover {
+            transform: scale(1.08) translateY(-5px) rotate(4deg);
+
+            box-shadow:
+                0 18px 40px rgba(0, 0, 0, 0.45),
+                inset 0 3px 6px rgba(255, 255, 255, 0.25);
         }
 
         .logo-text {
@@ -301,11 +322,11 @@
 
     <div class="sidebar">
         <div class="logo-section">
-            <div class="logo-icon">Q</div>
+            <div class="logo-icon">🔍</div>
             <div class="logo-text">E-LOST KOH<br>E-FOUND MOH</div>
         </div>
         <ul class="nav-menu">
-            <li class="nav-item"><a href="dashboard.php"><span class="nav-text">Dashboard</span></a></li>
+            <li class="nav-item"><a href=" dashboard.php"><span class="nav-text">Dashboard</span></a></li>
             <li class="nav-item"><a href="report-item.php"><span class="nav-text">Report Lost Item</span></a></li>
             <li class="nav-item"><a href="report-item.php"><span class="nav-text">Report Found Item</span></a></li>
             <li class="nav-item active"><a href="browse-items.php"><span class="nav-text">Browse Items</span></a></li>
