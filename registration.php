@@ -169,7 +169,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         
         <div class="brand-side">
             <div class="logo-box">🔍</div>
-            <h1>E-LOST <span>KOH</span><br>E-FOUND <span>MOH</span></h1>
+            <h1>E-LOST <span>MOH</span><br>E-FOUND <span>KOH</span></h1>
         </div>
 
         <div id="dynamic-card" class="form-card <?php echo ($active_form == 'register') ? 'register-mode' : ''; ?>">
