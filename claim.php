@@ -443,7 +443,7 @@
             </li>
 
             <li class="nav-item active">
-                <a href="claims.php">
+                <a href="claim.php">
 
                     <span class="nav-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
