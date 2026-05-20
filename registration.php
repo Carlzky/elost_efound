@@ -164,7 +164,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>E-LOST KOH, E-FOUND MOH</title>
+    <title>E-LOST MOH, E-FOUND KOH</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/css/registrationstyle.css">
 </head>
@@ -175,7 +175,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         
         <div class="brand-side">
             <div class="logo-box">🔍</div>
-            <h1>E-LOST <span>KOH</span><br>E-FOUND <span>MOH</span></h1>
+            <h1>E-LOST <span>MOH</span><br>E-FOUND <span>KOH</span></h1>
         </div>
 
         <div id="dynamic-card" class="form-card <?php echo ($active_form == 'register') ? 'register-mode' : ''; ?>">
