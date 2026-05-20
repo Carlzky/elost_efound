@@ -8,7 +8,6 @@ if(!isset($_GET['id'])){
 
 $id = intval($_GET['id']);
 
-
 $sql = "
 SELECT 
     lost_id AS item_id,
@@ -131,17 +130,12 @@ $image = !empty($item['item_image'])
             margin-bottom: 24px;
         }
 
-        .back-link:hover {
-            color: var(--primary-green);
-        }
-
         .grid-layout {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 40px;
         }
 
-        /* Left Side: Image Container */
         .image-container {
             background-color: #EBEBEB;
             border-radius: 8px;
@@ -155,7 +149,6 @@ $image = !empty($item['item_image'])
             border: 1px dashed #CCCCCC;
         }
 
-        /* Right Side: Content Container */
         .details-container {
             display: flex;
             flex-direction: column;
@@ -209,7 +202,6 @@ $image = !empty($item['item_image'])
             color: #4A4A4A;
         }
 
-        /* Action Buttons */
         .action-buttons {
             margin-top: auto;
             display: grid;
@@ -261,121 +253,66 @@ $image = !empty($item['item_image'])
 
     <div class="grid-layout">
 
-        <!-- IMAGE -->
         <div class="image-container">
-
             <img 
                 src="<?php echo htmlspecialchars($image); ?>"
-                alt="Item Image"
                 style="width:100%; height:100%; object-fit:cover;"
             >
-
         </div>
 
-        <!-- DETAILS -->
         <div class="details-container">
 
-            <h1>
-                <?php echo htmlspecialchars($item['item_name']); ?>
-            </h1>
+            <h1><?php echo htmlspecialchars($item['item_name']); ?></h1>
 
             <?php if($item['item_type'] == "Lost"): ?>
-
-                <div class="status-badge status-lost">
-                    Lost
-                </div>
-
+                <div class="status-badge status-lost">Lost</div>
             <?php else: ?>
-
-                <div class="status-badge status-found">
-                    Found
-                </div>
-
+                <div class="status-badge status-found">Found</div>
             <?php endif; ?>
 
             <div class="info-group">
                 <div class="info-label">Category</div>
-
-                <div class="info-value">
-                    <?php echo htmlspecialchars($item['category']); ?>
-                </div>
+                <div class="info-value"><?php echo htmlspecialchars($item['category']); ?></div>
             </div>
 
             <div class="info-group">
                 <div class="info-label">Location</div>
+                <div class="info-value"><?php echo htmlspecialchars($item['location']); ?></div>
+            </div>
 
+            <div class="info-group">
+                <div class="info-label">
+                    <?php echo $item['item_type'] == "Lost" ? "Date Lost" : "Date Found"; ?>
+                </div>
                 <div class="info-value">
-                    <?php echo htmlspecialchars($item['location']); ?>
+                    <?php echo date("F d, Y", strtotime($item['item_date'])); ?>
                 </div>
             </div>
 
             <div class="info-group">
-
-                <div class="info-label">
-
-                    <?php
-                    echo $item['item_type'] == "Lost"
-                        ? "Date Lost"
-                        : "Date Found";
-                    ?>
-
-                </div>
-
-                <div class="info-value">
-
-                    <?php
-                    echo date(
-                        "F d, Y",
-                        strtotime($item['item_date'])
-                    );
-                    ?>
-
-                </div>
-
-            </div>
-
-            <div class="info-group">
-
-                <div class="info-label">
-                    Description
-                </div>
-
+                <div class="info-label">Description</div>
                 <div class="info-value description-text">
-
-                    <?php
-                    echo htmlspecialchars($item['description']);
-                    ?>
-
+                    <?php echo htmlspecialchars($item['description']); ?>
                 </div>
-
             </div>
 
             <div class="info-group">
-
-                <div class="info-label">
-                    Posted by
-                </div>
-
-                <div 
-                    class="info-value"
-                    style="color: var(--primary-green); font-weight: 600;"
-                >
-
+                <div class="info-label">Posted by</div>
+                <div class="info-value" style="color: var(--primary-green); font-weight: 600;">
                     <?php echo htmlspecialchars($posted_by); ?>
-
                 </div>
-
             </div>
 
             <div class="action-buttons">
 
-                <button class="btn btn-primary">
-                    Claim Item
-                </button>
+                <a href="found_thisitem.php?id=<?php echo $item['item_id']; ?>" class="btn btn-primary">
+                    I Found This Item
+                </a>
 
-                <button class="btn btn-secondary">
+                <!-- ONLY CHANGE -->
+                <a href="messages.php" class="btn btn-secondary">
                     Message Owner
-                </button>
+                </a>
 
             </div>
 
