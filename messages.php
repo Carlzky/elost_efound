@@ -535,6 +535,16 @@ $user = $_SESSION['username'];
         width: 320px;
         border: 1px solid #EAEAEA;
         box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+        transform: scale(0.85);
+        opacity: 0;
+        animation: popIn 0.25s forwards;
+    }
+
+    @keyframes popIn {
+        to {
+            transform: scale(1);
+            opacity: 1;
+        }
     }
 
     .logout-modal h2 {
@@ -565,6 +575,11 @@ $user = $_SESSION['username'];
         font-size: 14px;
         font-weight: 500;
         cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .cancel-btn:hover { 
+        background: #E8E8E8; 
     }
 
     .logout-btn {
@@ -578,6 +593,11 @@ $user = $_SESSION['username'];
         font-size: 14px;
         font-weight: 600;
         cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .logout-btn:hover { 
+        background: var(--primary-dark); 
     }
 </style>
 </head>
