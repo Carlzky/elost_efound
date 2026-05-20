@@ -9,7 +9,7 @@ include "config/db.php";
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Browse Items - E-LOST KOH, E-FOUND MOH</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #1F5D4A;
@@ -88,12 +88,50 @@ include "config/db.php";
                 0 18px 40px rgba(0, 0, 0, 0.45),
                 inset 0 3px 6px rgba(255, 255, 255, 0.25);
         }
-
+        
         .logo-text {
-            font-family:'Poppins', sans-serif;
-            font-size:15px;
-            line-height:1.3;
-            font-weight:600;
+            font-family: 'Poppins', sans-serif;
+            font-size: 15px;
+            line-height: 1.3;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+
+        .logo-text .txt-highlight {
+            color: #BBC34A;
+        }
+
+        .nav-item a {
+            text-decoration: none;
+            color: rgba(255, 255, 255, 0.82);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 13px 16px;
+            border-radius: 10px;
+            transition: 0.25s ease;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .nav-item a:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+        }
+
+        .nav-item.active a {
+            background: rgba(255, 255, 255, 0.12);
+            color: white;
+            font-weight: 500;
+        }
+
+        .nav-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            opacity: 0.8;
         }
 
         .nav-menu {
@@ -104,21 +142,7 @@ include "config/db.php";
             height:100%;
         }
 
-        .nav-item a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: rgba(255, 255, 255, 0.8);
-            text-decoration: none;
-            padding: 12px 16px;
-            border-radius: 6px;
-            font-size: 14px;
-        }
 
-        .nav-item.active a, .nav-item a:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: var(--pure-white);
-        }
 
         /* Workspace Panels */
         .main-content {
@@ -340,24 +364,146 @@ include "config/db.php";
             .top-bar { flex-direction: column-reverse; gap: 16px; align-items: stretch; }
             .search-wrapper { width: 100%; }
         }
+
+        .logout-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(6px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .logout-modal {
+            background: white;
+            padding: 32px;
+            border-radius: 20px;
+            text-align: center;
+            width: 320px;
+            border: 1px solid #EAEAEA;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            transform: scale(0.85);
+            opacity: 0;
+            animation: popIn 0.25s forwards;
+        }
+
+        @keyframes popIn {
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .logout-modal h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: var(--primary-green);
+        }
+
+        .logout-modal p {
+            font-size: 14px;
+            color: #7A7A7A;
+            margin-bottom: 24px;
+        }
+
+        .logout-buttons { display: flex; gap: 12px; }
+
+        .cancel-btn {
+            flex: 1; padding: 12px;
+            border: 1px solid #E0E0E0;
+            border-radius: 10px;
+            background: #F4F4F4;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px; font-weight: 500;
+            cursor: pointer; transition: 0.2s;
+        }
+
+        .cancel-btn:hover { background: #E8E8E8; }
+
+        .logout-btn {
+            flex: 1; padding: 12px;
+            border: none; border-radius: 10px;
+            background: var(--primary-green);
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px; font-weight: 600;
+            cursor: pointer; transition: 0.2s;
+        }
+
+        .logout-btn:hover { background: var(--primary-dark); }
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
-        <div class="logo-section">
-            <div class="logo-icon">🔍</div>
-            <div class="logo-text">E-LOST MOH<br>E-FOUND KOH</div>
+<div class="sidebar">
+    <div class="logo-section">
+        <div class="logo-icon">🔍</div>
+        <div class="logo-text">
+            E-LOST <span class="txt-highlight">MOH</span><br>
+            E-FOUND <span class="txt-highlight">KOH</span>
         </div>
-        <ul class="nav-menu">
-            <li class="nav-item"><a href=" dashboard.php">🏠<span class="nav-text">Dashboard</span></a></li>
-            <li class="nav-item"><a href="report-item.php">📦<span class="nav-text">Report Item</span></a></li>
-            <li class="nav-item active"><a href="browse-items.php">🔎<span class="nav-text">Browse Items</span></a></li>
-            <li class="nav-item"><a href="claim.php">📄<span class="nav-text">My Claims</span></a></li>
-            <li class="nav-item"><a href="notif.php">🔔<span class="nav-text">Notifications</span></a></li>
-            <li class="nav-item" style="margin-top: auto;"><a href="logout.php">🚪<span class="nav-text">Logout</span></a></li>
-        </ul>
     </div>
+
+    <ul class="nav-menu">
+        <li class="nav-item">
+            <a href="dashboard.php">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+                </span>
+                <span class="nav-text">Dashboard</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="report-item.php">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+                </span>
+                <span class="nav-text">Report Item</span>
+            </a>
+        </li>
+        <li class="nav-item active">
+            <a href="browse-items.php">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                </span>
+                <span class="nav-text">Browse Items</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="claim.php">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
+                </span>
+                <span class="nav-text">My Claims</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="notif.php">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                </span>
+                <span class="nav-text">Notifications</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="messages.php">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                </span>
+                <span class="nav-text">Messages</span>
+            </a>
+        </li>
+        <li class="nav-item" style="margin-top: auto;">
+            <a href="#" onclick="openLogoutModal()">
+                <span class="nav-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                </span>
+                <span class="nav-text">Logout</span>
+            </a>
+        </li>
+    </ul>
+</div>
 
     <div class="main-content">
         <div class="top-bar">
@@ -674,6 +820,28 @@ searchInput.addEventListener('input', filterItems);
 
 filterItems();
 
+function openLogoutModal() {
+    document.getElementById('logoutOverlay').style.display = 'flex';
+}
+function closeLogoutModal() {
+    document.getElementById('logoutOverlay').style.display = 'none';
+}
+function confirmLogout() {
+    window.location.href = 'logout.php';
+}
+
+
 </script>
+
+<div class="logout-overlay" id="logoutOverlay">
+    <div class="logout-modal">
+        <h2>Logout</h2>
+        <p>Are you sure you want to logout?</p>
+        <div class="logout-buttons">
+            <button class="cancel-btn" onclick="closeLogoutModal()">Cancel</button>
+            <button class="logout-btn" onclick="confirmLogout()">Confirm</button>
+        </div>
+    </div>
+</div>
 </body>
 </html>
