@@ -3,7 +3,126 @@ session_start();
 include "config/db.php";
 
 if (!isset($_SESSION['user_id'])) {
-    die("You must be logged in to submit a report.");
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Login Required</title>
+
+<style>
+
+body{
+    margin:0;
+    padding:0;
+    font-family:Arial, sans-serif;
+    background:#f5f5f5;
+    overflow:hidden;
+}
+
+.overlay{
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    backdrop-filter:blur(8px);
+    background:rgba(0,0,0,0.35);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    animation:fadeIn 0.3s ease;
+}
+
+/* Modal Box */
+.modal{
+    width:350px;
+    background:white;
+    border-radius:20px;
+    padding:30px;
+    text-align:center;
+    box-shadow:0 10px 25px rgba(0,0,0,0.2);
+    animation:popUp 0.3s ease;
+}
+
+.modal h2{
+    margin:0 0 10px;
+    color:#222;
+}
+
+.modal p{
+    color:#666;
+    font-size:15px;
+    margin-bottom:25px;
+}
+
+.login-btn{
+    display:inline-block;
+    padding:12px 24px;
+    background:#2E7D32;
+    color:white;
+    text-decoration:none;
+    border-radius:10px;
+    font-weight:600;
+    transition:0.2s;
+}
+
+.login-btn:hover{
+    background:#256428;
+    transform:scale(1.03);
+}
+
+/* Animations */
+@keyframes fadeIn{
+    from{
+        opacity:0;
+    }
+    to{
+        opacity:1;
+    }
+}
+
+@keyframes popUp{
+    from{
+        transform:scale(0.8);
+        opacity:0;
+    }
+    to{
+        transform:scale(1);
+        opacity:1;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="overlay">
+
+    <div class="modal">
+
+        <h2>Login Required</h2>
+
+        <p>
+            You must be logged in first before submitting a report.
+        </p>
+
+        <a href="registration.php" class="login-btn">
+            Go to Login
+        </a>
+
+    </div>
+
+</div>
+
+</body>
+</html>
+
+<?php
+exit();
+}
+?>
 }
 
 $user_id = $_SESSION['user_id'];

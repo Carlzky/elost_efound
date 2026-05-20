@@ -1,3 +1,79 @@
+<?php
+session_start();
+include "config/db.php";
+
+if(!isset($_GET['id'])){
+    die("Item ID missing.");
+}
+
+$id = intval($_GET['id']);
+
+
+$sql = "
+SELECT 
+    lost_id AS item_id,
+    item_name,
+    category,
+    location_lost AS location,
+    date_lost AS item_date,
+    description,
+    item_image,
+    user_id,
+    'Lost' AS item_type
+FROM lost_items
+WHERE lost_id = ?
+
+UNION ALL
+
+SELECT 
+    found_id AS item_id,
+    item_name,
+    category,
+    location_found AS location,
+    date_found AS item_date,
+    description,
+    item_image,
+    user_id,
+    'Found' AS item_type
+FROM found_items
+WHERE found_id = ?
+";
+
+$stmt = $conn->prepare($sql);
+
+$stmt->bind_param("ii", $id, $id);
+
+$stmt->execute();
+
+$result = $stmt->get_result();
+
+if($result->num_rows == 0){
+    die("Item not found.");
+}
+
+$item = $result->fetch_assoc();
+
+
+
+$user_sql = "SELECT username FROM users WHERE id = ?";
+
+$user_stmt = $conn->prepare($user_sql);
+
+$user_stmt->bind_param("i", $item['user_id']);
+
+$user_stmt->execute();
+
+$user_result = $user_stmt->get_result();
+
+$user_data = $user_result->fetch_assoc();
+
+$posted_by = $user_data ? $user_data['username'] : 'Unknown User';
+
+$image = !empty($item['item_image'])
+    ? $item['item_image']
+    : 'uploads/default.png';
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -164,54 +240,135 @@
 <body>
 
 <div class="container">
-    <a href="browse-items.php" class="back-link">&lt; Back</a>
+
+    <a href="browse-items.php" class="back-link">
+        &lt; Back
+    </a>
 
     <div class="grid-layout">
+
+        <!-- IMAGE -->
         <div class="image-container">
-            <svg width="48" height="48" fill="currentColor" viewBox="0 0 16 16" style="margin-bottom: 8px; opacity: 0.5;">
-                <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
-                <path d="M2.003 16a2 2 0 0 1-2-2V3.5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2V14a2 2 0 0 1-2 2h-12zm12-1a1 1 0 0 0 1-1V5.05l-3.477 3.476a.5.5 0 0 1-.706 0L9.27 6.474l-4.534 4.536A1 1 0 0 0 4.1 12h8a1 1 0 0 0 1-1v-1a1 1 0 0 0-1-1H9.83l-2.141 2.142a.5.5 0 0 1-.707 0L4.456 9.614 1.5 12.569V14a1 1 0 0 0 1 1h12z"/>
-            </svg>
-            <p>[ Image Preview Space ]</p>
+
+            <img 
+                src="<?php echo htmlspecialchars($image); ?>"
+                alt="Item Image"
+                style="width:100%; height:100%; object-fit:cover;"
+            >
+
         </div>
 
+        <!-- DETAILS -->
         <div class="details-container">
-            <h1>Black Backpack</h1>
-            <div class="status-badge">Lost</div>
+
+            <h1>
+                <?php echo htmlspecialchars($item['item_name']); ?>
+            </h1>
+
+            <?php if($item['item_type'] == "Lost"): ?>
+
+                <div class="status-badge">
+                    Lost
+                </div>
+
+            <?php else: ?>
+
+                <div class="status-badge">
+                    Found
+                </div>
+
+            <?php endif; ?>
 
             <div class="info-group">
                 <div class="info-label">Category</div>
-                <div class="info-value">Bag</div>
-            </div>
 
-            <div class="info-group">
-                <div class="info-label">Location</div>
-                <div class="info-value">Canteen</div>
-            </div>
-
-            <div class="info-group">
-                <div class="info-label">Date Lost</div>
-                <div class="info-value">May 20, 2026 • 10:30 AM</div>
-            </div>
-
-            <div class="info-group">
-                <div class="info-label">Description</div>
-                <div class="info-value description-text">
-                    Black backpack with minimal design. Left near the counter lines.
+                <div class="info-value">
+                    <?php echo htmlspecialchars($item['category']); ?>
                 </div>
             </div>
 
             <div class="info-group">
-                <div class="info-label">Posted by</div>
-                <div class="info-value" style="color: var(--primary-green); font-weight: 600;">Yuunnaa</div>
+                <div class="info-label">Location</div>
+
+                <div class="info-value">
+                    <?php echo htmlspecialchars($item['location']); ?>
+                </div>
+            </div>
+
+            <div class="info-group">
+
+                <div class="info-label">
+
+                    <?php
+                    echo $item['item_type'] == "Lost"
+                        ? "Date Lost"
+                        : "Date Found";
+                    ?>
+
+                </div>
+
+                <div class="info-value">
+
+                    <?php
+                    echo date(
+                        "F d, Y",
+                        strtotime($item['item_date'])
+                    );
+                    ?>
+
+                </div>
+
+            </div>
+
+            <div class="info-group">
+
+                <div class="info-label">
+                    Description
+                </div>
+
+                <div class="info-value description-text">
+
+                    <?php
+                    echo htmlspecialchars($item['description']);
+                    ?>
+
+                </div>
+
+            </div>
+
+            <div class="info-group">
+
+                <div class="info-label">
+                    Posted by
+                </div>
+
+                <div 
+                    class="info-value"
+                    style="color: var(--primary-green); font-weight: 600;"
+                >
+
+                    <?php echo htmlspecialchars($posted_by); ?>
+
+                </div>
+
             </div>
 
             <div class="action-buttons">
-                <button class="btn btn-primary">Claim Item</button>
-                <button class="btn btn-secondary">Message Owner</button>
+
+                <button class="btn btn-primary">
+                    Claim Item
+                </button>
+
+                <button class="btn btn-secondary">
+                    Message Owner
+                </button>
+
             </div>
+
         </div>
+
     </div>
+
 </div>
 
 </body>
