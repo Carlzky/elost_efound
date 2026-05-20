@@ -201,11 +201,28 @@ $user = $_SESSION['username'];
         text-decoration: none;
     }
 
-    .avatar {
-        width: 44px;
-        height: 44px;
+    .avatar-link{
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .avatar{
+        width: 42px;
+        height: 42px;
         border-radius: 50%;
-        background: #E0E0E0;
+        object-fit: cover;
+        cursor: pointer;
+        border: 2px solid #E5E5E5;
+        transition: all 0.25s ease;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+
+    .avatar:hover{
+        transform: scale(1.06);
+        border-color: var(--primary-green);
+        box-shadow: 0 6px 14px rgba(0,0,0,0.12);
     }
 
     /* ========================
@@ -642,10 +659,20 @@ $user = $_SESSION['username'];
     <div class="top-bar">
         <h1 class="page-title">Messages</h1>
         <div class="user-profile">
+
             <a href="notif.php" class="notif-bell-btn">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                    <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                </svg>
             </a>
-            <div class="avatar"></div>
+
+            <a href="profile.php" class="avatar-link">
+                <img src="images/default-avatar.png" alt="Profile Picture" class="avatar">
+            </a>
+
         </div>
     </div>
 
