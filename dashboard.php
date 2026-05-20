@@ -106,8 +106,14 @@ $user = $_SESSION['username'];
         font-family: 'Poppins', sans-serif;
         font-size: 15px;
         line-height: 1.3;
-        font-weight: 600;
+        font-weight: 700;
+        color: #FFFFFF;
     }
+
+    .logo-text .txt-highlight {
+        color: #BBC34A;
+    }
+    
 
     .nav-menu {
         list-style: none;
@@ -456,7 +462,10 @@ $user = $_SESSION['username'];
 
     <div class="logo-section">
         <div class="logo-icon">🔍</div>
-        <div class="logo-text">E-LOST MOH<br>E-FOUND KOH</div>
+            <div class="logo-text">
+                E-LOST <span class="txt-highlight">MOH</span><br>
+                E-FOUND <span class="txt-highlight">KOH</span>
+            </div>
     </div>
 
     <ul class="nav-menu">
