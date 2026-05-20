@@ -90,6 +90,12 @@ $image = !empty($item['item_image'])
             --bg-gray: #F2F2F2;
             --pure-white: #FFFFFF;
             --text-dark: #1A1A1A;
+
+            --lost-bg: #FEE2E2;
+            --lost-text: #B91C1C;
+
+            --found-bg: #DCFCE7;
+            --found-text: #166534;
         }
 
         * {
@@ -164,13 +170,21 @@ $image = !empty($item['item_image'])
 
         .status-badge {
             align-self: flex-start;
-            background-color: var(--light-green);
-            color: var(--primary-green);
             padding: 4px 12px;
             border-radius: 20px;
             font-size: 14px;
             font-weight: 600;
             margin-bottom: 24px;
+        }
+
+        .status-lost {
+            background-color: var(--lost-bg);
+            color: var(--lost-text);
+        }
+
+        .status-found {
+            background-color: var(--found-bg);
+            color: var(--found-text);
         }
 
         .info-group {
@@ -267,13 +281,13 @@ $image = !empty($item['item_image'])
 
             <?php if($item['item_type'] == "Lost"): ?>
 
-                <div class="status-badge">
+                <div class="status-badge status-lost">
                     Lost
                 </div>
 
             <?php else: ?>
 
-                <div class="status-badge">
+                <div class="status-badge status-found">
                     Found
                 </div>
 
