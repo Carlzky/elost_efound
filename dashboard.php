@@ -544,10 +544,15 @@ $user = $_SESSION['username'];
             <h3>Total Lost Items</h3>
             <div class="stat-number">
                 <?php
-                $sql = "SELECT COUNT(*) AS total FROM lost_items";
-                $result = $conn->query($sql);
-                $row = $result->fetch_assoc();
-                echo $row['total'];
+                $user_id = $_SESSION['user_id'];
+
+$sql = "SELECT COUNT(*) AS total FROM lost_items WHERE user_id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_assoc();
+echo $row['total'];
                 ?>
             </div>
         </div>
@@ -556,10 +561,13 @@ $user = $_SESSION['username'];
             <h3>Total Found Items</h3>
             <div class="stat-number">
                 <?php
-                $sql = "SELECT COUNT(*) AS total FROM found_items";
-                $result = $conn->query($sql);
-                $row = $result->fetch_assoc();
-                echo $row['total'];
+                $sql = "SELECT COUNT(*) AS total FROM found_items WHERE user_id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_assoc();
+echo $row['total'];
                 ?>
             </div>
         </div>
@@ -568,10 +576,13 @@ $user = $_SESSION['username'];
             <h3>Claims Pending</h3>
             <div class="stat-number">
                 <?php
-                $sql = "SELECT COUNT(*) AS total FROM claims WHERE claim_status='Pending'";
-                $result = $conn->query($sql);
-                $row = $result->fetch_assoc();
-                echo $row['total'];
+              $sql = "SELECT COUNT(*) AS total FROM claims WHERE claim_status='Pending' AND claimant_user_id = ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+$row = $result->fetch_assoc();
+echo $row['total'];
                 ?>
             </div>
         </div>
@@ -579,47 +590,54 @@ $user = $_SESSION['username'];
 
     <div class="content-grid">
         <div class="panel-card">
-            <h2>Recent Activity</h2>
-            <?php
-            $sql = "SELECT * FROM report_history ORDER BY action_date DESC LIMIT 5";
-            $result = $conn->query($sql);
-            while($row = $result->fetch_assoc()):
-            ?>
-            <div class="activity-item">
-                <div>
-                    <h4><?php echo htmlspecialchars($row['action_done']); ?></h4>
-                    <span><?php echo htmlspecialchars($row['action_date']); ?></span>
-                </div>
-            </div>
-            <?php endwhile; ?>
+            
+          <h2>Recent Activity</h2>
+
+<?php
+$sql = "SELECT * FROM report_history WHERE user_id = ? ORDER BY action_date DESC LIMIT 5";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if($result->num_rows > 0):
+    while($row = $result->fetch_assoc()):
+?>
+    <div class="activity-item">
+        <div>
+            <h4><?php echo htmlspecialchars($row['action_done']); ?></h4>
+            <span><?php echo htmlspecialchars($row['action_date']); ?></span>
+        </div>
+    </div>
+<?php
+    endwhile;
+else:
+?>
+    <p style="color:gray;font-size:14px;">No recent activity found.</p>
+<?php endif; ?>
         </div>
 
         <div class="panel-card">
             <h2>Recently Posted Items</h2>
             <?php
             $sql = "
-                SELECT 
-                item_name,
-                item_image,
-                location_lost AS location,
-                created_at,
-                'Lost' AS item_type
-                FROM lost_items
+SELECT item_name, item_image, location_lost AS location, created_at, 'Lost' AS item_type
+FROM lost_items
+WHERE user_id = ?
 
-                UNION ALL
+UNION ALL
 
-                SELECT 
-                item_name,
-                item_image,
-                location_found AS location,
-                created_at,
-                'Found' AS item_type
-                FROM found_items
+SELECT item_name, item_image, location_found AS location, created_at, 'Found' AS item_type
+FROM found_items
+WHERE user_id = ?
 
-                ORDER BY created_at DESC
-                LIMIT 3
-                ";
-            $result = $conn->query($sql);
+ORDER BY created_at DESC
+LIMIT 3
+";
+            $stmt = $conn->prepare($sql);
+$stmt->bind_param("ii", $user_id, $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
             if($result->num_rows > 0):
                 while($row = $result->fetch_assoc()):
                     $image = !empty($row['item_image']) ? $row['item_image'] : 'uploads/default.png';
