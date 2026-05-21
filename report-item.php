@@ -333,6 +333,86 @@
             background-color: #164335;
         }
 
+        .logout-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(6px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .logout-modal {
+            background: white;
+            padding: 32px;
+            border-radius: 20px;
+            text-align: center;
+            width: 320px;
+            border: 1px solid #EAEAEA;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            transform: scale(0.85);
+            opacity: 0;
+            animation: popIn 0.25s forwards;
+        }
+
+        @keyframes popIn {
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .logout-modal h2 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+
+        .logout-modal p {
+            font-size: 14px;
+            color: #7A7A7A;
+            margin-bottom: 24px;
+        }
+
+        .logout-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .cancel-btn {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #E0E0E0;
+            border-radius: 10px;
+            background: #F4F4F4;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .cancel-btn:hover { background: #E8E8E8; }
+
+        .logout-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            background: var(--primary);
+            color: white;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .logout-btn:hover {
+            background: var(--primary-dark); 
+        }
+
         @media (max-width: 768px) {
             .sidebar { width: 70px; }
             .logo-text, .nav-text { display: none; }
@@ -443,17 +523,15 @@
                 </a>
             </li>
 
-            <li class="nav-item" style="margin-top: auto;">
-                <a href="logout.php">
-
+            <li class="nav-item" style="margin-top:auto;">
+                <a href="#" onclick="openLogoutModal()">
                     <span class="nav-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
                             <polyline points="16 17 21 12 16 7"></polyline>
                             <line x1="21" y1="12" x2="9" y2="12"></line>
                         </svg>
                     </span>
-
                     <span class="nav-text">Logout</span>
                 </a>
             </li>
@@ -592,6 +670,28 @@
                 uploadStatus.innerHTML = `<strong>Dropped:</strong><br><span style="font-size:12px; color:var(--primary-green);">${e.dataTransfer.files[0].name}</span>`;
             }
         });
+
+        function openLogoutModal() {
+            document.getElementById("logoutOverlay").style.display = "flex";
+        }
+
+        function closeLogoutModal() {
+            document.getElementById("logoutOverlay").style.display = "none";
+        }
+
+        function confirmLogout() {
+            window.location.href = "logout.php";
+        }
     </script>
+    <div class="logout-overlay" id="logoutOverlay">
+        <div class="logout-modal">
+            <h2>Logout</h2>
+            <p>Are you sure you want to logout?</p>
+            <div class="logout-buttons">
+                <button class="cancel-btn" onclick="closeLogoutModal()">Cancel</button>
+                <button class="logout-btn" onclick="confirmLogout()">Confirm</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
