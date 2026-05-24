@@ -1,0 +1,129 @@
+/* CLAIM CARD SYSTEM */
+.claim-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 15px;
+    max-width: 300px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.claim-proof {
+    width: 100%;
+    margin-top: 10px;
+    border-radius: 8px;
+}
+
+.claim-status {
+    margin-top: 10px;
+    font-weight: bold;
+}
+
+.claim-status.pending { color: orange; }
+.claim-status.approved { color: green; }
+.claim-status.rejected { color: red; }
+
+.claim-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.approve-btn {
+    background: green;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+}
+
+.reject-btn {
+    background: red;
+    color: white;
+    padding: 5px 10px;
+    border: none;
+}
+/* CLAIM CARD WRAPPER */
+.claim-card-wrapper {
+    display: flex;
+    margin: 10px 0;
+}
+
+.claim-card-wrapper.outgoing {
+    justify-content: flex-end;
+}
+
+.claim-card-wrapper.incoming {
+    justify-content: flex-start;
+}
+
+/* CLAIM CARD */
+.claim-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 15px;
+    width: 320px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* HEADER */
+.claim-header {
+    font-weight: bold;
+    font-size: 16px;
+    margin-bottom: 12px;
+}
+
+/* INFO */
+.claim-info {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+/* IMAGE */
+.claim-proof {
+    width: 100%;
+    margin-top: 10px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+/* STATUS */
+.claim-status {
+    margin-top: 12px;
+    font-weight: bold;
+}
+
+.claim-status.pending {
+    color: orange;
+}
+
+.claim-status.approved {
+    color: green;
+}
+
+.claim-status.rejected {
+    color: red;
+}
+
+/* ACTION BUTTONS */
+.claim-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.approve-btn,
+.reject-btn {
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: white;
+    font-weight: 500;
+}
+
+.approve-btn {
+    background: green;
+}
+
+.reject-btn {
+    background: red;
+}

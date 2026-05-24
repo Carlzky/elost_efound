@@ -12,6 +12,13 @@ if(!isset($_SESSION['username'])){
 }
 
 $user = $_SESSION['username'];
+$current_user_id = $_SESSION['user_id'];
+
+$selected_user_id = null;
+
+if (isset($_GET['user_id'])) {
+    $selected_user_id = intval($_GET['user_id']);
+}
 ?>
 
 <!DOCTYPE html>
@@ -21,7 +28,9 @@ $user = $_SESSION['username'];
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Messages - E-LOST KOH, E-FOUND MOH</title>
 
+<link rel="stylesheet" href="assets/css/message.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
+
 
 <style>
     :root {
@@ -705,38 +714,82 @@ $user = $_SESSION['username'];
             </div>
 
             <div class="conversations-scroll-box" id="conversationsBox">
-                <div class="conversation-card" data-username="User Name 1" data-item="iPhone 13 Pro">
-                    <div class="user-thumb"></div>
-                    <div class="card-meta-details">
-                        <div class="meta-row-top">
-                            <h4>User Name 1</h4>
-                            <span class="timestamp">12:30 PM</span>
-                        </div>
-                        <p class="preview-msg-text">Ito pag unread....</p>
-                    </div>
-                </div>
+                <?php
+$sql = "
+SELECT DISTINCT 
+users.id,
+users.username,
+messages.item_id
+FROM messages
+JOIN users 
+ON users.id = IF(messages.sender_id = ?, messages.receiver_id, messages.sender_id)
+WHERE messages.sender_id = ? OR messages.receiver_id = ?
+";
 
-                <div class="conversation-card" data-username="User Name 2" data-item="Lost Wallet">
-                    <div class="user-thumb"></div>
-                    <div class="card-meta-details">
-                        <div class="meta-row-top">
-                            <h4>User Name 2</h4>
-                            <span class="timestamp">12:30 PM</span>
-                        </div>
-                        <p class="preview-msg-text">akhagcyguyefdurerd6wred6wrwdu6rwadw387r8ehglougoya7xdacvkbdcgisdgviuy8obs8yfe.</p>
-                    </div>
-                </div>
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("iii", $current_user_id, $current_user_id, $current_user_id);
+$stmt->execute();
 
-                <div class="conversation-card" data-username="User Name 3" data-item="Keys found at Gym">
-                    <div class="user-thumb"></div>
-                    <div class="card-meta-details">
-                        <div class="meta-row-top">
-                            <h4>User Name 3</h4>
-                            <span class="timestamp">2 days ago</span>
-                        </div>
-                        <p class="preview-msg-text">Latest messages....</p>
-                    </div>
-                </div>
+$result = $stmt->get_result();
+
+while($chat = $result->fetch_assoc()):
+
+$item_name = "General Chat";
+
+if ($chat['item_id']) {
+
+    $item_stmt = $conn->prepare("
+        SELECT item_name FROM lost_items
+        WHERE lost_id = ?
+
+        UNION
+
+        SELECT item_name FROM found_items
+        WHERE found_id = ?
+    ");
+
+    $item_stmt->bind_param(
+        "ii",
+        $chat['item_id'],
+        $chat['item_id']
+    );
+
+    $item_stmt->execute();
+
+    $item_result = $item_stmt->get_result();
+
+    $item_row = $item_result->fetch_assoc();
+
+    if ($item_row) {
+        $item_name = $item_row['item_name'];
+    }
+}
+?>
+
+<div class="conversation-card"
+     data-userid="<?php echo $chat['id']; ?>"
+     data-username="<?php echo htmlspecialchars($chat['username']); ?>"
+     data-item="<?php echo $chat['item_id']; ?>">
+
+    <div class="user-thumb"></div>
+
+    <div class="card-meta-details">
+
+        <div class="meta-row-top">
+            <h4>
+                <?php echo htmlspecialchars($chat['username']); ?>
+            </h4>
+        </div>
+
+        <p class="preview-msg-text">
+            <?php echo htmlspecialchars($item_name); ?>
+        </p>
+
+    </div>
+
+</div>
+
+<?php endwhile; ?>
             </div>
         </div>
 
@@ -745,8 +798,8 @@ $user = $_SESSION['username'];
                 <div class="header-user-info">
                     <div class="user-thumb" style="width:40px; height:40px;"></div>
                     <div>
-                        <h3 id="chatHeaderName">User Name 2</h3>
-                        <p id="chatHeaderItem">Lost Wallet</p>
+                        <h3 id="chatHeaderName">Select Conversation</h3>
+                        <p id="chatHeaderItem">Messages</p>
                     </div>
                 </div>
                 <div class="info-action-btn">
@@ -755,23 +808,7 @@ $user = $_SESSION['username'];
             </div>
 
             <div class="messages-stream-container" id="chatStreamBox">
-                <div class="date-divider">
-                    <span>May 19, 2026</span>
-                </div>
 
-                <div class="bubble-wrapper incoming">
-                    <div class="message-bubble">
-                        akhagcyguyefdurerd6wred6wrwdu6rwadw387r8ehglougoya7xdacvkbdcgisdgviuy8obs8yfe.
-                    </div>
-                    <span class="bubble-timestamp">10:45 AM</span>
-                </div>
-
-                <div class="bubble-wrapper outgoing">
-                    <div class="message-bubble">
-                        akhagcyguyefdurerd6wred6wrwdu6rwadw387r8ehglougoya7xdacvkbdcgisdgviuy8obs8yfe.
-                    </div>
-                    <span class="bubble-timestamp">10:45 AM</span>
-                </div>
             </div>
 
             <div class="message-composer-footer">
@@ -828,7 +865,7 @@ document.getElementById('chatSearchInput').addEventListener('input', function(e)
     const filterText = e.target.value.toLowerCase().trim();
     let currentOpenCardStillVisible = false;
     
-    chatCards.forEach(card => {
+  document.querySelectorAll('.conversation-card').forEach(card => {
         const username = card.getAttribute('data-username').toLowerCase();
         const msgPreview = card.querySelector('.preview-msg-text').textContent.toLowerCase();
         
@@ -848,54 +885,42 @@ document.getElementById('chatSearchInput').addEventListener('input', function(e)
         closeChatWorkspace();
     }
 });
+document.querySelectorAll('.conversation-card').forEach(card => {
 
-// 2. INTERACTIVE DYNAMIC MESSAGE LOADING
-chatCards.forEach(card => {
     card.addEventListener('click', function() {
-        chatCards.forEach(c => c.classList.remove('active'));
-        this.classList.add('active');
-        
-        const clickedUser = this.getAttribute('data-username');
-        const clickedItem = this.getAttribute('data-item');
-        
-        // Update Header
-        document.getElementById('chatHeaderName').textContent = clickedUser;
-        document.getElementById('chatHeaderItem').textContent = clickedItem;
-        
-        // --- DYNAMIC CONTENT INJECTION ---
-        const streamBox = document.getElementById('chatStreamBox');
-        
-        // Clear current messages
-        streamBox.innerHTML = ''; 
 
-        // Generate unique content based on the clicked user
-        // (In a real app, you would fetch this via AJAX from your database)
-        if(clickedUser === 'User Name 1') {
-            streamBox.innerHTML = `
-                <div class="bubble-wrapper incoming">
-                    <div class="message-bubble">Hello! Is the iPhone 13 Pro still available?</div>
-                    <span class="bubble-timestamp">10:00 AM</span>
-                </div>`;
-        } else if(clickedUser === 'User Name 2') {
-            streamBox.innerHTML = `
-                <div class="bubble-wrapper incoming">
-                    <div class="message-bubble">I found your wallet near the gym.</div>
-                    <span class="bubble-timestamp">12:15 PM</span>
-                </div>
-                <div class="bubble-wrapper outgoing">
-                    <div class="message-bubble">Oh thank God! Where can I meet you?</div>
-                    <span class="bubble-timestamp">12:20 PM</span>
-                </div>`;
-        } else {
-            streamBox.innerHTML = `
-                <div class="bubble-wrapper incoming">
-                    <div class="message-bubble">New conversation started.</div>
-                    <span class="bubble-timestamp">Just now</span>
-                </div>`;
-        }
-        
+        chatCards.forEach(c => c.classList.remove('active'));
+
+        this.classList.add('active');
+
+        const clickedUser =
+            this.getAttribute('data-username');
+
+        const receiverId =
+            this.getAttribute('data-userid');
+
+        document.getElementById('chatHeaderName')
+            .textContent = clickedUser;
+
         openChatWorkspace();
+
+        const itemId = this.getAttribute('data-item');
+
+        fetch("load_messages.php?receiver_id=" + receiverId + "&item_id=" + itemId)
+
+        .then(response => response.text())
+
+        .then(data => {
+
+            document.getElementById('chatStreamBox')
+                .innerHTML = data;
+
+            streamBox.scrollTop =
+                streamBox.scrollHeight;
+        });
+
     });
+
 });
 
 // SYSTEM MODAL OVERLAYS CONTROLLER
@@ -917,19 +942,63 @@ const messageInput = document.getElementById('messageInput');
 const streamBox = document.getElementById('chatStreamBox');
 
 function sendMessage() {
+
     const text = messageInput.value.trim();
-    if (text === "") return;
 
-    const bubble = document.createElement('div');
-    bubble.className = 'bubble-wrapper outgoing';
-    bubble.innerHTML = `
-        <div class="message-bubble">${text}</div>
-        <span class="bubble-timestamp">Just now</span>
-    `;
+    if(text === "") return;
 
-    streamBox.appendChild(bubble);
-    messageInput.value = "";
-    streamBox.scrollTop = streamBox.scrollHeight; // Auto-scroll to bottom
+    const activeCard =
+        document.querySelector('.conversation-card.active');
+
+    if(!activeCard) return;
+
+    const receiverId = activeCard.dataset.userid;
+
+    const itemId = activeCard.dataset.item;
+
+    fetch("send_message.php", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+        },
+
+        body:
+            "receiver_id=" + receiverId +
+            "&item_id=" + itemId +
+            "&message=" + encodeURIComponent(text)
+
+    })
+
+    .then(response => response.text())
+
+    .then(data => {
+
+        console.log(data);
+
+        if(data.trim() === "success") {
+
+            const bubble = document.createElement('div');
+
+            bubble.className = 'bubble-wrapper outgoing';
+
+            bubble.innerHTML = `
+                <div class="message-bubble">${text}</div>
+                <span class="bubble-timestamp">Just now</span>
+            `;
+
+            streamBox.appendChild(bubble);
+
+            messageInput.value = "";
+
+            streamBox.scrollTop =
+                streamBox.scrollHeight;
+
+        }
+
+    });
+
 }
 
 // Click and Enter key listeners

@@ -10,16 +10,16 @@ $id = intval($_GET['id']);
 
 $sql = "
 SELECT 
-    found_id AS item_id,
+    lost_id AS item_id,
     item_name,
     category,
-    location_found AS location,
-    date_found AS item_date,
+    location_lost AS location,
+    date_lost AS item_date,
     description,
     item_image,
     user_id
-FROM found_items
-WHERE found_id = ?
+FROM lost_items
+WHERE lost_id = ?
 ";
 
 $stmt = $conn->prepare($sql);
@@ -211,7 +211,7 @@ input, textarea{
 
             <h2><?php echo htmlspecialchars($item['item_name']); ?></h2>
 
-            <div class="status-badge status-found">Found</div>
+            <div class="status-badge status-lost">Lost</div>
 
             <div class="label">Category</div>
             <div class="value"><?php echo htmlspecialchars($item['category']); ?></div>
@@ -239,9 +239,9 @@ input, textarea{
         <!-- RIGHT -->
         <div class="card">
 
-            <h3>Contact Owner</h3>
+            <h3>I Found This Item</h3>
 
-            <form method="POST" action="send_claim.php" enctype="multipart/form-data">
+            <form method="POST" action="send_found_report.php" enctype="multipart/form-data">
 
             <input type="hidden" name="receiver_id" value="<?php echo $item['user_id']; ?>">
             <input type="hidden" name="item_id" value="<?php echo $item['item_id']; ?>">
@@ -258,7 +258,7 @@ input, textarea{
             <label>Upload Proof</label>
             <input type="file" name="proof_image" accept="image/*">
 
-            <button class="btn">Send Claim</button>
+            <button class="btn">Notify Owner</button>
 
             </form>
 

@@ -305,13 +305,23 @@ $image = !empty($item['item_image'])
 
             <div class="action-buttons">
 
+                <?php if($item['item_type'] == "Found"): ?>
+
                 <a href="found_thisitem.php?id=<?php echo $item['item_id']; ?>" class="btn btn-primary">
-                    I Found This Item
+                Claim This Item
                 </a>
 
-                <!-- ONLY CHANGE -->
-                <a href="messages.php" class="btn btn-secondary">
-                    Message Owner
+                <?php else: ?>
+
+                <a href="found_lostitem.php?id=<?php echo $item['item_id']; ?>" class="btn btn-primary">
+                Found This Item
+                </a>
+
+                <?php endif; ?>
+
+                
+                <a href="messages.php?user_id=<?php echo $item['user_id']; ?>" class="btn btn-secondary">
+                Message Owner
                 </a>
 
             </div>

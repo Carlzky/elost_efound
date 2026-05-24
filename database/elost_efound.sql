@@ -152,6 +152,8 @@ CREATE TABLE `claims` (
   `claim_id` INT AUTO_INCREMENT PRIMARY KEY,
   `found_item_id` INT NOT NULL,
   `claimant_user_id` INT NOT NULL,
+  `claimant_name` VARCHAR(255) NULL,
+  `claimant_contact` VARCHAR(50) NULL,
   `proof_image` VARCHAR(255),
   `message` TEXT,
   `claim_status` ENUM('Pending','Approved','Rejected') DEFAULT 'Pending',
@@ -208,6 +210,50 @@ CREATE TABLE `report_history` (
   FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `messages`
+--
+
+CREATE TABLE `messages` (
+  `message_id` INT AUTO_INCREMENT PRIMARY KEY,
+  `sender_id` INT NOT NULL,
+  `receiver_id` INT NOT NULL,
+  `item_id` INT NULL,
+  `claim_id` INT NULL,
+  `report_id` INT NULL,
+  `message_type`
+  ENUM('normal','claim','found_report')
+  DEFAULT 'normal',
+  `message_text` TEXT NOT NULL,
+  `sent_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`sender_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`receiver_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+  FOREIGN KEY (`claim_id`) REFERENCES `claims`(`claim_id`) ON DELETE CASCADE
+  FOREIGN KEY (`report_id`) REFERENCES `found_reports`(`report_id`) ON DELETE CASCADE
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+--
+--  Table structure for table `found_reports`
+-- 
+
+CREATE TABLE `found_reports` (
+  `report_id` INT AUTO_INCREMENT PRIMARY KEY,
+  `lost_item_id` INT NOT NULL,
+  `finder_user_id` INT NOT NULL,
+  `finder_name` VARCHAR(255) NULL,
+  `finder_contact` VARCHAR(255) NULL,
+  `message` TEXT,
+  `proof_image` VARCHAR(255),
+  `report_status`
+  ENUM('Pending','Contacted','Resolved')
+  DEFAULT 'Pending',
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`lost_item_id`) REFERENCES `lost_items`(`lost_id`) ON DELETE CASCADE,
+  FOREIGN KEY (`finder_user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
