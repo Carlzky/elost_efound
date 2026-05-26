@@ -531,9 +531,13 @@ include "config/db.php";
         <h1>Browse Items</h1>
 
         <div class="filter-tabs">
-            <div class="tab active">Lost Items</div>
-            <div class="tab">Found Items</div>
-        </div>
+    <div class="tab active" data-tab="lost">
+        Lost Items
+    </div>
+    <div class="tab" data-tab="found">
+        Found Items
+    </div>
+</div>
 
         <div class="filter-bar">
 
@@ -648,8 +652,8 @@ if($result && $result->num_rows > 0):
         <?php echo date("F d, Y", strtotime($row['item_date'])); ?>
     </div>
 
-    <a href="item-details.php?id=<?php echo $row['item_id']; ?>" class="btn-view-details">
-        View Details
+    <a href="item-details.php?id=<?php echo $row['item_id']; ?>&type=<?php echo $row['item_type']; ?>" class="btn-view-details">
+                View Details
     </a>
 
 </div>
@@ -675,6 +679,23 @@ else:
     <script>
 
 const tabs = document.querySelectorAll('.tab');
+
+const urlParams = new URLSearchParams(window.location.search);
+
+const currentTab = urlParams.get('tab');
+
+if(currentTab){
+
+    tabs.forEach(tab => {
+
+        tab.classList.remove('active');
+
+        if(tab.dataset.tab === currentTab){
+
+            tab.classList.add('active');
+        }
+    });
+}
 
 const searchInput = document.querySelector('.search-wrapper input');
 
@@ -811,6 +832,14 @@ tabs.forEach(tab => {
         tabs.forEach(t => t.classList.remove('active'));
 
         tab.classList.add('active');
+
+        const selectedTab = tab.dataset.tab;
+
+        window.history.replaceState(
+            null,
+            null,
+            '?tab=' + selectedTab
+        );
 
         filterItems();
     });

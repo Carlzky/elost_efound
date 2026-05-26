@@ -101,7 +101,7 @@ while ($row = $result->fetch_assoc()) {
     <div class="claim-card">
 
         <div class="claim-header">
-            📦 Claim Request
+            Claim Request
         </div>
 
         <div class="claim-info">
@@ -199,7 +199,7 @@ if (($item_owner['user_id'] ?? null) == $current_user_id) {
         <div class="claim-card">
 
             <div class="claim-header">
-                🔎 Found Item Report
+                Found Item Report
             </div>
 
             <div class="claim-info">
