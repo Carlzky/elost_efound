@@ -224,7 +224,7 @@ CREATE TABLE `found_reports` (
   `message` TEXT,
   `proof_image` VARCHAR(255),
   `report_status`
-  ENUM('Pending','Contacted','Resolved')
+  ENUM('Pending','Approved','Rejected')
   DEFAULT 'Pending',
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (`lost_item_id`) REFERENCES `lost_items`(`lost_id`) ON DELETE CASCADE,

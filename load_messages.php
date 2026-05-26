@@ -179,12 +179,13 @@ if (($item_owner['user_id'] ?? null) == $current_user_id) {
         ';
 
 
-    } elseif ($row['message_type'] == 'found_report') {
+} elseif ($row['message_type'] == 'found_report') {
 
-   $report_stmt = $conn->prepare("
-    SELECT * FROM found_reports
-    WHERE report_id = ?
+    $report_stmt = $conn->prepare("
+        SELECT * FROM found_reports
+        WHERE report_id = ?
     ");
+
     $report_stmt->bind_param("i", $row['report_id']);
 
     $report_stmt->execute();
@@ -192,6 +193,15 @@ if (($item_owner['user_id'] ?? null) == $current_user_id) {
     $report = $report_stmt->get_result()->fetch_assoc();
 
     if (!$report) continue;
+
+    $status = strtolower($report['report_status']);
+    $isFinal = in_array($status, ['approved', 'rejected']);
+
+    $statusClass = match($status) {
+        'approved' => 'approved',
+        'rejected' => 'rejected',
+        default => 'pending'
+    };
 
     echo '
     <div class="claim-card-wrapper '.$class.'">
@@ -228,8 +238,79 @@ if (($item_owner['user_id'] ?? null) == $current_user_id) {
     }
 
     echo '
+        <div class="claim-status '.$statusClass.'">
+            '.htmlspecialchars($report['report_status']).'
         </div>
+    ';
 
+    $item_stmt = $conn->prepare("
+        SELECT user_id
+        FROM lost_items
+        WHERE lost_id = ?
+    ");
+
+    $item_stmt->bind_param("i", $report['lost_item_id']);
+
+    $item_stmt->execute();
+
+    $item_owner = $item_stmt->get_result()->fetch_assoc();
+
+    if (($item_owner['user_id'] ?? null) == $current_user_id) {
+
+        if ($isFinal) {
+
+            echo '
+            <div class="claim-actions">
+                <small style="color:gray;">
+                    Decision already made
+                </small>
+            </div>
+            ';
+
+        } else {
+
+            echo '
+            <div class="claim-actions">
+
+                <form method="POST"
+                    action="approve_found_report.php"
+
+                    onsubmit="return confirm(
+                    \'Approve this report?\');">
+
+                    <input type="hidden"
+                        name="report_id"
+                        value="'.$report['report_id'].'">
+
+                    <button class="approve-btn">
+                        Approve
+                    </button>
+
+                </form>
+
+                <form method="POST"
+                    action="reject_found_report.php"
+
+                    onsubmit="return confirm(
+                    \'Reject this report?\');">
+
+                    <input type="hidden"
+                        name="report_id"
+                        value="'.$report['report_id'].'">
+
+                    <button class="reject-btn">
+                        Reject
+                    </button>
+
+                </form>
+
+            </div>
+            ';
+        }
+    }
+
+    echo '
+        </div>
     </div>
     ';
     }elseif ($row['message_type'] == 'system') {
