@@ -255,7 +255,26 @@ CREATE TABLE `messages` (
   FOREIGN KEY (`report_id`) REFERENCES `found_reports`(`report_id`) ON DELETE CASCADE
 )ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+-- --------------------------------------------------------
 
+--
+-- Table structure for table inexing messages
+--
+
+ALTER TABLE `messages`
+ADD INDEX `idx_sender` (`sender_id`);
+
+ALTER TABLE `messages`
+ADD INDEX `idx_receiver` (`receiver_id`);
+
+ALTER TABLE `messages`
+ADD INDEX `idx_item` (`item_id`);
+
+ALTER TABLE `messages`
+ADD INDEX `idx_claim` (`claim_id`);
+
+ALTER TABLE `messages`
+ADD INDEX `idx_report` (`report_id`);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
