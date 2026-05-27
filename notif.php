@@ -595,10 +595,10 @@ $user_id = $_SESSION['user_id'];
 
                 if($result->num_rows > 0):
                     while($row = $result->fetch_assoc()):
-                        $isRead = $row['is_read'] ? 'read' : '';
+                        $isRead = ($row['is_read'] == 'Yes') ? 'read' : '';
                         $time = date('M d, Y • g:i A', strtotime($row['created_at']));
                 ?>
-                <div class="notification-item <?php echo $isRead; ?>" onclick="openNotification(this, <?php echo $row['notif_id']; ?>)">
+                <div class="notification-item <?php echo $isRead; ?>" onclick="openNotification(this, <?php echo $row['notification_id']; ?>)">
                     <div class="notification-left">
                         <div class="notification-bell">
                             <svg viewBox="0 0 24 24" fill="none" stroke="#7A7A7A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -607,7 +607,7 @@ $user_id = $_SESSION['user_id'];
                             </svg>
                         </div>
                         <div class="notification-content">
-                            <h3><?php echo htmlspecialchars($row['message']); ?></h3>
+                            <h3><?php echo htmlspecialchars($row['notification_text']); ?></h3>
                             <p><?php echo $time; ?></p>
                         </div>
                     </div>

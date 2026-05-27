@@ -111,6 +111,21 @@ if ($res->num_rows == 0) {
 
     $msg_stmt->execute();
 }
+$notif_text = "Your found item report was approved.";
+
+$notif = $conn->prepare("
+INSERT INTO notifications
+(user_id, notification_text, notification_type)
+VALUES (?, ?, 'found_report')
+");
+
+$notif->bind_param(
+    "is",
+    $report['finder_user_id'],
+    $notif_text
+);
+
+$notif->execute();
 
 
 header(
