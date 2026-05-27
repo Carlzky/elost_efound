@@ -213,7 +213,7 @@ $cvsu_email = htmlspecialchars($profile['cvsu_email'] ?? '');
 
         <h2 class="modal-title">Edit Profile</h2>
 
-        <form method="POST" action="update_profile.php" enctype="multipart/form-data">
+        <form method="POST" action="actions/update_profile.php" enctype="multipart/form-data">
             <div class="photo-section">
                 <h3>Profile Photo</h3>
                 <div class="photo-row">

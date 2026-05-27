@@ -3,7 +3,7 @@ session_start();
 
 date_default_timezone_set('Asia/Manila');
 
-include "config/db.php";
+include "../config/db.php";
 
 if (!isset($_SESSION['user_id'])) {
     die("Login required.");

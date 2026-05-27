@@ -4,428 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Report Item - E-LOST KOH, E-FOUND MOH</title>
+
+    <link rel="stylesheet" href="assets/css/report-item_style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary: #1F5D4A;
-            --primary-dark: #143F32;
-            --gold: #F1B846;
-            --primary-green: #1F5D4A;
-            --light-green: #BBC34A;
-            --dark-gray: #68735C;
-            --bg-gray: #F2F2F2;
-            --pure-white: #FFFFFF;
-            --text-dark: #1A1A1A;
-            --border-light: #E0E0E0;
-            --sidebar-width: 240px;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-gray);
-            color: var(--text-dark);
-            display: flex;
-            min-height: 100vh;
-        }
-
-        /* Sidebar Navigation Component */
-        .sidebar {
-            width: var(--sidebar-width);
-            background-color: var(--primary-green);
-            color: var(--pure-white);
-            padding: 24px;
-            display: flex;
-            flex-direction: column;
-            position: fixed;
-            height: 100vh;
-            z-index: 10;
-        }
-
-        .logo-section {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin-bottom: 40px;
-        }
-
-        .logo-icon {
-            width: 58px;
-            height: 58px;
-            background: linear-gradient(135deg, #1F5D4A, #143F32);
-            border: 2px solid #F1B846;
-            border-radius: 16px;
-
-            display: flex;
-            justify-content: center;
-            align-items: center;
-
-            font-size: 26px;
-
-            box-shadow:
-                0 12px 30px rgba(0, 0, 0, 0.35),
-                inset 0 3px 6px rgba(255, 255, 255, 0.18);
-
-            transition:
-                transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1),
-                box-shadow 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-
-        .logo-icon:hover {
-            transform: scale(1.08) translateY(-5px) rotate(4deg);
-
-            box-shadow:
-                0 18px 40px rgba(0, 0, 0, 0.45),
-                inset 0 3px 6px rgba(255, 255, 255, 0.25);
-        }
-        
-
-        .logo-text {
-            font-family: 'Poppins', sans-serif;
-            font-size: 15px;
-            line-height: 1.3;
-            font-weight: 700;
-            color: #FFFFFF;
-        }
-
-        .logo-text .txt-highlight {
-            color: #BBC34A;
-        }
-
-        .nav-menu {
-            list-style: none;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            height:100%;
-        }
-
-        .nav-item a {
-            text-decoration: none;
-            color: rgba(255, 255, 255, 0.82);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 13px 16px;
-            border-radius: 10px;
-            transition: 0.25s ease;
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .nav-item a:hover {
-            background: rgba(255, 255, 255, 0.05);
-            color: white;
-        }
-
-        .nav-item.active a {
-            background: rgba(255, 255, 255, 0.12);
-            color: white;
-            font-weight: 500;
-        }
-
-        .nav-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 20px;
-            height: 20px;
-            opacity: 0.8;
-        }
-
-        /* FIXED: Main Workspace Section styled to center content both ways */
-        .main-content {
-            margin-left: var(--sidebar-width);
-            flex: 1;
-            padding: 40px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center; /* Centers vertically */
-            align-items: center;     /* Centers horizontally */
-            min-height: 100vh;
-        }
-
-        /* Fixed heading wrapper to stay top-left aligned relative to the centered card */
-        .content-header {
-            width: 100%;
-            max-width: 680px;
-            margin-bottom: 24px;
-            text-align: left;
-        }
-
-        h1 {
-            font-family: 'Poppins', sans-serif;
-            font-size: 28px;
-            color: var(--text-dark);
-        }
-
-        /* Report Form Card Layout Frame */
-        .form-card {
-            background-color: var(--pure-white);
-            border-radius: 12px;
-            padding: 32px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
-            width: 100%;
-            max-width: 680px;
-            border: 1px solid #EAEAEA;
-        }
-
-        /* Pill Mode Toggle Selector Layout Component */
-        .toggle-container {
-            display: flex;
-            gap: 10px;
-            background-color: #F2F2F2;
-            padding: 6px;
-            border-radius: 30px;
-            width: max-content;
-            margin-bottom: 28px;
-        }
-
-        .toggle-btn {
-            border: none;
-            padding: 10px 24px;
-            border-radius: 20px;
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            background: transparent;
-            color: var(--dark-gray);
-            transition: all 0.2s ease;
-        }
-
-        .toggle-btn.active {
-            background-color: var(--primary-green);
-            color: var(--pure-white);
-        }
-
-        /* Two-Column Side-by-Side Matrix Grid */
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1.15fr 0.85fr;
-            gap: 24px;
-            margin-bottom: 16px;
-        }
-
-        .fields-left, .fields-right {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            margin-bottom: 16px;
-        }
-
-        label {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-dark);
-        }
-
-        input[type="text"], input[type="date"], select, textarea {
-            width: 100%;
-            padding: 12px 16px;
-            border: 1px solid var(--border-light);
-            border-radius: 8px;
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            color: var(--text-dark);
-            background-color: #FAFAFA;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        /* LOCKED SIZING: User cannot drag or stretch description box */
-        textarea {
-            resize: none; 
-            height: 110px;
-        }
-
-        input::placeholder, textarea::placeholder {
-            color: #B3B3B3;
-        }
-
-        input:focus, select:focus, textarea:focus {
-            border-color: var(--primary-green);
-            background-color: var(--pure-white);
-        }
-
-        /* Safe drag & drop zone layout structure */
-        .upload-container {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 16px;
-        }
-
-        .upload-dropzone {
-            border: 2px dashed #CCCCCC;
-            background-color: #FAFAFA;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            flex-grow: 1;
-            padding: 20px;
-            text-align: center;
-            color: var(--dark-gray);
-            cursor: pointer;
-            min-height: 230px; /* Synchronizes layout height with the left fields precisely */
-            transition: all 0.2s ease;
-        }
-
-        .upload-dropzone:hover {
-            border-color: var(--primary-green);
-            background-color: #F9FAF9;
-        }
-
-        .upload-icon {
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .upload-icon svg {
-            width: 40px;
-            height: 40px;
-            fill: #888888;
-        }
-
-        .upload-text {
-            font-size: 13px;
-            font-weight: 500;
-            line-height: 1.4;
-        }
-
-        .upload-text span {
-            color: #888888;
-            font-weight: 400;
-            font-size: 12px;
-        }
-
-        /* Large Bottom Primary Action Button */
-        .btn-submit {
-            width: 100%;
-            background-color: var(--primary-green);
-            color: var(--pure-white);
-            border: none;
-            padding: 14px;
-            font-family: 'Inter', sans-serif;
-            font-size: 15px;
-            font-weight: 500;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-top: 8px;
-            transition: background-color 0.2s;
-        }
-
-        .btn-submit:hover {
-            background-color: #164335;
-        }
-
-        .logout-overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0,0,0,0.4);
-            backdrop-filter: blur(6px);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-        }
-
-        .logout-modal {
-            background: white;
-            padding: 32px;
-            border-radius: 20px;
-            text-align: center;
-            width: 320px;
-            border: 1px solid #EAEAEA;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-            transform: scale(0.85);
-            opacity: 0;
-            animation: popIn 0.25s forwards;
-        }
-
-        @keyframes popIn {
-            to { transform: scale(1); opacity: 1; }
-        }
-
-        .logout-modal h2 {
-            font-family: 'Poppins', sans-serif;
-            font-size: 20px;
-            margin-bottom: 10px;
-            color: var(--primary);
-        }
-
-        .logout-modal p {
-            font-size: 14px;
-            color: #7A7A7A;
-            margin-bottom: 24px;
-        }
-
-        .logout-buttons {
-            display: flex;
-            gap: 12px;
-        }
-
-        .cancel-btn {
-            flex: 1;
-            padding: 12px;
-            border: 1px solid #E0E0E0;
-            border-radius: 10px;
-            background: #F4F4F4;
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .cancel-btn:hover { background: #E8E8E8; }
-
-        .logout-btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            background: var(--primary);
-            color: white;
-            font-family: 'Inter', sans-serif;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .logout-btn:hover {
-            background: var(--primary-dark); 
-        }
-
-        @media (max-width: 768px) {
-            .sidebar { width: 70px; }
-            .logo-text, .nav-text { display: none; }
-            .main-content { margin-left: 70px; padding: 20px; justify-content: flex-start; }
-            .form-grid { grid-template-columns: 1fr; gap: 0; }
-            .upload-dropzone { min-height: 160px; }
-        }
-    </style>
+    
 </head>
 <body>
 
     <div class="sidebar">
-
         <div class="logo-section">
             <div class="logo-icon">🔍</div>
             <div class="logo-text">
@@ -435,24 +21,20 @@
         </div>
 
         <ul class="nav-menu">
-
             <li class="nav-item">
                 <a href="dashboard.php">
-
                     <span class="nav-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                             <polyline points="9 22 9 12 15 12 15 22"></polyline>
                         </svg>
                     </span>
-
                     <span class="nav-text">Dashboard</span>
                 </a>
             </li>
 
             <li class="nav-item active">
                 <a href="report-item.php">
-
                     <span class="nav-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -461,28 +43,24 @@
                             <line x1="9" y1="15" x2="15" y2="15"></line>
                         </svg>
                     </span>
-
                     <span class="nav-text">Report Item</span>
                 </a>
             </li>
 
             <li class="nav-item">
                 <a href="browse-items.php">
-
                     <span class="nav-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <circle cx="11" cy="11" r="8"></circle>
                             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                         </svg>
                     </span>
-
                     <span class="nav-text">Browse Items</span>
                 </a>
             </li>
 
             <li class="nav-item">
                 <a href="claim.php">
-
                     <span class="nav-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -491,34 +69,29 @@
                             <line x1="16" y1="17" x2="8" y2="17"></line>
                         </svg>
                     </span>
-
                     <span class="nav-text">My Claims</span>
                 </a>
             </li>
 
             <li class="nav-item">
                 <a href="notif.php">
-
                     <span class="nav-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                             <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                         </svg>
                     </span>
-
                     <span class="nav-text">Notifications</span>
                 </a>
             </li>
 
             <li class="nav-item">
                 <a href="messages.php">
-
                     <span class="nav-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                         </svg>
                     </span>
-
                     <span class="nav-text">Messages</span>
                 </a>
             </li>
@@ -535,20 +108,17 @@
                     <span class="nav-text">Logout</span>
                 </a>
             </li>
-
         </ul>
-
     </div>
 
     <div class="main-content">
-        
         <div class="content-header">
             <h1>Report Item</h1>
         </div>
 
         <div class="form-card">
-            <form action="save_report.php" method="POST" enctype="multipart/form-data">
-            <input type="hidden" name="type" id="item-type" value="lost">
+            <form action="actions/save_report.php" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="type" id="item-type" value="lost">
             
                 <div class="toggle-container">
                     <button type="button" class="toggle-btn active" id="btn-lost">Lost Item</button>
@@ -556,7 +126,6 @@
                 </div>
 
                 <div class="form-grid">
-                    
                     <div class="fields-left">
                         <div class="form-group">
                             <label>Item Name</label>
@@ -583,7 +152,7 @@
                         <div class="form-group">
                             <label>Category</label>
                             <select name="category" required>
-                                <option value="" disabled open selected>Select category</option>
+                                <option value="" disabled selected>Select category</option>
                                 <option value="bags">Bag / Backpack</option>
                                 <option value="electronics">Electronics / Gadgets</option>
                                 <option value="documents">Documents / ID Cards</option>
@@ -605,7 +174,6 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
 
                 <button type="submit" class="btn-submit">Submit Report</button>
@@ -617,12 +185,10 @@
         const btnLost = document.getElementById('btn-lost');
         const btnFound = document.getElementById('btn-found');
         const dateLabel = document.getElementById('date-label');
-        
         const dropzone = document.getElementById('dropzone');
         const fileInput = document.getElementById('file-input');
         const uploadStatus = document.getElementById('upload-status');
 
-        // Toggle Switch functionality
         btnLost.addEventListener('click', () => {
             btnLost.classList.add('active');
             btnFound.classList.remove('active');
@@ -637,10 +203,7 @@
             document.getElementById('item-type').value = "found";
         });
 
-        // Click-to-upload hook handler
-        dropzone.addEventListener('click', () => {
-            fileInput.click();
-        });
+        dropzone.addEventListener('click', () => { fileInput.click(); });
 
         fileInput.addEventListener('change', () => {
             if (fileInput.files.length > 0) {
@@ -648,7 +211,6 @@
             }
         });
 
-        // Drag and drop event listeners
         dropzone.addEventListener('dragover', (e) => {
             e.preventDefault();
             dropzone.style.borderColor = "var(--primary-green)";
@@ -664,24 +226,15 @@
             e.preventDefault();
             dropzone.style.borderColor = "#CCCCCC";
             dropzone.style.backgroundColor = "#FAFAFA";
-            
             if (e.dataTransfer.files.length > 0) {
                 fileInput.files = e.dataTransfer.files;
                 uploadStatus.innerHTML = `<strong>Dropped:</strong><br><span style="font-size:12px; color:var(--primary-green);">${e.dataTransfer.files[0].name}</span>`;
             }
         });
 
-        function openLogoutModal() {
-            document.getElementById("logoutOverlay").style.display = "flex";
-        }
-
-        function closeLogoutModal() {
-            document.getElementById("logoutOverlay").style.display = "none";
-        }
-
-        function confirmLogout() {
-            window.location.href = "logout.php";
-        }
+        function openLogoutModal() { document.getElementById("logoutOverlay").style.display = "flex"; }
+        function closeLogoutModal() { document.getElementById("logoutOverlay").style.display = "none"; }
+        function confirmLogout() { window.location.href = "logout.php"; }
     </script>
     <div class="logout-overlay" id="logoutOverlay">
         <div class="logout-modal">

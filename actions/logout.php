@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-include 'config/db.php'; // Aligned to your clean directory architecture
+include "../config/db.php";
 
 if (isset($_COOKIE['remember_me'])) {
     if (strpos($_COOKIE['remember_me'], ':') !== false) {
