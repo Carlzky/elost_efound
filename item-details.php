@@ -52,8 +52,6 @@ if($result->num_rows == 0){
 
 $item = $result->fetch_assoc();
 
-
-
 $user_sql = "SELECT username FROM users WHERE id = ?";
 
 $user_stmt = $conn->prepare($user_sql);
@@ -107,10 +105,79 @@ $image = !empty($item['item_image'])
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-gray);
             color: var(--text-dark);
-            padding: 40px;
-            display: flex;
-            justify-content: center;
+            padding: 0; /* changed to allow navbar */
         }
+
+        /* ================= NAVBAR ADDED (NO MAIN CODE CHANGE) ================= */
+        .navbar{
+            width:100%;
+            background:var(--primary-green);
+            padding:14px 28px;
+
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+        }
+
+        .logo-section{
+            display:flex;
+            align-items:center;
+            gap:12px;
+        }
+
+        .logo-icon{
+            width:48px;
+            height:48px;
+            background:#143F32;
+            border:2px solid var(--light-green);
+            border-radius:12px;
+
+            display:flex;
+            align-items:center;
+            justify-content:center;
+
+            color:white;
+            font-size:20px;
+        }
+
+        .logo-text{
+            font-family:'Poppins', sans-serif;
+            font-size:14px;
+            font-weight:700;
+            color:white;
+            line-height:1.2;
+        }
+
+        .txt-highlight{
+            color:var(--light-green);
+        }
+
+        .nav-right{
+            display:flex;
+            align-items:center;
+            gap:18px;
+        }
+
+        .notif-bell-btn{
+            color:white;
+            text-decoration:none;
+            display:flex;
+            align-items:center;
+        }
+
+        .avatar-link{
+            display:flex;
+            align-items:center;
+        }
+
+        .avatar{
+            width:40px;
+            height:40px;
+            border-radius:50%;
+            object-fit:cover;
+            border:2px solid white;
+        }
+        /* ================= END NAVBAR ================= */
 
         .container {
             width: 100%;
@@ -119,15 +186,25 @@ $image = !empty($item['item_image'])
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             padding: 30px;
+            margin: 40px auto;
         }
 
         .back-link {
-            display: inline-flex;
-            align-items: center;
-            color: var(--text-dark);
-            text-decoration: none;
-            font-weight: 500;
-            margin-bottom: 24px;
+            display:inline-flex;
+            align-items:center;
+            gap:6px;
+
+            color:var(--primary-green);
+            text-decoration:none;
+
+            font-weight:600;
+            margin-bottom:24px;
+
+            transition:0.2s;
+        }
+
+        .back-link:hover{
+            opacity:0.8;
         }
 
         .grid-layout {
@@ -243,7 +320,37 @@ $image = !empty($item['item_image'])
         }
     </style>
 </head>
+
 <body>
+
+<!-- NAVBAR ADDED ONLY -->
+<div class="navbar">
+
+    <div class="logo-section">
+        <div class="logo-icon">🔍</div>
+        <div class="logo-text">
+            E-LOST <span class="txt-highlight">MOH</span><br>
+            E-FOUND <span class="txt-highlight">KOH</span>
+        </div>
+    </div>
+
+    <div class="nav-right">
+
+        <a href="notif.php" class="notif-bell-btn">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+            </svg>
+        </a>
+
+        <a href="profile.php" class="avatar-link">
+            <img src="images/default-avatar.png" class="avatar">
+        </a>
+
+    </div>
+
+</div>
 
 <div class="container">
 
@@ -254,10 +361,8 @@ $image = !empty($item['item_image'])
     <div class="grid-layout">
 
         <div class="image-container">
-            <img 
-                src="<?php echo htmlspecialchars($image); ?>"
-                style="width:100%; height:100%; object-fit:cover;"
-            >
+            <img src="<?php echo htmlspecialchars($image); ?>"
+                 style="width:100%; height:100%; object-fit:cover;">
         </div>
 
         <div class="details-container">
@@ -306,22 +411,17 @@ $image = !empty($item['item_image'])
             <div class="action-buttons">
 
                 <?php if($item['item_type'] == "Found"): ?>
-
                 <a href="found_thisitem.php?id=<?php echo $item['item_id']; ?>" class="btn btn-primary">
-                Claim This Item
+                    Claim This Item
                 </a>
-
                 <?php else: ?>
-
                 <a href="found_lostitem.php?id=<?php echo $item['item_id']; ?>" class="btn btn-primary">
-                Found This Item
+                    Found This Item
                 </a>
-
                 <?php endif; ?>
 
-                
                 <a href="messages.php?user_id=<?php echo $item['user_id']; ?>" class="btn btn-secondary">
-                Message Owner
+                    Message Owner
                 </a>
 
             </div>
