@@ -241,7 +241,7 @@ if(!isset($_SESSION['user_id'])){
 
         function openLogoutModal() { document.getElementById("logoutOverlay").style.display = "flex"; }
         function closeLogoutModal() { document.getElementById("logoutOverlay").style.display = "none"; }
-        function confirmLogout() { window.location.href = "logout.php"; }
+        function confirmLogout() { window.location.href = "actions/logout.php"; }
     </script>
     <div class="logout-overlay" id="logoutOverlay">
         <div class="logout-modal">

@@ -473,7 +473,7 @@ function closeLogoutModal() {
     document.getElementById('logoutOverlay').style.display = 'none';
 }
 function confirmLogout() {
-    window.location.href = 'logout.php';
+    window.location.href = 'actions/logout.php';
 }
 
 

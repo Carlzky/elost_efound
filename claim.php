@@ -555,7 +555,7 @@ function applyFilters(){
         }
 
         function confirmLogout() {
-            window.location.href = "logout.php";
+            window.location.href = "actions/logout.php";
         }
 
         applyFilters();

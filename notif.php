@@ -256,7 +256,7 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
     }
 
     function confirmLogout() {
-        window.location.href = 'logout.php';
+        window.location.href = 'actions/logout.php';
     }
 </script>
 
