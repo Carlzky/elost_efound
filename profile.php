@@ -11,16 +11,29 @@ if(!isset($_SESSION['username'])){
     exit();
 }
 
+if (!isset($_SESSION['user_id'])) {
+    $username_check = $_SESSION['username'];
+    $stmt_id = $conn->prepare("SELECT id FROM users WHERE username = ?");
+    $stmt_id->bind_param("s", $username_check);
+    $stmt_id->execute();
+    $result_id = $stmt_id->get_result();
+    if ($row_id = $result_id->fetch_assoc()) {
+        $_SESSION['user_id'] = $row_id['id'];
+    } else {
+        header("Location: logout.php");
+        exit();
+    }
+}
+
 $user_id = $_SESSION['user_id'];
 
 // Fetch user profile
 $stmt = $conn->prepare("SELECT * FROM users WHERE id=?");
-
-if (!$stmt) {
-    die("SQL Error: " . $conn->error);
-}
-
+if (!$stmt) { die("SQL Error: " . $conn->error); }
 $stmt->bind_param("i", $user_id);
+$stmt->execute();
+$profile_result = $stmt->get_result();
+$profile = $profile_result->fetch_assoc();
 
 // Fetch stats
 $claimed_sql = "SELECT COUNT(*) AS total FROM claims WHERE claimant_user_id = ? AND claim_status = 'Approved'";
@@ -41,666 +54,30 @@ $stmt4->bind_param("i", $user_id);
 $stmt4->execute();
 $reports = $stmt4->get_result()->fetch_assoc()['total'];
 
-$avatar = !empty($profile['profile_image']) ? $profile['profile_image'] : 'uploads/default-avatar.png';
+// Set variables with fallback values
+$avatar = !empty($profile['profile_image']) ? $profile['profile_image'] : 'assets/img/defaultProfile.png';
 $username = htmlspecialchars($profile['username'] ?? '');
 $email = htmlspecialchars($profile['email'] ?? '');
 $full_name = htmlspecialchars($profile['full_name'] ?? '');
 $cvsu_email = htmlspecialchars($profile['cvsu_email'] ?? '');
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>My Profile - E-LOST KOH, E-FOUND MOH</title>
+
+<link rel="stylesheet" href="assets/css/profile_style.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
-<style>
-    :root {
-        --primary: #1F5D4A;
-        --primary-dark: #143F32;
-        --gold: #F1B846;
-        --primary-green: #1F5D4A;
-        --bg-gray: #F4F4F4;
-        --pure-white: #FFFFFF;
-        --text-dark: #1A1A1A;
-        --sidebar-width: 240px;
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-        font-family: 'Inter', sans-serif;
-        background: var(--bg-gray);
-        color: var(--text-dark);
-        min-height: 100vh;
-    }
-
-    /* ========================
-       SIDEBAR DRAWER
-    ========================= */
-    .sidebar-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.4);
-        backdrop-filter: blur(4px);
-        z-index: 800;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.3s ease;
-    }
-
-    .sidebar-overlay.open {
-        opacity: 1;
-        pointer-events: all;
-    }
-
-    .sidebar {
-        width: var(--sidebar-width);
-        background: var(--primary-green);
-        color: white;
-        padding: 24px;
-        position: fixed;
-        top: 0; left: 0;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-        z-index: 900;
-        transform: translateX(-100%);
-        transition: transform 0.32s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    .sidebar.open {
-        transform: translateX(0);
-    }
-
-    .logo-section {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        margin-bottom: 40px;
-    }
-
-    .logo-icon {
-        width: 58px;
-        height: 58px;
-        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-        border: 2px solid var(--gold);
-        border-radius: 16px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 26px;
-        box-shadow: 0 12px 30px rgba(0,0,0,0.35), inset 0 3px 6px rgba(255,255,255,0.18);
-        transition: transform 0.7s cubic-bezier(0.2,0.8,0.2,1), box-shadow 0.7s cubic-bezier(0.2,0.8,0.2,1);
-    }
-
-    .logo-icon:hover {
-        transform: scale(1.08) translateY(-5px) rotate(4deg);
-        box-shadow: 0 18px 40px rgba(0,0,0,0.45), inset 0 3px 6px rgba(255,255,255,0.25);
-    }
-
-    .logo-text {
-        font-family: 'Poppins', sans-serif;
-        font-size: 15px;
-        line-height: 1.3;
-        font-weight: 600;
-    }
-
-    .nav-menu {
-        list-style: none;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        height: 100%;
-    }
-
-    .nav-item a {
-        text-decoration: none;
-        color: rgba(255,255,255,0.82);
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 13px 16px;
-        border-radius: 10px;
-        transition: 0.25s ease;
-        font-size: 14px;
-        font-weight: 500;
-    }
-
-    .nav-item a:hover { background: rgba(255,255,255,0.05); color: white; }
-
-    .nav-item.active a {
-        background: rgba(255,255,255,0.12);
-        color: white;
-    }
-
-    .nav-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 20px;
-        height: 20px;
-        opacity: 0.8;
-    }
-
-    /* ========================
-       TOP BAR
-    ========================= */
-    .top-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 18px 28px;
-        background: var(--pure-white);
-        border-bottom: 1px solid #EAEAEA;
-        position: sticky;
-        top: 0;
-        z-index: 100;
-    }
-
-    .hamburger-btn {
-        background: none;
-        border: none;
-        cursor: pointer;
-        color: var(--text-dark);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 4px;
-        border-radius: 6px;
-        transition: background 0.2s;
-    }
-
-    .hamburger-btn:hover { background: #F0F0F0; }
-
-    .top-bar-center {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
-
-    /* Center logo — same box as sidebar */
-    .top-logo-icon {
-        width: 40px;
-        height: 40px;
-        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-        border: 2px solid var(--gold);
-        border-radius: 12px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 18px;
-        box-shadow: 0 6px 16px rgba(0,0,0,0.25), inset 0 2px 4px rgba(255,255,255,0.18);
-        transition: transform 0.5s cubic-bezier(0.2,0.8,0.2,1);
-    }
-
-    .top-logo-icon:hover {
-        transform: scale(1.08) rotate(4deg);
-    }
-
-    .top-logo-text {
-        font-family: 'Poppins', sans-serif;
-        font-size: 13px;
-        font-weight: 700;
-        color: var(--primary-green);
-        line-height: 1.2;
-    }
-
-    .top-bar-right {
-        display: flex;
-        align-items: center;
-        gap: 18px;
-    }
-
-    .notif-bell-btn {
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        color: #555;
-        transition: transform 0.2s;
-        display: flex;
-        align-items: center;
-        text-decoration: none;
-    }
-
-    .notif-bell-btn:hover { transform: scale(1.08); }
-
-    .avatar-sm {
-        width: 34px;
-        height: 34px;
-        border-radius: 50%;
-        object-fit: cover;
-        background: #DDD;
-        border: 2px solid #EAEAEA;
-    }
-
-    /* ========================
-       PAGE CONTENT
-    ========================= */
-    .page-content {
-        padding: 36px 28px;
-        max-width: 680px;
-        margin: 0 auto;
-    }
-
-    .page-label {
-        font-size: 12px;
-        font-weight: 600;
-        color: #9A9A9A;
-        text-transform: uppercase;
-        letter-spacing: 0.8px;
-        margin-bottom: 6px;
-    }
-
-    .page-title {
-        font-family: 'Poppins', sans-serif;
-        font-size: 26px;
-        font-weight: 700;
-        margin-bottom: 24px;
-    }
-
-    /* ========================
-       PROFILE BANNER
-    ========================= */
-    .profile-banner {
-        background: var(--primary-green);
-        border-radius: 16px;
-        padding: 28px 24px;
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        position: relative;
-        margin-bottom: 20px;
-    }
-
-    .profile-avatar {
-        width: 72px;
-        height: 72px;
-        border-radius: 50%;
-        object-fit: cover;
-        background: rgba(255,255,255,0.25);
-        border: 3px solid rgba(255,255,255,0.4);
-        flex-shrink: 0;
-    }
-
-    .profile-info h2 {
-        font-family: 'Poppins', sans-serif;
-        font-size: 18px;
-        font-weight: 700;
-        color: white;
-        margin-bottom: 4px;
-    }
-
-    .profile-info p {
-        font-size: 13px;
-        color: rgba(255,255,255,0.75);
-    }
-
-    .edit-profile-btn {
-        position: absolute;
-        right: 20px;
-        bottom: 20px;
-        background: white;
-        color: var(--primary-green);
-        border: none;
-        border-radius: 8px;
-        padding: 8px 16px;
-        font-family: 'Inter', sans-serif;
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-    .edit-profile-btn:hover { background: #F0F0F0; }
-
-    /* ========================
-       STATS ROW
-    ========================= */
-    .stats-row {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        background: var(--pure-white);
-        border-radius: 14px;
-        border: 1px solid #EAEAEA;
-        overflow: hidden;
-        margin-bottom: 20px;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.04);
-    }
-
-    .stat-cell {
-        text-align: center;
-        padding: 20px 12px;
-        border-right: 1px solid #EAEAEA;
-    }
-
-    .stat-cell:last-child { border-right: none; }
-
-    .stat-cell .num {
-        font-family: 'Poppins', sans-serif;
-        font-size: 28px;
-        font-weight: 700;
-        color: var(--primary-green);
-        margin-bottom: 4px;
-    }
-
-    .stat-cell .label {
-        font-size: 12px;
-        color: #9A9A9A;
-        font-weight: 500;
-    }
-
-    /* ========================
-       INFO CARD
-    ========================= */
-    .info-card {
-        background: var(--pure-white);
-        border-radius: 14px;
-        border: 1px solid #EAEAEA;
-        padding: 22px 24px;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.04);
-    }
-
-    .info-row {
-        display: flex;
-        flex-direction: column;
-        gap: 3px;
-        padding: 14px 0;
-        border-bottom: 1px solid #F4F4F4;
-    }
-
-    .info-row:last-child { border-bottom: none; }
-
-    .info-label {
-        font-size: 11px;
-        font-weight: 600;
-        color: #9A9A9A;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .info-value {
-        font-size: 14px;
-        font-weight: 500;
-        color: var(--text-dark);
-    }
-
-    /* ========================
-       EDIT PROFILE MODAL
-    ========================= */
-    .modal-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.4);
-        backdrop-filter: blur(6px);
-        z-index: 9999;
-        display: none;
-        justify-content: center;
-        align-items: flex-start;
-        padding: 60px 20px;
-        overflow-y: auto;
-    }
-
-    .modal-overlay.open { display: flex; }
-
-    .modal-card {
-        background: white;
-        border-radius: 20px;
-        width: 100%;
-        max-width: 560px;
-        padding: 32px;
-        border: 1px solid #EAEAEA;
-        box-shadow: 0 24px 60px rgba(0,0,0,0.14);
-        animation: slideUp 0.25s cubic-bezier(0.34,1.56,0.64,1) forwards;
-        transform: translateY(30px);
-        opacity: 0;
-    }
-
-    @keyframes slideUp {
-        to { transform: translateY(0); opacity: 1; }
-    }
-
-    .modal-back {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 13px;
-        color: var(--primary-green);
-        font-weight: 600;
-        cursor: pointer;
-        margin-bottom: 24px;
-        background: none;
-        border: none;
-        padding: 0;
-    }
-
-    .modal-back:hover { opacity: 0.75; }
-
-    .modal-title {
-        font-family: 'Poppins', sans-serif;
-        font-size: 22px;
-        font-weight: 700;
-        margin-bottom: 24px;
-    }
-
-    /* Photo section */
-    .photo-section {
-        margin-bottom: 28px;
-    }
-
-    .photo-section h3 {
-        font-size: 14px;
-        font-weight: 600;
-        margin-bottom: 14px;
-    }
-
-    .photo-row {
-        display: flex;
-        align-items: center;
-        gap: 18px;
-    }
-
-    .photo-preview {
-        width: 72px;
-        height: 72px;
-        border-radius: 50%;
-        object-fit: cover;
-        background: #DDD;
-        border: 2px solid #EAEAEA;
-        flex-shrink: 0;
-    }
-
-    .photo-actions {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
-
-    .photo-hint {
-        font-size: 11px;
-        color: #9A9A9A;
-        margin-bottom: 4px;
-    }
-
-    .photo-btns {
-        display: flex;
-        gap: 10px;
-    }
-
-    .btn-change-photo {
-        background: var(--primary-green);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        padding: 8px 14px;
-        font-size: 12px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-    .btn-change-photo:hover { background: var(--primary-dark); }
-
-    .btn-remove-photo {
-        background: transparent;
-        color: #E74C3C;
-        border: 1px solid #E74C3C;
-        border-radius: 8px;
-        padding: 8px 14px;
-        font-size: 12px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-    .btn-remove-photo:hover { background: #FFF5F5; }
-
-    /* Form fields */
-    .form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 18px;
-        margin-bottom: 28px;
-    }
-
-    .form-group {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
-
-    .form-group.full { grid-column: 1 / -1; }
-
-    .form-group label {
-        font-size: 12px;
-        font-weight: 600;
-        color: #555;
-        text-transform: uppercase;
-        letter-spacing: 0.4px;
-    }
-
-    .form-group input {
-        padding: 10px 14px;
-        border: 1px solid #E0E0E0;
-        border-radius: 10px;
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        color: var(--text-dark);
-        background: #FAFAFA;
-        outline: none;
-        transition: border 0.2s;
-    }
-
-    .form-group input:focus {
-        border-color: var(--primary-green);
-        background: white;
-    }
-
-    /* Modal footer buttons */
-    .modal-footer {
-        display: flex;
-        justify-content: flex-end;
-        gap: 12px;
-        border-top: 1px solid #F0F0F0;
-        padding-top: 22px;
-    }
-
-    .btn-cancel {
-        padding: 11px 22px;
-        border: 1px solid #E0E0E0;
-        border-radius: 10px;
-        background: #F4F4F4;
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-    .btn-cancel:hover { background: #E8E8E8; }
-
-    .btn-save {
-        padding: 11px 24px;
-        border: none;
-        border-radius: 10px;
-        background: var(--primary-green);
-        color: white;
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-    .btn-save:hover { background: var(--primary-dark); }
-
-    /* Hidden file input */
-    #photoInput { display: none; }
-
-    /* ========================
-       LOGOUT MODAL
-    ========================= */
-    .logout-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.4);
-        backdrop-filter: blur(6px);
-        display: none;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-    }
-
-    .logout-modal {
-        background: white;
-        padding: 32px;
-        border-radius: 20px;
-        text-align: center;
-        width: 320px;
-        border: 1px solid #EAEAEA;
-        box-shadow: 0 20px 50px rgba(0,0,0,0.15);
-        transform: scale(0.85);
-        opacity: 0;
-        animation: popIn 0.25s forwards;
-    }
-
-    @keyframes popIn { to { transform: scale(1); opacity: 1; } }
-
-    .logout-modal h2 {
-        font-family: 'Poppins', sans-serif;
-        font-size: 20px;
-        margin-bottom: 10px;
-        color: var(--primary-green);
-    }
-
-    .logout-modal p { font-size: 14px; color: #7A7A7A; margin-bottom: 24px; }
-    .logout-buttons { display: flex; gap: 12px; }
-
-    .cancel-btn {
-        flex: 1; padding: 12px;
-        border: 1px solid #E0E0E0; border-radius: 10px;
-        background: #F4F4F4; font-family: 'Inter', sans-serif;
-        font-size: 14px; font-weight: 500; cursor: pointer; transition: 0.2s;
-    }
-
-    .cancel-btn:hover { background: #E8E8E8; }
-
-    .logout-confirm-btn {
-        flex: 1; padding: 12px; border: none; border-radius: 10px;
-        background: var(--primary-green); color: white;
-        font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600;
-        cursor: pointer; transition: 0.2s;
-    }
-
-    .logout-confirm-btn:hover { background: var(--primary-dark); }
-</style>
 </head>
 <body>
 
-<!-- ======================== SIDEBAR OVERLAY ======================== -->
+<div class="toast-container" id="toastContainer"></div>
+
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
 
-<!-- ======================== SIDEBAR DRAWER ======================== -->
 <div class="sidebar" id="sidebar">
     <div class="logo-section">
         <div class="logo-icon">🔍</div>
@@ -768,19 +145,13 @@ $cvsu_email = htmlspecialchars($profile['cvsu_email'] ?? '');
     </ul>
 </div>
 
-<!-- ======================== TOP BAR ======================== -->
 <div class="top-bar">
-    <!-- Hamburger -->
     <button class="hamburger-btn" onclick="openSidebar()">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
-
-    <!-- Center Logo (same style as sidebar) -->
     <div class="top-bar-center">
         <div class="top-logo-icon">🔍</div>
     </div>
-
-    <!-- Right: bell + avatar -->
     <div class="top-bar-right">
         <a href="notif.php" class="notif-bell-btn">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
@@ -789,12 +160,10 @@ $cvsu_email = htmlspecialchars($profile['cvsu_email'] ?? '');
     </div>
 </div>
 
-<!-- ======================== PAGE CONTENT ======================== -->
 <div class="page-content">
     <div class="page-label">Account</div>
     <h1 class="page-title">My Profile</h1>
 
-    <!-- Profile Banner -->
     <div class="profile-banner">
         <img class="profile-avatar" src="<?php echo htmlspecialchars($avatar); ?>" alt="avatar">
         <div class="profile-info">
@@ -804,7 +173,6 @@ $cvsu_email = htmlspecialchars($profile['cvsu_email'] ?? '');
         <button class="edit-profile-btn" onclick="openEditModal()">Edit profile</button>
     </div>
 
-    <!-- Stats -->
     <div class="stats-row">
         <div class="stat-cell">
             <div class="num"><?php echo $claimed; ?></div>
@@ -820,7 +188,6 @@ $cvsu_email = htmlspecialchars($profile['cvsu_email'] ?? '');
         </div>
     </div>
 
-    <!-- Info Card -->
     <div class="info-card">
         <div class="info-row">
             <div class="info-label">Full Name</div>
@@ -837,7 +204,6 @@ $cvsu_email = htmlspecialchars($profile['cvsu_email'] ?? '');
     </div>
 </div>
 
-<!-- ======================== EDIT PROFILE MODAL ======================== -->
 <div class="modal-overlay" id="editModal">
     <div class="modal-card">
         <button class="modal-back" onclick="closeEditModal()">
@@ -848,8 +214,6 @@ $cvsu_email = htmlspecialchars($profile['cvsu_email'] ?? '');
         <h2 class="modal-title">Edit Profile</h2>
 
         <form method="POST" action="update_profile.php" enctype="multipart/form-data">
-
-            <!-- Profile Photo -->
             <div class="photo-section">
                 <h3>Profile Photo</h3>
                 <div class="photo-row">
@@ -862,10 +226,12 @@ $cvsu_email = htmlspecialchars($profile['cvsu_email'] ?? '');
                         </div>
                     </div>
                 </div>
-                <input type="file" id="photoInput" name="profile_image" accept="image/*" onchange="previewPhoto(event)">
+                
+                <input type="hidden" id="removeImageFlag" name="remove_image_flag" value="0">
+                
+                <input type="file" id="photoInput" name="profile_image" accept="image/*" style="position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0;" onchange="previewPhoto(event)">
             </div>
 
-            <!-- Form Fields -->
             <div class="form-grid">
                 <div class="form-group">
                     <label>Username</label>
@@ -873,7 +239,9 @@ $cvsu_email = htmlspecialchars($profile['cvsu_email'] ?? '');
                 </div>
                 <div class="form-group">
                     <label>CvSU Email Address</label>
-                    <input type="email" name="cvsu_email" placeholder="Username@cvsu.gmail.com" value="<?php echo $cvsu_email ?: $email; ?>">
+                        <input type="email" name="cvsu_email" placeholder="Username@cvsu.gmail.com" 
+                            value="<?php echo $cvsu_email ?: $email; ?>"
+                        <?php echo !empty($profile['cvsu_email']) ? 'readonly style="background-color: #E0E0E0; cursor: not-allowed; color: #7A7A7A;" title="Your CvSU Email is permanent and cannot be changed."' : ''; ?>>
                 </div>
                 <div class="form-group full">
                     <label>Full Name</label>
@@ -881,17 +249,14 @@ $cvsu_email = htmlspecialchars($profile['cvsu_email'] ?? '');
                 </div>
             </div>
 
-            <!-- Footer -->
             <div class="modal-footer">
                 <button type="button" class="btn-cancel" onclick="closeEditModal()">Cancel</button>
                 <button type="submit" class="btn-save">Save Changes</button>
             </div>
-
         </form>
     </div>
 </div>
 
-<!-- ======================== LOGOUT MODAL ======================== -->
 <div class="logout-overlay" id="logoutOverlay">
     <div class="logout-modal">
         <h2>Logout</h2>
@@ -904,6 +269,60 @@ $cvsu_email = htmlspecialchars($profile['cvsu_email'] ?? '');
 </div>
 
 <script>
+    /* ---- Toast Notification Engine ---- */
+    function showToast(type, title, description) {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        
+        const iconSymbol = type === 'success' ? '✓' : '✕';
+        
+        toast.innerHTML = `
+            <div class="toast-icon" aria-hidden="true">${iconSymbol}</div>
+            <div class="toast-content">
+                <div class="toast-title">${title}</div>
+                <div class="toast-desc">${description}</div>
+            </div>
+            <button class="toast-close" aria-label="Dismiss Notification" onclick="dismissToast(this.parentElement)">✕</button>
+        `;
+        
+        container.appendChild(toast);
+        setTimeout(() => dismissToast(toast), 5000);
+    }
+
+    function dismissToast(toastElement) {
+        if (!toastElement.classList.contains('fade-out')) {
+            toastElement.classList.add('fade-out');
+            setTimeout(() => toastElement.remove(), 300);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const status = urlParams.get('status');
+        
+        if (status) {
+            switch(status) {
+                case 'success':
+                    showToast('success', 'Changes Saved', 'Your profile records have been updated successfully.');
+                    break;
+                case 'error_size':
+                    showToast('error', 'Upload Rejected', 'The profile photo exceeds the 2MB file size constraint.');
+                    break;
+                case 'error_type':
+                    showToast('error', 'Invalid File Type', 'Only valid imagery metrics (JPG, PNG, GIF) are allowed.');
+                    break;
+                case 'error_upload':
+                    showToast('error', 'System Failsafe', 'Could not save the image data to our local directory.');
+                    break;
+                case 'error':
+                    showToast('error', 'Database Error', 'An unexpected transaction error occurred. Please try again.');
+                    break;
+            }
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+    });
+
     /* ---- Sidebar drawer ---- */
     function openSidebar() {
         document.getElementById('sidebar').classList.add('open');
@@ -915,49 +334,35 @@ $cvsu_email = htmlspecialchars($profile['cvsu_email'] ?? '');
         document.getElementById('sidebarOverlay').classList.remove('open');
     }
 
-    /* Close on ESC */
     document.addEventListener('keydown', e => {
         if (e.key === 'Escape') { closeSidebar(); closeEditModal(); closeLogoutModal(); }
     });
 
     /* ---- Edit profile modal ---- */
-    function openEditModal() {
-        document.getElementById('editModal').classList.add('open');
-    }
+    function openEditModal() { document.getElementById('editModal').classList.add('open'); }
+    function closeEditModal() { document.getElementById('editModal').classList.remove('open'); }
+    document.getElementById('editModal').addEventListener('click', function(e) { if (e.target === this) closeEditModal(); });
 
-    function closeEditModal() {
-        document.getElementById('editModal').classList.remove('open');
-    }
-
-    /* Close modal on overlay click */
-    document.getElementById('editModal').addEventListener('click', function(e) {
-        if (e.target === this) closeEditModal();
-    });
-
-    /* ---- Photo preview ---- */
+    /* ---- Photo preview & removal flags ---- */
     function previewPhoto(event) {
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = e => document.getElementById('photoPreview').src = e.target.result;
             reader.readAsDataURL(file);
+            document.getElementById('removeImageFlag').value = '0'; // Reset remove flag if they add a new photo
         }
     }
 
     function removePhoto() {
-        document.getElementById('photoPreview').src = 'uploads/default-avatar.png';
+        document.getElementById('photoPreview').src = 'assets/img/defaultProfile.png';
         document.getElementById('photoInput').value = '';
+        document.getElementById('removeImageFlag').value = '1'; // Signal backend to delete current photo
     }
 
     /* ---- Logout modal ---- */
-    function openLogoutModal() {
-        closeSidebar();
-        document.getElementById('logoutOverlay').style.display = 'flex';
-    }
-
-    function closeLogoutModal() {
-        document.getElementById('logoutOverlay').style.display = 'none';
-    }
+    function openLogoutModal() { closeSidebar(); document.getElementById('logoutOverlay').style.display = 'flex'; }
+    function closeLogoutModal() { document.getElementById('logoutOverlay').style.display = 'none'; }
 </script>
 
 </body>

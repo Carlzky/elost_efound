@@ -11,7 +11,33 @@ if(!isset($_SESSION['username'])){
     exit();
 }
 
+// Ensure user_id exists in session, otherwise fetch it
+if (!isset($_SESSION['user_id'])) {
+    $username_check = $_SESSION['username'];
+    $stmt_id = $conn->prepare("SELECT id FROM users WHERE username = ?");
+    $stmt_id->bind_param("s", $username_check);
+    $stmt_id->execute();
+    $result_id = $stmt_id->get_result();
+    if ($row_id = $result_id->fetch_assoc()) {
+        $_SESSION['user_id'] = $row_id['id'];
+    } else {
+        header("Location: logout.php");
+        exit();
+    }
+}
+
 $user = $_SESSION['username'];
+$user_id = $_SESSION['user_id'];
+
+// Fetch the user's profile image for the top bar avatar
+$stmt_profile = $conn->prepare("SELECT profile_image FROM users WHERE id = ?");
+$stmt_profile->bind_param("i", $user_id);
+$stmt_profile->execute();
+$profile_res = $stmt_profile->get_result();
+$profile_data = $profile_res->fetch_assoc();
+
+// Set the avatar path with your custom default image fallback
+$avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'] : 'assets/img/defaultProfile.png';
 ?>
 
 <!DOCTYPE html>
@@ -21,442 +47,14 @@ $user = $_SESSION['username'];
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard - E-LOST KOH, E-FOUND MOH</title>
 
+<link rel="stylesheet" href="assets/css/dashboard_style.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
 
-<style>
-    :root {
-        --primary: #1F5D4A;
-        --primary-dark: #143F32;
-        --gold: #F1B846;
-        --primary-green: #1F5D4A;
-        --light-green: #BBC34A;
-        --dark-gray: #68735C;
-        --bg-gray: #F4F4F4;
-        --pure-white: #FFFFFF;
-        --text-dark: #1A1A1A;
-        --border: #E5E5E5;
-        --sidebar-width: 240px;
-        --pending: #E9A93D;
-        --approved: #4CAF50;
-        --rejected: #E74C3C;
-    }
 
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
-
-    body {
-        font-family: 'Inter', sans-serif;
-        background: var(--bg-gray);
-        display: flex;
-        min-height: 100vh;
-        color: var(--text-dark);
-    }
-
-    /* ========================
-       SIDEBAR
-    ========================= */
-    .sidebar {
-        width: var(--sidebar-width);
-        background: var(--primary-green);
-        color: white;
-        padding: 24px;
-        position: fixed;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-    }
-
-    .logo-section {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        margin-bottom: 40px;
-    }
-
-    /* Your Original Logo Box Design Restored */
-    .logo-icon {
-        width: 58px;
-        height: 58px;
-        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-        border: 2px solid var(--gold);
-        border-radius: 16px;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 26px;
-        box-shadow:
-            0 12px 30px rgba(0, 0, 0, 0.35),
-            inset 0 3px 6px rgba(255, 255, 255, 0.18);
-        transition:
-            transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1),
-            box-shadow 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
-    }
-
-    .logo-icon:hover {
-        transform: scale(1.08) translateY(-5px) rotate(4deg);
-        box-shadow:
-            0 18px 40px rgba(0, 0, 0, 0.45),
-            inset 0 3px 6px rgba(255, 255, 255, 0.25);
-    }
-
-    .logo-text {
-        font-family: 'Poppins', sans-serif;
-        font-size: 15px;
-        line-height: 1.3;
-        font-weight: 700;
-        color: #FFFFFF;
-    }
-
-    .logo-text .txt-highlight {
-        color: #BBC34A;
-    }
-    
-
-    .nav-menu {
-        list-style: none;
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        height: 100%;
-    }
-
-    .nav-item a {
-        text-decoration: none;
-        color: rgba(255, 255, 255, 0.82);
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 13px 16px;
-        border-radius: 10px;
-        transition: 0.25s ease;
-        font-size: 14px;
-        font-weight: 500;
-    }
-
-    .nav-item a:hover {
-        background: rgba(255, 255, 255, 0.05);
-        color: white;
-    }
-
-    /* Target Page Active Wrap Formatting */
-    .nav-item.active a {
-        background: rgba(255, 255, 255, 0.12);
-        color: white;
-        font-weight: 500;
-    }
-
-    .nav-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 20px;
-        height: 20px;
-        opacity: 0.8;
-    }
-
-    /* ========================
-       MAIN CONTENT
-    ========================= */
-    .main-content {
-        margin-left: var(--sidebar-width);
-        width: 100%;
-        padding: 42px;
-    }
-
-    /* ========================
-       TOP BAR
-    ========================= */
-    .top-bar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 32px;
-    }
-
-   
-
-    .user-profile {
-        margin-left:auto;
-        display:flex; 
-        align-items:center; 
-        gap:18px;
-        
-        
-    }
-
-    .notif-bell-btn {
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        color: #555;
-        transition: transform 0.2s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-    }
-
-    .notif-bell-btn:hover {
-        transform: scale(1.08);
-    }
-
-    .avatar-link{
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .avatar{
-        width: 42px;
-        height: 42px;
-        border-radius: 50%;
-        object-fit: cover;
-        cursor: pointer;
-        border: 2px solid #E5E5E5;
-        transition: all 0.25s ease;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    }
-
-    .avatar:hover{
-        transform: scale(1.06);
-        border-color: var(--primary-green);
-        box-shadow: 0 6px 14px rgba(0,0,0,0.12);
-    }
-
-    /* ========================
-       PAGE COMPONENT ELEMENTS
-    ========================= */
-    .page-title {
-        font-family: 'Poppins', sans-serif;
-        font-size: 30px;
-        margin-bottom: 4px;
-    }
-
-    .page-subtitle {
-        color: #7A7A7A;
-        font-size: 14px;
-        margin-bottom: 30px;
-    }
-
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
-        margin-bottom: 32px;
-    }
-
-    .stat-card {
-        background: var(--pure-white);
-        border-radius: 16px;
-        padding: 24px;
-        border: 1px solid #EAEAEA;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
-    }
-
-    .stat-card h3 {
-        font-size: 13px;
-        font-weight: 500;
-        color: #7A7A7A;
-        margin-bottom: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-
-    .stat-card .stat-number {
-        font-family: 'Poppins', sans-serif;
-        font-size: 34px;
-        font-weight: 700;
-        color: var(--primary-green);
-    }
-
-    .content-grid {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 24px;
-    }
-
-    .panel-card {
-        background: var(--pure-white);
-        border-radius: 16px;
-        padding: 28px;
-        border: 1px solid #EAEAEA;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
-    }
-
-    .panel-card h2 {
-        font-family: 'Poppins', sans-serif;
-        font-size: 17px;
-        font-weight: 700;
-        margin-bottom: 22px;
-        color: var(--text-dark);
-    }
-
-    .activity-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 16px 0;
-        border-bottom: 1px solid #F0F0F0;
-    }
-
-    .activity-item:last-child {
-        border-bottom: none;
-    }
-
-    .activity-item h4 {
-        font-size: 14px;
-        font-weight: 500;
-        margin-bottom: 4px;
-    }
-
-    .activity-item span {
-        color: #9A9A9A;
-        font-size: 12px;
-    }
-
-    .recent-item {
-        display: flex;
-        align-items: center;
-        gap: 14px;
-        margin-bottom: 20px;
-    }
-
-    .recent-item:last-child {
-        margin-bottom: 0;
-    }
-
-    .recent-item img {
-        width: 56px;
-        height: 56px;
-        border-radius: 10px;
-        object-fit: cover;
-        background: #EEE;
-        border: 1px solid #EAEAEA;
-    }
-
-    .recent-item-info h4 {
-        font-size: 14px;
-        font-weight: 600;
-        margin-bottom: 4px;
-    }
-
-    .recent-item-info p {
-        font-size: 12px;
-        color: #9A9A9A;
-    }
-
-    /* ========================
-       LOGOUT MODAL LAYOUT
-    ========================= */
-    .logout-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.4);
-        backdrop-filter: blur(6px);
-        display: none;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-    }
-
-    .logout-modal {
-        background: white;
-        padding: 32px;
-        border-radius: 20px;
-        text-align: center;
-        width: 320px;
-        border: 1px solid #EAEAEA;
-        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
-        transform: scale(0.85);
-        opacity: 0;
-        animation: popIn 0.25s forwards;
-    }
-
-    @keyframes popIn {
-        to {
-            transform: scale(1);
-            opacity: 1;
-        }
-    }
-
-    .logout-modal h2 {
-        font-family: 'Poppins', sans-serif;
-        font-size: 20px;
-        margin-bottom: 10px;
-        color: var(--primary-green);
-    }
-
-    .logout-modal p {
-        font-size: 14px;
-        color: #7A7A7A;
-        margin-bottom: 24px;
-    }
-
-    .logout-buttons {
-        display: flex;
-        gap: 12px;
-    }
-
-    .cancel-btn {
-        flex: 1;
-        padding: 12px;
-        border: 1px solid #E0E0E0;
-        border-radius: 10px;
-        background: #F4F4F4;
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-    .cancel-btn:hover { background: #E8E8E8; }
-
-    .logout-btn {
-        flex: 1;
-        padding: 12px;
-        border: none;
-        border-radius: 10px;
-        background: var(--primary-green);
-        color: white;
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: 0.2s;
-    }
-
-    .logout-btn:hover { background: var(--primary-dark); }
-
-    /* ========================
-       RESPONSIVE MATRIX BREAKPOINTS
-    ========================= */
-    @media (max-width: 1024px) {
-        .content-grid { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 768px) {
-        .sidebar { width: 78px; padding: 20px 12px; }
-        .logo-text, .nav-text { display: none; }
-        .nav-item a { justify-content: center; padding: 14px; }
-        .main-content { margin-left: 78px; padding: 22px; }
-        .top-bar { flex-direction: column; gap: 14px; align-items: stretch; }
-        .search-wrapper { width: 100%; }
-        .page-title { font-size: 24px; }
-    }
-</style>
 </head>
 <body>
 
 <div class="sidebar">
-
     <div class="logo-section">
         <div class="logo-icon">🔍</div>
             <div class="logo-text">
@@ -523,16 +121,11 @@ $user = $_SESSION['username'];
             </a>
         </li>
     </ul>
-
 </div>
 
 <div class="main-content">
-
     <div class="top-bar">
-        
-
         <div class="user-profile">
-
             <a href="notif.php" class="notif-bell-btn">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
                     stroke="currentColor" stroke-width="2"
@@ -543,7 +136,7 @@ $user = $_SESSION['username'];
             </a>
 
             <a href="profile.php" class="avatar-link">
-                <img src="images/default-avatar.png" alt="Profile Picture" class="avatar">
+                <img src="<?php echo htmlspecialchars($avatar); ?>" alt="Profile Picture" class="avatar">
             </a>
 
         </div>
@@ -557,15 +150,13 @@ $user = $_SESSION['username'];
             <h3>Total Lost Items</h3>
             <div class="stat-number">
                 <?php
-                $user_id = $_SESSION['user_id'];
-
-$sql = "SELECT COUNT(*) AS total FROM lost_items WHERE user_id = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$row = $result->fetch_assoc();
-echo $row['total'];
+                $sql = "SELECT COUNT(*) AS total FROM lost_items WHERE user_id = ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("i", $user_id);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                $row = $result->fetch_assoc();
+                echo $row['total'];
                 ?>
             </div>
         </div>
@@ -575,12 +166,12 @@ echo $row['total'];
             <div class="stat-number">
                 <?php
                 $sql = "SELECT COUNT(*) AS total FROM found_items WHERE user_id = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$row = $result->fetch_assoc();
-echo $row['total'];
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("i", $user_id);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                $row = $result->fetch_assoc();
+                echo $row['total'];
                 ?>
             </div>
         </div>
@@ -589,13 +180,13 @@ echo $row['total'];
             <h3>Claims Pending</h3>
             <div class="stat-number">
                 <?php
-              $sql = "SELECT COUNT(*) AS total FROM claims WHERE claim_status='Pending' AND claimant_user_id = ?";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-$row = $result->fetch_assoc();
-echo $row['total'];
+                $sql = "SELECT COUNT(*) AS total FROM claims WHERE claim_status='Pending' AND claimant_user_id = ?";
+                $stmt = $conn->prepare($sql);
+                $stmt->bind_param("i", $user_id);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                $row = $result->fetch_assoc();
+                echo $row['total'];
                 ?>
             </div>
         </div>
@@ -603,54 +194,49 @@ echo $row['total'];
 
     <div class="content-grid">
         <div class="panel-card">
-            
-          <h2>Recent Activity</h2>
+            <h2>Recent Activity</h2>
+            <?php
+            $sql = "SELECT * FROM report_history WHERE user_id = ? ORDER BY action_date DESC LIMIT 5";
+            $stmt = $conn->prepare($sql);
+            $stmt->bind_param("i", $user_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
 
-<?php
-$sql = "SELECT * FROM report_history WHERE user_id = ? ORDER BY action_date DESC LIMIT 5";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("i", $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
-
-if($result->num_rows > 0):
-    while($row = $result->fetch_assoc()):
-?>
-    <div class="activity-item">
-        <div>
-            <h4><?php echo htmlspecialchars($row['action_done']); ?></h4>
-            <span><?php echo htmlspecialchars($row['action_date']); ?></span>
-        </div>
-    </div>
-<?php
-    endwhile;
-else:
-?>
-    <p style="color:gray;font-size:14px;">No recent activity found.</p>
-<?php endif; ?>
+            if($result->num_rows > 0):
+                while($row = $result->fetch_assoc()):
+            ?>
+                <div class="activity-item">
+                    <div>
+                        <h4><?php echo htmlspecialchars($row['action_done']); ?></h4>
+                        <span><?php echo htmlspecialchars($row['action_date']); ?></span>
+                    </div>
+                </div>
+            <?php
+                endwhile;
+            else:
+            ?>
+                <p style="color:gray;font-size:14px;">No recent activity found.</p>
+            <?php endif; ?>
         </div>
 
         <div class="panel-card">
             <h2>Recently Posted Items</h2>
             <?php
             $sql = "
-SELECT item_name, item_image, location_lost AS location, created_at, 'Lost' AS item_type
-FROM lost_items
-WHERE user_id = ?
-
-UNION ALL
-
-SELECT item_name, item_image, location_found AS location, created_at, 'Found' AS item_type
-FROM found_items
-WHERE user_id = ?
-
-ORDER BY created_at DESC
-LIMIT 3
-";
+            SELECT item_name, item_image, location_lost AS location, created_at, 'Lost' AS item_type
+            FROM lost_items
+            WHERE user_id = ?
+            UNION ALL
+            SELECT item_name, item_image, location_found AS location, created_at, 'Found' AS item_type
+            FROM found_items
+            WHERE user_id = ?
+            ORDER BY created_at DESC
+            LIMIT 3
+            ";
             $stmt = $conn->prepare($sql);
-$stmt->bind_param("ii", $user_id, $user_id);
-$stmt->execute();
-$result = $stmt->get_result();
+            $stmt->bind_param("ii", $user_id, $user_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
             if($result->num_rows > 0):
                 while($row = $result->fetch_assoc()):
                     $image = !empty($row['item_image']) ? $row['item_image'] : 'uploads/default.png';
@@ -660,9 +246,9 @@ $result = $stmt->get_result();
                 <div class="recent-item-info">
                     <h4><?php echo htmlspecialchars($row['item_name']); ?></h4>
                     <p>
-    <?php echo htmlspecialchars($row['item_type']); ?> ·
-    <?php echo htmlspecialchars($row['location']); ?>
-</p>
+                        <?php echo htmlspecialchars($row['item_type']); ?> ·
+                        <?php echo htmlspecialchars($row['location']); ?>
+                    </p>
                 </div>
             </div>
             <?php 
@@ -701,4 +287,4 @@ function confirmLogout(){
 </script>
 
 </body>
-</html>
+</html>     

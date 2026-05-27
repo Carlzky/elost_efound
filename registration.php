@@ -7,7 +7,7 @@ $message = "";
 $active_form = "login"; 
 $registration_success = false; 
 
-// Defaults to "Welcome" for first-time visitors
+// 1. Defaults to "Welcome" for first-time visitors, "Welcome Back" for returning users
 $greeting = "Welcome"; 
 if (isset($_COOKIE['has_visited'])) {
     $greeting = "Welcome Back";
@@ -30,6 +30,9 @@ if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_me'])) {
             if (hash_equals($hashed_validator, hash('sha256', $validator))) {
                 $_SESSION['user_id'] = $user_id;
                 $_SESSION['username'] = $username;
+                
+                // Set the visit cookie during auto-login (valid for 1 year)
+                setcookie('has_visited', '1', time() + (86400 * 365), "/");
                 
                 header("Location: loading.html?redirect=dashboard");
                 exit();
@@ -127,6 +130,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             if (password_verify($password, $hashed_password)) {
                 $_SESSION['user_id']  = $user_id;
                 $_SESSION['username'] = $username;
+                
+                // Set the visit cookie during manual form login (valid for 1 year)
+                setcookie('has_visited', '1', time() + (86400 * 365), "/");
                 
                 if ($remember) {
                     $selector  = bin2hex(random_bytes(6)); 
