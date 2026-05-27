@@ -68,49 +68,6 @@ $update_stmt->bind_param("i", $report_id);
 
 $update_stmt->execute();
 
-
-$check = $conn->prepare("
-    SELECT message_id
-    FROM messages
-    WHERE report_id = ?
-    AND message_text LIKE '%APPROVED%'
-");
-
-$check->bind_param("i", $report_id);
-
-$check->execute();
-
-$res = $check->get_result();
-
-$msg = "Your found item report was APPROVED.";
-
-
-if ($res->num_rows == 0) {
-
-    $msg_stmt = $conn->prepare("
-        INSERT INTO messages
-        (
-            sender_id,
-            receiver_id,
-            item_id,
-            report_id,
-            message_text,
-            message_type
-        )
-        VALUES (?, ?, ?, ?, ?, 'system')
-    ");
-
-    $msg_stmt->bind_param(
-        "iiiis",
-        $receiver_id,
-        $report['finder_user_id'],
-        $report['lost_item_id'],
-        $report_id,
-        $msg
-    );
-
-    $msg_stmt->execute();
-}
 $notif_text = "Your found item report was approved.";
 
 $notif = $conn->prepare("

@@ -313,15 +313,7 @@ if (($item_owner['user_id'] ?? null) == $current_user_id) {
         </div>
     </div>
     ';
-    }elseif ($row['message_type'] == 'system') {
-
-    echo '
-    <div class="system-message">
-        '.htmlspecialchars($row['message_text']).'
-    </div>
-    ';
-
-} else {
+   } else {
 
     /*NORMAL MESSAGE */
 
