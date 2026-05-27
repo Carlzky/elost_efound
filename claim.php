@@ -1,3 +1,84 @@
+<?php
+session_start();
+include "config/db.php";
+
+if (!isset($_SESSION['user_id'])) {
+    die("Login required.");
+}
+
+$user_id = $_SESSION['user_id'];
+
+/*FETCH CLAIMS HERE*/
+
+$sql = "
+SELECT 
+    c.claim_id,
+    c.claim_status,
+    c.claimed_at,
+    c.claimant_user_id,
+
+    f.found_id,
+    f.item_name,
+    f.category,
+    f.location_found,
+    f.date_found,
+    f.description,
+    f.item_image,
+
+    u.username AS claimant_name
+
+FROM claims c
+JOIN found_items f ON c.found_item_id = f.found_id
+JOIN users u ON c.claimant_user_id = u.id
+WHERE f.user_id = ?
+ORDER BY c.claimed_at DESC
+";
+
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $user_id);
+$stmt->execute();
+$result = $stmt->get_result();
+
+/*FETCH FOUND REPORTS*/
+
+$found_sql = "
+SELECT
+    fr.report_id,
+    fr.report_status,
+    fr.created_at,
+
+    l.lost_id,
+    l.item_name,
+    l.category,
+    l.location_lost,
+    l.date_lost,
+    l.description,
+    l.item_image,
+
+    u.username AS finder_name
+
+FROM found_reports fr
+
+JOIN lost_items l
+ON fr.lost_item_id = l.lost_id
+
+JOIN users u
+ON fr.finder_user_id = u.id
+
+WHERE l.user_id = ?
+
+ORDER BY fr.created_at DESC
+";
+
+$found_stmt = $conn->prepare($found_sql);
+$found_stmt->bind_param("i", $user_id);
+$found_stmt->execute();
+
+$found_result = $found_stmt->get_result();
+
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -182,6 +263,31 @@
             margin-bottom:24px;
             border-bottom:1px solid #ECECEC;
             padding-bottom:14px;
+        }
+
+        .claim-type-tabs{
+            display:flex;
+            gap:14px;
+            margin-bottom:22px;
+        }
+
+        .claim-type{
+            padding:10px 18px;
+            border-radius:12px;
+            background:#F4F4F4;
+            cursor:pointer;
+            font-size:13px;
+            font-weight:600;
+            transition:0.2s ease;
+        }
+
+        .claim-type:hover{
+            background:#EAEAEA;
+        }
+
+        .claim-type.active{
+            background:var(--primary);
+            color:white;
         }
 
         .tab{
@@ -533,7 +639,7 @@
             </li>
 
             <li class="nav-item active">
-                <a hrGef="claim.php">
+                <a href="claim.php">
 
                     <span class="nav-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -594,7 +700,6 @@
         </ul>
     </div>
 
-    <!-- MAIN CONTENT -->
     <div class="main-content">
 
         <h1 class="page-title">
@@ -607,7 +712,20 @@
                 Claims
             </div>
 
-            <!-- TABS -->
+            <div class="claim-type-tabs">
+
+    <div class="claim-type active"
+        onclick="filterClaimType('lost', this)">
+        Lost Item Claims
+    </div>
+
+    <div class="claim-type"
+        onclick="filterClaimType('found', this)">
+        Found Item Claims
+    </div>
+
+</div>
+
             <div class="tabs">
 
                 <div class="tab active"
@@ -632,7 +750,6 @@
 
             </div>
 
-            <!-- TABLE -->
             <div class="table-wrapper">
 
                 <table>
@@ -649,101 +766,65 @@
                     </thead>
 
                     <tbody id="claimsTable">
+<?php while($row = $result->fetch_assoc()): ?>
 
-                        <!-- ROW -->
-                        <tr data-status="pending">
+<tr 
+    data-status="<?= strtolower($row['claim_status']) ?>"
+    data-claimtype="lost"
+>
 
-                            <td>
-                                <span class="item-link"
-                                    onclick="openModal(
-                                        'Black Backpack',
-                                        'pending',
-                                        'Bag',
-                                        'Bleachers',
-                                        'May 20, 2025 - 10:00 AM',
-                                        'Black backpack with minimal design. Left near the basketball court.',
-                                        'Juan Dela Cruz',
-                                        'https://via.placeholder.com/250'
-                                    )">
-                                    Black Backpack
-                                </span>
-                            </td>
+    <td>
+        <span class="item-link"
+            onclick="openModal(...)">
+            <?= htmlspecialchars($row['item_name']) ?>
+        </span>
+    </td>
 
-                            <td>Juan Dela Cruz</td>
+    <td><?= htmlspecialchars($row['claimant_name']) ?></td>
 
-                            <td>May 20, 2025</td>
+    <td><?= date("M d, Y", strtotime($row['claimed_at'])) ?></td>
 
-                            <td>
-                                <span class="status pending">
-                                    Pending
-                                </span>
-                            </td>
+    <td>
+        <span class="status <?= strtolower($row['claim_status']) ?>">
+            <?= $row['claim_status'] ?>
+        </span>
+    </td>
 
-                        </tr>
+</tr>
 
-                        <!-- ROW -->
-                        <tr data-status="approved">
+<?php endwhile; ?>
 
-                            <td>
-                                <span class="item-link"
-                                    onclick="openModal(
-                                        'Silver Watch',
-                                        'approved',
-                                        'Watch',
-                                        'Library',
-                                        'May 19, 2025 - 9:30 AM',
-                                        'Silver watch found near the library entrance.',
-                                        'Maria Santos',
-                                        'https://via.placeholder.com/250'
-                                    )">
-                                    Silver Watch
-                                </span>
-                            </td>
+<?php while($found = $found_result->fetch_assoc()): ?>
 
-                            <td>Maria Santos</td>
+<tr
+    data-status="<?= strtolower($found['report_status']) ?>"
+    data-claimtype="found"
+>
 
-                            <td>May 19, 2025</td>
+    <td>
+        <span class="item-link">
+            <?= htmlspecialchars($found['item_name']) ?>
+        </span>
+    </td>
 
-                            <td>
-                                <span class="status approved">
-                                    Approved
-                                </span>
-                            </td>
+    <td>
+        <?= htmlspecialchars($found['finder_name']) ?>
+    </td>
 
-                        </tr>
+    <td>
+        <?= date("M d, Y", strtotime($found['created_at'])) ?>
+    </td>
 
-                        <!-- ROW -->
-                        <tr data-status="rejected">
+    <td>
+        <span class="status <?= strtolower($found['report_status']) ?>">
+            <?= $found['report_status'] ?>
+        </span>
+    </td>
 
-                            <td>
-                                <span class="item-link"
-                                    onclick="openModal(
-                                        'ID Card',
-                                        'rejected',
-                                        'Identification',
-                                        'Gym',
-                                        'May 18, 2025 - 1:15 PM',
-                                        'Student ID card found near the gym area.',
-                                        'Joshua Garcia',
-                                        'https://via.placeholder.com/250'
-                                    )">
-                                    ID Card
-                                </span>
-                            </td>
+</tr>
 
-                            <td>Joshua Garcia</td>
-
-                            <td>May 18, 2025</td>
-
-                            <td>
-                                <span class="status rejected">
-                                    Rejected
-                                </span>
-                            </td>
-
-                        </tr>
-
-                    </tbody>
+<?php endwhile; ?>
+</tbody>
 
                 </table>
 
@@ -753,7 +834,6 @@
 
     </div>
 
-    <!-- MODAL -->
     <div class="modal" id="itemModal">
 
         <div class="modal-content">
@@ -817,47 +897,75 @@
 
     </div>
 
-    <!-- JAVASCRIPT -->
     <script>
 
-        // FILTER CLAIMS
+        let currentClaimType = 'lost';
+        let currentStatus = 'all';
+
         function filterClaims(status, clickedTab){
 
-            const tabs = document.querySelectorAll('.tab');
+    currentStatus = status;
 
-            tabs.forEach(tab => {
-                tab.classList.remove('active');
-            });
+    const tabs = document.querySelectorAll('.tab');
 
-            clickedTab.classList.add('active');
+    tabs.forEach(tab => {
+        tab.classList.remove('active');
+    });
 
-            const rows = document.querySelectorAll('#claimsTable tr');
+    clickedTab.classList.add('active');
 
-            rows.forEach(row => {
+    applyFilters();
+}
 
-                if(status === 'all'){
+function filterClaimType(type, clickedTab){
 
-                    row.style.display = '';
+    currentClaimType = type;
 
-                } else {
+    const tabs =
+        document.querySelectorAll('.claim-type');
 
-                    if(row.dataset.status === status){
+    tabs.forEach(tab => {
+        tab.classList.remove('active');
+    });
 
-                        row.style.display = '';
+    clickedTab.classList.add('active');
 
-                    } else {
+    applyFilters();
+}
 
-                        row.style.display = 'none';
+function applyFilters(){
 
-                    }
+    const rows =
+        document.querySelectorAll('#claimsTable tr');
 
-                }
+    rows.forEach(row => {
 
-            });
+        const rowStatus =
+            row.dataset.status;
 
+        const rowType =
+            row.dataset.claimtype;
+
+        let show = true;
+
+        if(currentClaimType !== rowType){
+
+            show = false;
         }
 
-        // OPEN MODAL
+        if(currentStatus !== 'all' &&
+           currentStatus !== rowStatus){
+
+            show = false;
+        }
+
+        row.style.display =
+            show ? '' : 'none';
+
+    });
+
+}
+
         function openModal(
             title,
             status,
@@ -903,14 +1011,12 @@
                 'flex';
         }
 
-        // CLOSE MODAL
         function closeModal(){
 
             document.getElementById('itemModal').style.display =
                 'none';
         }
 
-        // CLOSE WHEN CLICK OUTSIDE
         window.onclick = function(event){
 
             const modal =
@@ -936,6 +1042,7 @@
             window.location.href = "logout.php";
         }
 
+        applyFilters();
     </script>
 
     <div class="logout-overlay" id="logoutOverlay">
