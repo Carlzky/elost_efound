@@ -488,7 +488,7 @@ tbody tr:hover td{ background:#FAFCFB; }
 
     <ul class="nav">
         <li class="active">
-            <a href="admin-dashboard.php">
+            <a href="admin-dash.php">
                 <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
                 Dashboard
             </a>
@@ -530,7 +530,7 @@ tbody tr:hover td{ background:#FAFCFB; }
             </a>
         </li>
         <li class="mt">
-            <a href="#" onclick="document.getElementById('loOverlay').style.display='flex'">
+            <a href="admin-login.php" onclick="document.getElementById('loOverlay').style.display='flex'">
                 <svg class="nav-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
                 Logout
             </a>
