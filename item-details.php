@@ -86,23 +86,27 @@ $image = !empty($item['item_image'])
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Item Details - E-LOST KOH, E-FOUND MOH</title>
+    <title>Item Details</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Poppins:wght@600&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --primary-green: #1F5D4A;
-            --light-green: #BBC34A;
-            --dark-gray: #68735C;
-            --bg-gray: #F2F2F2;
-            --pure-white: #FFFFFF;
-            --text-dark: #1A1A1A;
+                --primary: #1F5D4A;
+                --primary-dark: #143F32;
+                --gold: #F1B846;
+                --light-green: #BBC34A;
+                --bg: #F4F6F5;
+                --white: #FFFFFF;
+                --text: #1A1A1A;
+                --border: #E5E5E5;
+                --bg-gray: #f2f2f2;
 
-            --lost-bg: #FEE2E2;
-            --lost-text: #B91C1C;
+                --lost-bg: #FEE2E2;
+                --lost-text: #B91C1C;
 
-            --found-bg: #DCFCE7;
-            --found-text: #166534;
+                --found-bg: #DCFCE7;
+                --found-text: #166534;
+
         }
 
         * {
@@ -114,85 +118,97 @@ $image = !empty($item['item_image'])
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-gray);
-            color: var(--text-dark);
+            color: var(--text);
             padding: 0; /* changed to allow navbar */
         }
 
         /* ================= NAVBAR ADDED (NO MAIN CODE CHANGE) ================= */
-        .navbar{
-            width:100%;
-            background:var(--primary-green);
-            padding:14px 28px;
-
+        .header{
+            background:var(--primary);
+            padding:16px 32px;
             display:flex;
             justify-content:space-between;
             align-items:center;
+            position:sticky;
+            top:0;
+            z-index:100;
         }
 
+        /* LEFT */
+        .header-left{
+            display:flex;
+            align-items:center;
+        }
+
+        /* LOGO */
         .logo-section{
             display:flex;
             align-items:center;
-            gap:12px;
+            gap:14px;
         }
 
         .logo-icon{
-            width:48px;
-            height:48px;
-            background:#143F32;
-            border:2px solid var(--light-green);
-            border-radius:12px;
-
+            width:56px;
+            height:56px;
+            background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+            border:2px solid var(--gold);
+            border-radius:16px;
             display:flex;
-            align-items:center;
             justify-content:center;
+            align-items:center;
+            font-size:24px;
+            box-shadow:0 10px 25px rgba(0,0,0,0.25), inset 0 2px 4px rgba(255,255,255,0.15);
+            transition:0.3s ease;
+            color:#fff;
+        }
 
-            color:white;
-            font-size:20px;
+        .logo-icon:hover{
+            transform:scale(1.05) rotate(4deg);
         }
 
         .logo-text{
             font-family:'Poppins', sans-serif;
-            font-size:14px;
+            font-size:15px;
+            line-height:1.3;
             font-weight:700;
-            color:white;
-            line-height:1.2;
+            color:#fff;
         }
 
-        .txt-highlight{
-            color:var(--light-green);
-        }
+        .txt-highlight{ color:var(--light-green); }
 
-        .nav-right{
+        /* RIGHT */
+        .header-right{
             display:flex;
             align-items:center;
-            gap:18px;
+            gap:20px;
         }
 
         .notif-bell-btn{
-            color:white;
-            text-decoration:none;
+            color:#fff;
             display:flex;
             align-items:center;
+            justify-content:center;
+            text-decoration:none;
+            transition:0.2s;
         }
+        .notif-bell-btn:hover{ transform:scale(1.1); }
 
         .avatar-link{
-            display:flex;
-            align-items:center;
+            display:flex; align-items:center; justify-content:center; text-decoration:none;
         }
-
         .avatar{
-            width:40px;
-            height:40px;
-            border-radius:50%;
-            object-fit:cover;
-            border:2px solid white;
+            width:42px; height:42px; border-radius:50%; object-fit:cover;
+            border:2px solid rgba(255,255,255,0.6);
+            background:#fff;
+            transition:0.2s ease;
         }
+        .avatar:hover{ transform:scale(1.06); border-color:#fff; }
         /* ================= END NAVBAR ================= */
 
         .container {
             width: 100%;
             max-width: 1100px;
-            background-color: var(--pure-white);
+            background-color: var(--white);
             border-radius: 12px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.05);
             padding: 30px;
@@ -204,7 +220,7 @@ $image = !empty($item['item_image'])
             align-items:center;
             gap:6px;
 
-            color:var(--primary-green);
+            color:var(--primary);
             text-decoration:none;
 
             font-weight:600;
@@ -300,23 +316,24 @@ $image = !empty($item['item_image'])
         .btn {
             font-family: 'Inter', sans-serif;
             font-size: 16px;
-            font-weight: 500;
+            font-weight: 400;
             padding: 14px;
             border-radius: 6px;
             border: none;
             cursor: pointer;
             text-align: center;
             text-decoration: none;
-            transition: background-color 0.2s;
+            width: 100%;
+            transition: 0.2s;
         }
 
         .btn-primary {
-            background-color: var(--primary-green);
-            color: var(--pure-white);
+            background-color: var(--primary);
+            color: var(--white);
         }
 
         .btn-primary:hover {
-            background-color: #164335;
+            background-color: var(--primary-dark);
         }
 
         .btn-secondary {
@@ -333,29 +350,52 @@ $image = !empty($item['item_image'])
 
 <body>
 
-<!-- NAVBAR ADDED ONLY -->
-<div class="navbar">
+<!-- HEADER -->
+<div class="header">
 
-    <div class="logo-section">
-        <div class="logo-icon">🔍</div>
-        <div class="logo-text">
-            E-LOST <span class="txt-highlight">MOH</span><br>
-            E-FOUND <span class="txt-highlight">KOH</span>
+    <!-- LEFT -->
+    <div class="header-left">
+
+        <div class="logo-section">
+
+            <div class="logo-icon">
+                🔍
+            </div>
+
+            <div class="logo-text">
+                E-LOST <span class="txt-highlight">MOH</span><br>
+                E-FOUND <span class="txt-highlight">KOH</span>
+            </div>
+
         </div>
+
     </div>
 
-    <div class="nav-right">
+    <!-- RIGHT -->
+    <div class="header-right">
 
+        <!-- NOTIFICATION -->
         <a href="notif.php" class="notif-bell-btn">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2">
+                stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+
                 <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+
             </svg>
         </a>
 
+        <!-- PROFILE -->
         <a href="profile.php" class="avatar-link">
-            <img src="images/default-avatar.png" class="avatar">
+
+            <img 
+                src="images/default-avatar.png"
+                alt="Profile Picture"
+                class="avatar"
+            >
+
         </a>
 
     </div>
