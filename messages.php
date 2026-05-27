@@ -1026,6 +1026,51 @@ fileInput.addEventListener('change', (e) => {
         // Add your logic here to upload the file to your server via AJAX
     }
 });
+
+function loadMessagesAuto() {
+
+    const activeCard =
+        document.querySelector('.conversation-card.active');
+
+    if (!activeCard) return;
+
+    const receiverId = activeCard.dataset.userid;
+
+    const itemId = activeCard.dataset.item;
+
+    fetch(
+        "load_messages.php?receiver_id="
+        + receiverId +
+        "&item_id="
+        + itemId
+    )
+
+    .then(response => response.text())
+
+    .then(data => {
+
+        const chatBox =
+            document.getElementById('chatStreamBox');
+
+        if (chatBox.innerHTML !== data) {
+
+            const wasNearBottom =
+                chatBox.scrollHeight - chatBox.scrollTop
+                <= chatBox.clientHeight + 200;
+
+            chatBox.innerHTML = data;
+
+            if (wasNearBottom) {
+                chatBox.scrollTop =
+                    chatBox.scrollHeight;
+            }
+        }
+
+    });
+
+}
+
+setInterval(loadMessagesAuto, 2000);
 </script>
 
 </body>

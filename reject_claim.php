@@ -13,7 +13,6 @@ if (!isset($_POST['claim_id'])) {
 
 $claim_id = intval($_POST['claim_id']);
 
-/* Update claim */
 $stmt = $conn->prepare("
     UPDATE claims
     SET claim_status = 'Rejected'
@@ -22,7 +21,6 @@ $stmt = $conn->prepare("
 $stmt->bind_param("i", $claim_id);
 $stmt->execute();
 
-/* Get claim */
 $claim_stmt = $conn->prepare("
     SELECT * FROM claims WHERE claim_id = ?
 ");
@@ -30,7 +28,6 @@ $claim_stmt->bind_param("i", $claim_id);
 $claim_stmt->execute();
 $claim = $claim_stmt->get_result()->fetch_assoc();
 
-/* Get owner */
 $item_stmt = $conn->prepare("
     SELECT user_id
     FROM found_items
@@ -81,7 +78,6 @@ if ($res->num_rows == 0) {
     $msg_stmt->execute();
 }
 
-/* Redirect */
 header("Location: messages.php?receiver_id=".$receiver_id."&item_id=".$claim['found_item_id']);
 exit();
 ?>

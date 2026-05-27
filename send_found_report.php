@@ -81,7 +81,9 @@ $report_id = $conn->insert_id;
    CREATE CHAT MESSAGE
 ========================= */
 
-$message_text = "🔎 Someone reported they found your lost item";
+$message_type = 'found_report';
+$claim_id = null;
+$message_text = "Found report submitted for item ID: $item_id";
 
 $msg_sql = "
 INSERT INTO messages

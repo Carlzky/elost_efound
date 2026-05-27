@@ -65,7 +65,9 @@ $claim_id = $conn->insert_id;
    (AUTO CREATE CONVERSATION)
 ========================= */
 
-$message_text = "📦 New Claim Request Submitted";
+$message_type = 'claim';
+$report_id = null;
+$message_text = "New Claim Request Submitted";
 
 $msg_sql = "
 INSERT INTO messages 

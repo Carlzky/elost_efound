@@ -2,45 +2,55 @@
 session_start();
 include "config/db.php";
 
-if(!isset($_GET['id'])){
-    die("Item ID missing.");
+if(!isset($_GET['id']) || !isset($_GET['type'])){
+    die("Invalid item.");
 }
 
 $id = intval($_GET['id']);
+$type = $_GET['type'];
 
-$sql = "
-SELECT 
-    lost_id AS item_id,
-    item_name,
-    category,
-    location_lost AS location,
-    date_lost AS item_date,
-    description,
-    item_image,
-    user_id,
-    'Lost' AS item_type
-FROM lost_items
-WHERE lost_id = ?
+if($type == 'lost') {
 
-UNION ALL
+    $sql = "
+    SELECT 
+        lost_id AS item_id,
+        item_name,
+        category,
+        location_lost AS location,
+        date_lost AS item_date,
+        description,
+        item_image,
+        user_id,
+        'Lost' AS item_type
+    FROM lost_items
+    WHERE lost_id = ?
+    ";
 
-SELECT 
-    found_id AS item_id,
-    item_name,
-    category,
-    location_found AS location,
-    date_found AS item_date,
-    description,
-    item_image,
-    user_id,
-    'Found' AS item_type
-FROM found_items
-WHERE found_id = ?
-";
+} elseif($type == 'found') {
+
+    $sql = "
+    SELECT 
+        found_id AS item_id,
+        item_name,
+        category,
+        location_found AS location,
+        date_found AS item_date,
+        description,
+        item_image,
+        user_id,
+        'Found' AS item_type
+    FROM found_items
+    WHERE found_id = ?
+    ";
+
+} else {
+
+    die("Invalid item type.");
+}
 
 $stmt = $conn->prepare($sql);
 
-$stmt->bind_param("ii", $id, $id);
+$stmt->bind_param("i", $id);
 
 $stmt->execute();
 
@@ -247,8 +257,8 @@ $image = !empty($item['item_image'])
 
 <div class="container">
 
-    <a href="browse-items.php" class="back-link">
-        &lt; Back
+    <a href="browse-items.php?tab=<?php echo strtolower($item['item_type']); ?>" class="back-link">
+    &lt; Back
     </a>
 
     <div class="grid-layout">
