@@ -88,9 +88,23 @@ $msg_stmt->bind_param(
 
 $msg_stmt->execute();
 
-/* =========================
-   4. REDIRECT TO CHAT
-========================= */
+
+$notif_text = "Someone submitted a claim request on your found item.";
+
+$notif = $conn->prepare("
+INSERT INTO notifications
+(user_id, notification_text, notification_type)
+VALUES (?, ?, 'claim')
+");
+
+$notif->bind_param(
+    "is",
+    $receiver_id,
+    $notif_text
+);
+
+$notif->execute();
+
 header("Location: messages.php?receiver_id=".$receiver_id."&item_id=".$item_id);
 exit();
 ?>

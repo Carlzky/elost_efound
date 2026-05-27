@@ -78,6 +78,21 @@ $msg_stmt->execute();
 
 }
 
+$notif_text = "Your claim request was approved.";
+
+$notif = $conn->prepare("
+INSERT INTO notifications
+(user_id, notification_text, notification_type)
+VALUES (?, ?, 'claim')
+");
+
+$notif->bind_param(
+    "is",
+    $claim['claimant_user_id'],
+    $notif_text
+);
+
+$notif->execute();
 
 header("Location: messages.php?receiver_id=".$receiver_id."&item_id=".$claim['found_item_id']);
 exit();

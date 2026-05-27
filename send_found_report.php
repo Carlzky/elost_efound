@@ -23,9 +23,6 @@ if($message == ""){
     die("Message required.");
 }
 
-/* =========================
-   HANDLE IMAGE UPLOAD
-========================= */
 
 $proof_image = null;
 
@@ -43,9 +40,6 @@ if (!empty($_FILES['proof_image']['name'])) {
     $proof_image = $targetPath;
 }
 
-/* =========================
-   INSERT FOUND REPORT
-========================= */
 
 $sql = "
 INSERT INTO found_reports
@@ -74,12 +68,8 @@ $stmt->bind_param(
 
 $stmt->execute();
 
-/* IMPORTANT */
 $report_id = $conn->insert_id;
 
-/* =========================
-   CREATE CHAT MESSAGE
-========================= */
 
 $message_type = 'found_report';
 $claim_id = null;
@@ -111,9 +101,21 @@ $msg_stmt->bind_param(
 
 $msg_stmt->execute();
 
-/* =========================
-   REDIRECT
-========================= */
+$notif_text = "Someone reported they found your lost item.";
+
+$notif = $conn->prepare("
+INSERT INTO notifications
+(user_id, notification_text, notification_type)
+VALUES (?, ?, 'found_report')
+");
+
+$notif->bind_param(
+    "is",
+    $receiver_id,
+    $notif_text
+);
+
+$notif->execute();
 
 header(
     "Location: messages.php?receiver_id="

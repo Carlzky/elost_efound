@@ -1,4 +1,169 @@
+<?php
+session_start();
+include 'config/db.php';
 
+/* =========================
+   GET CURRENT LOGGED USER
+========================= */
+
+// change this depending on your login session
+$current_user_id = $_SESSION['user_id'] ?? 1;
+
+/* =========================
+   GET PROFILE USER ID
+========================= */
+
+$profile_user_id = isset($_GET['id'])
+    ? intval($_GET['id'])
+    : $current_user_id;
+
+/* =========================
+   FETCH PROFILE USER
+========================= */
+
+$stmt = $conn->prepare("
+    SELECT *
+    FROM users
+    WHERE id = ?
+");
+
+$stmt->bind_param("i", $profile_user_id);
+$stmt->execute();
+
+$result = $stmt->get_result();
+
+if($result->num_rows > 0){
+    $profile_user = $result->fetch_assoc();
+}else{
+
+    // dummy fallback user
+    $profile_user = [
+        'id' => 0,
+        'username' => 'Sample User',
+        'email' => 'sample@email.com',
+        'full_name' => 'Sample User'
+    ];
+}
+
+/* =========================
+   PROFILE AVATAR
+========================= */
+
+// your database currently has NO profile_picture column
+// so use default avatar for now
+
+$avatar = 'images/default-avatar.png';
+$my_avatar = 'images/default-avatar.png';
+
+/* =========================
+   ITEMS CLAIMED
+========================= */
+
+$stmt_claimed = $conn->prepare("
+    SELECT COUNT(*) AS total
+    FROM claims
+    WHERE claimant_user_id = ?
+    AND claim_status = 'Approved'
+");
+
+$stmt_claimed->bind_param("i", $profile_user_id);
+$stmt_claimed->execute();
+
+$items_claimed =
+    $stmt_claimed
+    ->get_result()
+    ->fetch_assoc()['total'] ?? 0;
+
+/* =========================
+   ITEMS RETURNED
+========================= */
+
+$stmt_returned = $conn->prepare("
+    SELECT COUNT(*) AS total
+    FROM found_items
+    WHERE user_id = ?
+    AND status = 'Claimed'
+");
+
+$stmt_returned->bind_param("i", $profile_user_id);
+$stmt_returned->execute();
+
+$items_returned =
+    $stmt_returned
+    ->get_result()
+    ->fetch_assoc()['total'] ?? 0;
+
+/* =========================
+   REPORTS MADE
+========================= */
+
+$stmt_reports = $conn->prepare("
+    SELECT
+        (
+            (SELECT COUNT(*) FROM lost_items WHERE user_id = ?)
+            +
+            (SELECT COUNT(*) FROM found_items WHERE user_id = ?)
+        ) AS total
+");
+
+$stmt_reports->bind_param(
+    "ii",
+    $profile_user_id,
+    $profile_user_id
+);
+
+$stmt_reports->execute();
+
+$reports_made =
+    $stmt_reports
+    ->get_result()
+    ->fetch_assoc()['total'] ?? 0;
+
+/* =========================
+   RECENT POSTS
+========================= */
+
+$recent_posts_query = "
+
+    SELECT
+        lost_id AS item_id,
+        item_name,
+        location_lost AS location,
+        item_image,
+        created_at,
+        'Lost' AS item_type
+    FROM lost_items
+    WHERE user_id = ?
+
+    UNION
+
+    SELECT
+        found_id AS item_id,
+        item_name,
+        location_found AS location,
+        item_image,
+        created_at,
+        'Found' AS item_type
+    FROM found_items
+    WHERE user_id = ?
+
+    ORDER BY created_at DESC
+    LIMIT 5
+
+";
+
+$recent_posts = $conn->prepare($recent_posts_query);
+
+$recent_posts->bind_param(
+    "ii",
+    $profile_user_id,
+    $profile_user_id
+);
+
+$recent_posts->execute();
+
+$recent_posts = $recent_posts->get_result();
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
