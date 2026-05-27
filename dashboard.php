@@ -176,35 +176,15 @@ $user = $_SESSION['username'];
         margin-bottom: 32px;
     }
 
-    .search-wrapper {
-        position: relative;
-        width: 300px;
-        display: flex;
-        align-items: center;
-    }
-
-    .search-wrapper input {
-        width: 100%;
-        padding: 10px 16px 10px 40px;
-        border: 1px solid #E0E0E0;
-        border-radius: 8px;
-        font-family: 'Inter', sans-serif;
-        font-size: 14px;
-        background: var(--pure-white);
-        outline: none;
-    }
-
-    .search-icon-svg {
-        position: absolute;
-        left: 14px;
-        color: #888;
-        pointer-events: none;
-    }
+   
 
     .user-profile {
-        display: flex;
-        align-items: center;
-        gap: 24px;
+        margin-left:auto;
+        display:flex; 
+        align-items:center; 
+        gap:18px;
+        
+        
     }
 
     .notif-bell-btn {
@@ -549,10 +529,7 @@ $user = $_SESSION['username'];
 <div class="main-content">
 
     <div class="top-bar">
-        <div class="search-wrapper">
-            <svg class="search-icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            <input type="text" placeholder="Search items...">
-        </div>
+        
 
         <div class="user-profile">
 
