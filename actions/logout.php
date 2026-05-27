@@ -34,7 +34,7 @@ $_SESSION = [];
 session_unset();
 session_destroy();
 
-// Transitions through your premium linear splash screen back to the sign-in prompt
-header("Location: loading.html?redirect=login");
+
+header("Location: ../loading.html?redirect=login");
 exit();
 ?>
