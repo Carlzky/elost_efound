@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 18, 2026 at 08:37 AM
+-- Generation Time: May 27, 2026 at 11:12 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -35,22 +35,18 @@ CREATE TABLE `users` (
   `password` varchar(255) NOT NULL,
   `security_question` varchar(255) DEFAULT NULL,
   `security_answer` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `profile_image` varchar(255) DEFAULT NULL,
+  `cvsu_email` varchar(100) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- --------------------------------------------------------
-
 --
--- Table structure for table `user_tokens`
+-- Dumping data for table `users`
 --
 
-CREATE TABLE `user_tokens` (
-  `id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `selector` char(12) NOT NULL,
-  `hashed_validator` char(64) NOT NULL,
-  `expiry` datetime NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+INSERT INTO `users` (`id`, `full_name`, `email`, `username`, `password`, `security_question`, `security_answer`, `created_at`, `profile_image`, `cvsu_email`) VALUES
+(9, 'Sorasaki Hina', 'carlosjoseph.eudela@cvsu.edu.ph', 'Hinaa', '$2y$10$/YBtmB3amH86KdtU46ACzuH1bDvx3hzoixxassAmavQpqLrjC9MNG', 'What is your elementary school name?', '$2y$10$qlO7OWNd6Nmv2V4i76DrsOjNfOxyyTzpLDDP5No9SuDDHUCWE6eVm', '2026-05-27 07:12:31', 'assets/img/profile_9_1779869637.jpg', 'carlosjoseph.eudela@cvsu.edu.ph'),
+(10, 'SoraHina TAKASHINO', 'carloseudela19@cvsu.edu.ph', 'yunna', '$2y$10$EEr056sdwTBb/TwRxEfQUu0NJ6zjdRIXLGodZAAoMEGOdTKMw5ajC', 'What is your elementary school name?', '$2y$10$d5WYJnkYM.6QSM3/uNRnF.6geyFOIPzXJZqw2aKrD2v4iOjO6b1/y', '2026-05-27 08:04:03', NULL, 'carloseudela19@cvsu.edu.ph');
 
 --
 -- Indexes for dumped tables
@@ -65,13 +61,6 @@ ALTER TABLE `users`
   ADD UNIQUE KEY `username` (`username`);
 
 --
--- Indexes for table `user_tokens`
---
-ALTER TABLE `user_tokens`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
-
---
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -79,202 +68,8 @@ ALTER TABLE `user_tokens`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
-
---
--- AUTO_INCREMENT for table `user_tokens`
---
-ALTER TABLE `user_tokens`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `user_tokens`
---
-ALTER TABLE `user_tokens`
-  ADD CONSTRAINT `user_tokens_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 COMMIT;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `lost_items`
---
-
-CREATE TABLE `lost_items` (
-  `lost_id` INT AUTO_INCREMENT PRIMARY KEY,
-  `user_id` INT NOT NULL,
-  `item_name` VARCHAR(255) NOT NULL,
-  `category` VARCHAR(100) NOT NULL,
-  `location_lost` VARCHAR(255) NOT NULL,
-  `date_lost` DATE NOT NULL,
-  `time_lost` TIME,
-  `description` TEXT,
-  `item_image` VARCHAR(255),
-  `contact_number` VARCHAR(20),
-  `status` ENUM('Pending','Matched','Claimed') DEFAULT 'Pending',
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
-)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `found_items`
---
-
-CREATE TABLE `found_items` (
-  `found_id` INT AUTO_INCREMENT PRIMARY KEY,
-  `user_id` INT NOT NULL,
-  `item_name` VARCHAR(255) NOT NULL,
-  `category` VARCHAR(100) NOT NULL,
-  `location_found` VARCHAR(255) NOT NULL,
-  `date_found` DATE NOT NULL,
-  `time_found` TIME,
-  `description` TEXT,
-  `item_image` VARCHAR(255),
-  `contact_number` VARCHAR(20),
-  `status` ENUM('Available','Claim Requested','Claimed') DEFAULT 'Available',
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
-)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `claims`
---
-
-CREATE TABLE `claims` (
-  `claim_id` INT AUTO_INCREMENT PRIMARY KEY,
-  `found_item_id` INT NOT NULL,
-  `claimant_user_id` INT NOT NULL,
-  `claimant_name` VARCHAR(255) NULL,
-  `claimant_contact` VARCHAR(50) NULL,
-  `proof_image` VARCHAR(255),
-  `message` TEXT,
-  `claim_status` ENUM('Pending','Approved','Rejected') DEFAULT 'Pending',
-  `claimed_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (`found_item_id`) REFERENCES `found_items`(`found_id`) ON DELETE CASCADE,
-  FOREIGN KEY (`claimant_user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
-)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `notifications`
---
-
-CREATE TABLE `notifications` (
-  `notification_id` INT AUTO_INCREMENT PRIMARY KEY,
-  `user_id` INT NOT NULL,
-  `notification_text` TEXT NOT NULL,
-  `notification_type` VARCHAR(100),
-  `is_read` ENUM('Yes','No') DEFAULT 'No',
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
-)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `item_matches`
---
-
-CREATE TABLE `item_matches` (
-  `match_id` INT AUTO_INCREMENT PRIMARY KEY,
-  `lost_item_id` INT NOT NULL,
-  `found_item_id` INT NOT NULL,
-  `match_percentage` INT,
-  `matched_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (`lost_item_id`) REFERENCES `lost_items`(`lost_id`) ON DELETE CASCADE,
-  FOREIGN KEY (`found_item_id`) REFERENCES `found_items`(`found_id`) ON DELETE CASCADE
-)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `report_history`
---
-
-CREATE TABLE `report_history` (
-  `history_id` INT AUTO_INCREMENT PRIMARY KEY,
-  `user_id` INT NOT NULL,
-  `report_type` ENUM('Lost','Found'),
-  `report_id` INT NOT NULL,
-  `action_done` VARCHAR(255),
-  `action_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
-)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
---
---  Table structure for table `found_reports`
--- 
-
-CREATE TABLE `found_reports` (
-  `report_id` INT AUTO_INCREMENT PRIMARY KEY,
-  `lost_item_id` INT NOT NULL,
-  `finder_user_id` INT NOT NULL,
-  `finder_name` VARCHAR(255) NULL,
-  `finder_contact` VARCHAR(255) NULL,
-  `message` TEXT,
-  `proof_image` VARCHAR(255),
-  `report_status`
-  ENUM('Pending','Approved','Rejected')
-  DEFAULT 'Pending',
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (`lost_item_id`) REFERENCES `lost_items`(`lost_id`) ON DELETE CASCADE,
-  FOREIGN KEY (`finder_user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
-  ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `messages`
---
-
-CREATE TABLE `messages` (
-  `message_id` INT AUTO_INCREMENT PRIMARY KEY,
-  `sender_id` INT NOT NULL,
-  `receiver_id` INT NOT NULL,
-  `item_id` INT NULL,
-  `claim_id` INT NULL,
-  `report_id` INT NULL,
-  `message_type`
-  ENUM('normal','claim','found_report')
-  DEFAULT 'normal',
-  `message_text` TEXT NOT NULL,
-  `sent_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (`sender_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
-  FOREIGN KEY (`receiver_id`) REFERENCES `users`(`id`) ON DELETE CASCADE,
-  FOREIGN KEY (`claim_id`) REFERENCES `claims`(`claim_id`) ON DELETE CASCADE,
-  FOREIGN KEY (`report_id`) REFERENCES `found_reports`(`report_id`) ON DELETE CASCADE
-)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- --------------------------------------------------------
-
---
--- Table structure for table inexing messages
---
-
-ALTER TABLE `messages`
-ADD INDEX `idx_sender` (`sender_id`);
-
-ALTER TABLE `messages`
-ADD INDEX `idx_receiver` (`receiver_id`);
-
-ALTER TABLE `messages`
-ADD INDEX `idx_item` (`item_id`);
-
-ALTER TABLE `messages`
-ADD INDEX `idx_claim` (`claim_id`);
-
-ALTER TABLE `messages`
-ADD INDEX `idx_report` (`report_id`);
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
