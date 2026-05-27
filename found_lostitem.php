@@ -2,10 +2,27 @@
 session_start();
 include "config/db.php";
 
+// 1. Secure the page
+if(!isset($_SESSION['username'])){
+    header("Location: registration.php");
+    exit();
+}
+$current_user_id = $_SESSION['user_id'];
+
+// 2. Fetch Profile Image
+$stmt_profile = $conn->prepare("SELECT profile_image FROM users WHERE id = ?");
+$stmt_profile->bind_param("i", $current_user_id);
+$stmt_profile->execute();
+$profile_res = $stmt_profile->get_result();
+$profile_data = $profile_res->fetch_assoc();
+$avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'] : 'assets/img/defaultProfile.png';
+
+// 3. Original Item Fetching Logic
 if(!isset($_GET['id'])){
     die("Item ID missing.");
 }
 
+// Capture $id and define the missing $sql query string
 $id = intval($_GET['id']);
 
 $sql = "
@@ -31,7 +48,21 @@ if($result->num_rows == 0){
     die("Item not found.");
 }
 
+// --- EXACTLY ONE FETCH ---
 $item = $result->fetch_assoc();
+
+// --- SECURITY CHECK ---
+// Prevent the uploader from finding their own lost post
+if ($current_user_id == $item['user_id']) {
+    die("
+        <div style='font-family: sans-serif; text-align: center; padding: 50px;'>
+            <h2 style='color: #d32f2f;'>Action Denied</h2>
+            <p>You cannot submit a found report for an item you posted yourself.</p>
+            <a href='browse-items.php' style='color: #2E7D32; text-decoration: none; font-weight: bold;'>Return to Browse</a>
+        </div>
+    ");
+}
+// --------------------------
 
 $user_sql = "SELECT username FROM users WHERE id = ?";
 $user_stmt = $conn->prepare($user_sql);
@@ -81,7 +112,7 @@ $back_url = isset($_SERVER['HTTP_REFERER']) && !empty($_SERVER['HTTP_REFERER'])
             </svg>
         </a>
         <a href="profile.php" class="avatar-link">
-            <img src="images/default-avatar.png" alt="Profile Picture" class="avatar">
+            <img src="<?php echo htmlspecialchars($avatar); ?>" alt="Profile Picture" class="avatar">
         </a>
     </div>
 </div>

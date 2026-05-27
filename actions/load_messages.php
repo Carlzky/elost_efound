@@ -2,7 +2,6 @@
 session_start();
 date_default_timezone_set('Asia/Manila');
 
-// FIXED PATH: Go up one level to reach the config folder safely
 include "../config/db.php"; 
 
 if (!isset($_SESSION['user_id'])) exit;
@@ -16,17 +15,14 @@ $item_id = isset($_GET['item_id']) ? intval($_GET['item_id']) : 0;
 $sql = "
 SELECT * FROM messages
 WHERE 
-(
-    (sender_id = ? AND receiver_id = ?)
-    OR
-    (sender_id = ? AND receiver_id = ?)
-)
-AND item_id = ?
+(sender_id = ? AND receiver_id = ?)
+OR
+(sender_id = ? AND receiver_id = ?)
 ORDER BY sent_at ASC
 ";
 
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("iiiii", $current_user_id, $receiver_id, $receiver_id, $current_user_id, $item_id);
+$stmt->bind_param("iiii", $current_user_id, $receiver_id, $receiver_id, $current_user_id);
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -55,7 +51,7 @@ while ($row = $result->fetch_assoc()) {
     $class = ($row['sender_id'] == $current_user_id) ? "outgoing" : "incoming";
 
     /* CHECK IF MESSAGE IS A CLAIM MESSAGE */
-    if ($row['message_type'] == 'claim') {
+    if (isset($row['message_type']) && $row['message_type'] == 'claim') {
         $claim_stmt = $conn->prepare("SELECT * FROM claims WHERE claim_id = ?");
         $claim_stmt->bind_param("i", $row['claim_id']);
         $claim_stmt->execute();
@@ -86,7 +82,6 @@ while ($row = $result->fetch_assoc()) {
 
         echo '<div class="claim-status '.$statusClass.'">'.htmlspecialchars($claim['claim_status']).'</div>';
 
-        /* OWNER ACTION BUTTONS*/
         $item_stmt = $conn->prepare("SELECT user_id FROM found_items WHERE found_id = ?");
         $item_stmt->bind_param("i", $claim['found_item_id']);
         $item_stmt->execute();
@@ -99,7 +94,6 @@ while ($row = $result->fetch_assoc()) {
             } else {
                 echo '
                 <div class="claim-actions">
-                    <!-- FIXED PATHS: Links directly because they now live in the same actions/ folder! -->
                     <form method="POST" action="actions/approve_claim.php" onsubmit="return confirm(\'Are you sure you want to APPROVE this claim? This cannot be undone.\');">
                         <input type="hidden" name="claim_id" value="'.$claim['claim_id'].'">
                         <button class="approve-btn">Approve</button>
@@ -113,7 +107,7 @@ while ($row = $result->fetch_assoc()) {
         }
         echo '</div></div>';
 
-    } elseif ($row['message_type'] == 'found_report') {
+    } elseif (isset($row['message_type']) && $row['message_type'] == 'found_report') {
         $report_stmt = $conn->prepare("SELECT * FROM found_reports WHERE report_id = ?");
         $report_stmt->bind_param("i", $row['report_id']);
         $report_stmt->execute();
@@ -155,7 +149,6 @@ while ($row = $result->fetch_assoc()) {
             } else {
                 echo '
                 <div class="claim-actions">
-                    <!-- FIXED PATHS: Links directly because they now live in the same actions/ folder! -->
                     <form method="POST" action="actions/approve_found_report.php" onsubmit="return confirm(\'Approve this report?\');">
                         <input type="hidden" name="report_id" value="'.$report['report_id'].'">
                         <button class="approve-btn">Approve</button>

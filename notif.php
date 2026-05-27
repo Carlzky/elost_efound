@@ -6,14 +6,41 @@ header("Expires: 0");
 
 include "config/db.php";
 
+// Redirect if not logged in
 if(!isset($_SESSION['username'])){
     header("Location: registration.php");
     exit();
 }
 
+// Ensure user_id exists in session, otherwise fetch it
+if (!isset($_SESSION['user_id'])) {
+    $username_check = $_SESSION['username'];
+    $stmt_id = $conn->prepare("SELECT id FROM users WHERE username = ?");
+    $stmt_id->bind_param("s", $username_check);
+    $stmt_id->execute();
+    $result_id = $stmt_id->get_result();
+    if ($row_id = $result_id->fetch_assoc()) {
+        $_SESSION['user_id'] = $row_id['id'];
+    } else {
+        header("Location: logout.php");
+        exit();
+    }
+}
+
 $user = $_SESSION['username'];
 $user_id = $_SESSION['user_id'];
+
+// Fetch the user's profile image for the top bar avatar
+$stmt_profile = $conn->prepare("SELECT profile_image FROM users WHERE id = ?");
+$stmt_profile->bind_param("i", $user_id);
+$stmt_profile->execute();
+$profile_res = $stmt_profile->get_result();
+$profile_data = $profile_res->fetch_assoc();
+
+// Set the avatar path with your custom default image fallback
+$avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'] : 'assets/img/defaultProfile.png';
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -107,21 +134,19 @@ $user_id = $_SESSION['user_id'];
             <input type="text" placeholder="Search notifications...">
         </div>
         <div class="user-profile">
+                <a href="notif.php" class="notif-bell-btn">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                        <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+                    </svg>
+                </a>
 
-    <a href="notif.php" class="notif-bell-btn">
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2"
-            stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-        </svg>
-    </a>
-
-    <a href="profile.php" class="avatar-link">
-        <img src="images/default-avatar.png" alt="Profile Picture" class="avatar">
-    </a>
-
-</div>
+                <a href="profile.php" class="avatar-link">
+                    <img src="<?php echo htmlspecialchars($avatar); ?>" alt="Profile Picture" class="avatar">
+                </a>
+            </div>
     </div>
 
     <h1 class="page-title">Notifications</h1>

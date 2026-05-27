@@ -1,6 +1,44 @@
 <?php
 session_start();
+header("Cache-Control: no-cache, no-store, must-revalidate");
+header("Pragma: no-cache");
+header("Expires: 0");
+
 include "config/db.php";
+
+// Redirect if not logged in
+if(!isset($_SESSION['username'])){
+    header("Location: registration.php");
+    exit();
+}
+
+// Ensure user_id exists in session, otherwise fetch it
+if (!isset($_SESSION['user_id'])) {
+    $username_check = $_SESSION['username'];
+    $stmt_id = $conn->prepare("SELECT id FROM users WHERE username = ?");
+    $stmt_id->bind_param("s", $username_check);
+    $stmt_id->execute();
+    $result_id = $stmt_id->get_result();
+    if ($row_id = $result_id->fetch_assoc()) {
+        $_SESSION['user_id'] = $row_id['id'];
+    } else {
+        header("Location: logout.php");
+        exit();
+    }
+}
+
+$user = $_SESSION['username'];
+$user_id = $_SESSION['user_id'];
+
+// Fetch the user's profile image for the top bar avatar
+$stmt_profile = $conn->prepare("SELECT profile_image FROM users WHERE id = ?");
+$stmt_profile->bind_param("i", $user_id);
+$stmt_profile->execute();
+$profile_res = $stmt_profile->get_result();
+$profile_data = $profile_res->fetch_assoc();
+
+// Set the avatar path with your custom default image fallback
+$avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'] : 'assets/img/defaultProfile.png';
 ?>
 
 <!DOCTYPE html>
@@ -102,9 +140,8 @@ include "config/db.php";
                 </a>
 
                 <a href="profile.php" class="avatar-link">
-                    <img src="images/default-avatar.png" alt="Profile Picture" class="avatar">
+                    <img src="<?php echo htmlspecialchars($avatar); ?>" alt="Profile Picture" class="avatar">
                 </a>
-
             </div>
         </div>
 

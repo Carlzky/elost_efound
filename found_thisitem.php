@@ -2,10 +2,27 @@
 session_start();
 include "config/db.php";
 
+// 1. Secure the page
+if(!isset($_SESSION['username'])){
+    header("Location: registration.php");
+    exit();
+}
+$current_user_id = $_SESSION['user_id'];
+
+// 2. Fetch Profile Image
+$stmt_profile = $conn->prepare("SELECT profile_image FROM users WHERE id = ?");
+$stmt_profile->bind_param("i", $current_user_id);
+$stmt_profile->execute();
+$profile_res = $stmt_profile->get_result();
+$profile_data = $profile_res->fetch_assoc();
+$avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'] : 'assets/img/defaultProfile.png';
+
+// 3. Original Item Fetching Logic
 if(!isset($_GET['id'])){
     die("Item ID missing.");
 }
 
+// --- FIXED: Define $id and the missing $sql query ---
 $id = intval($_GET['id']);
 
 $sql = "
@@ -21,6 +38,7 @@ SELECT
 FROM found_items
 WHERE found_id = ?
 ";
+// ---------------------------------------------------
 
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $id);
@@ -32,6 +50,16 @@ if($result->num_rows == 0){
 }
 
 $item = $result->fetch_assoc();
+
+if ($current_user_id == $item['user_id']) {
+    die("
+        <div style='font-family: sans-serif; text-align: center; padding: 50px;'>
+            <h2 style='color: #d32f2f;'>Action Denied</h2>
+            <p>You cannot submit a claim for an item you posted yourself.</p>
+            <a href='browse-items.php' style='color: #2E7D32; text-decoration: none; font-weight: bold;'>Return to Browse</a>
+        </div>
+    ");
+}
 
 $user_sql = "SELECT username FROM users WHERE id = ?";
 $user_stmt = $conn->prepare($user_sql);
@@ -52,14 +80,11 @@ $image = !empty($item['item_image']) ? $item['item_image'] : 'uploads/default.pn
 <title>Item Details</title>
 
 <link rel="stylesheet" href="assets/css/found_thisitem_style.css">
-<link href="[fonts.googleapis.com](https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap)" rel="stylesheet">
-
-
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
 
-<!-- NAVBAR (uniform with found_lostitem) -->
 <div class="header">
     <div class="header-left">
         <div class="logo-section">
@@ -81,7 +106,7 @@ $image = !empty($item['item_image']) ? $item['item_image'] : 'uploads/default.pn
             </svg>
         </a>
         <a href="profile.php" class="avatar-link">
-            <img src="images/default-avatar.png" alt="Profile Picture" class="avatar">
+            <img src="<?php echo htmlspecialchars($avatar); ?>" alt="Profile Picture" class="avatar">
         </a>
     </div>
 </div>
@@ -92,40 +117,30 @@ $image = !empty($item['item_image']) ? $item['item_image'] : 'uploads/default.pn
     </a>
 
     <div class="grid">
-        <!-- LEFT: Item details -->
         <div class="card">
             <div class="img">
                 <img src="<?php echo htmlspecialchars($image); ?>" alt="Item Image">
             </div>
-
             <h2 class="item-title"><?php echo htmlspecialchars($item['item_name']); ?></h2>
-
-            <!-- Keep status specific to this page -->
             <div class="status-badge status-found">Found</div>
-
             <div class="label">Category</div>
             <div class="value"><?php echo htmlspecialchars($item['category']); ?></div>
-
             <div class="label">Location</div>
             <div class="value"><?php echo htmlspecialchars($item['location']); ?></div>
-
             <div class="label">Date Found</div>
             <div class="value"><?php echo date("F d, Y", strtotime($item['item_date'])); ?></div>
-
             <div class="label">Description</div>
             <div class="value"><?php echo htmlspecialchars($item['description']); ?></div>
-
             <div class="label">Posted by</div>
             <div class="value" style="color:var(--primary); font-weight:600;">
                 <?php echo htmlspecialchars($posted_by); ?>
             </div>
         </div>
 
-        <!-- RIGHT: Contact form -->
         <div class="card">
             <h3 class="form-title">Contact Owner</h3>
 
-            <form method="POST" action="send_claim.php" enctype="multipart/form-data">
+            <form method="POST" action="actions/send_claim.php" enctype="multipart/form-data">
                 <input type="hidden" name="receiver_id" value="<?php echo $item['user_id']; ?>">
                 <input type="hidden" name="item_id" value="<?php echo $item['item_id']; ?>">
 

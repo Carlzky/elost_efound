@@ -85,12 +85,6 @@ $notif->bind_param(
 $notif->execute();
 
 
-header(
-    "Location: messages.php?receiver_id="
-    .$report['finder_user_id'].
-    "&item_id="
-    .$report['lost_item_id']
-);
-
+header("Location: ../messages.php?receiver_id=".$receiver_id."&item_id=".$item_id);
 exit();
 ?>

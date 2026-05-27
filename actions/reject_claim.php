@@ -59,6 +59,6 @@ $notif->bind_param(
 
 $notif->execute();
 
-header("Location: messages.php?receiver_id=".$receiver_id."&item_id=".$claim['found_item_id']);
+header("Location: ../messages.php?receiver_id=".$receiver_id."&item_id=".$item_id);
 exit();
 ?>
