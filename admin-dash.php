@@ -166,27 +166,6 @@ body{
     position:sticky; top:0; z-index:100;
 }
 
-.search-wrap{
-    position:relative;
-    flex:1; max-width:360px;
-}
-.search-wrap input{
-    width:100%;
-    padding:9px 14px 9px 38px;
-    border:1px solid #E0E0E0;
-    border-radius:9px;
-    font-family:'Inter',sans-serif;
-    font-size:13.5px;
-    background:#FAFAFA;
-    outline:none;
-    transition:border .2s;
-}
-.search-wrap input:focus{ border-color:var(--pg); background:#fff; }
-.search-ico{
-    position:absolute; left:12px; top:50%;
-    transform:translateY(-50%);
-    color:#AAA; pointer-events:none;
-}
 
 .topbar-right{
     margin-left:auto;
@@ -543,10 +522,7 @@ tbody tr:hover td{ background:#FAFCFB; }
 
     <!-- TOP BAR -->
     <div class="topbar">
-        <div class="search-wrap">
-            <svg class="search-ico" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input type="text" placeholder="Search items, users, claims…">
-        </div>
+        
 
         <div class="topbar-right">
             <a href="admin-notif.php" class="bell-btn">
