@@ -79,7 +79,7 @@ $recent_reports = $conn->query($recent_reports_sql);
 *{ margin:0; padding:0; box-sizing:border-box; }
 
 body{
-    
+    font-family:'Inter',sans-serif;
     background:var(--bg);
     color:var(--dark);
     display:flex;
