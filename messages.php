@@ -38,7 +38,7 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
         <li class="nav-item"><a href="dashboard.php"><span class="nav-text">Dashboard</span></a></li>
         <li class="nav-item"><a href="report-item.php"><span class="nav-text">Report Item</span></a></li>
         <li class="nav-item"><a href="browse-items.php"><span class="nav-text">Browse Items</span></a></li>
-        <li class="nav-item"><a href="claim.php"><span class="nav-text">My Claims</span></a></li>
+        <li class="nav-item"><a href="claim.php"><span class="nav-text">Claims</span></a></li>
         <li class="nav-item"><a href="notif.php"><span class="nav-text">Notifications</span></a></li>
         <li class="nav-item active"><a href="messages.php"><span class="nav-text">Messages</span></a></li>
         <li class="nav-item" style="margin-top: auto;"><a href="#" onclick="openLogoutModal()"><span class="nav-text">Logout</span></a></li>

@@ -166,7 +166,7 @@ $found_result = $found_stmt->get_result();
                         </svg>
                     </span>
 
-                    <span class="nav-text">My Claims</span>
+                    <span class="nav-text">Claims</span>
 
                 </a>
             </li>

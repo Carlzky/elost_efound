@@ -76,7 +76,7 @@ if(!isset($_SESSION['user_id'])){
                             <line x1="16" y1="17" x2="8" y2="17"></line>
                         </svg>
                     </span>
-                    <span class="nav-text">My Claims</span>
+                    <span class="nav-text">Claims</span>
                 </a>
             </li>
 
