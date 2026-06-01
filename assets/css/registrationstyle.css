@@ -97,7 +97,7 @@ body {
     border-radius: 36px; 
     box-shadow: 0 35px 75px -15px rgba(0, 0, 0, 0.45);
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     animation: slideUpCard 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
     width: 500px;      
     height: 510px; /* FIXED: Reduced from 560px to remove the empty bottom gap */
@@ -335,15 +335,16 @@ body {
 
 /* Floating Notification alerts overlay */
 #message-container {
-    position: absolute;
-    top: 15px;
+    position: fixed;
+    top: -190px;
     left: 50%;
-    width: calc(100% - 90px); 
+    width: 400px;
+    max-width: 90%;
     transform: translateX(-50%) translateY(-15px);
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.4s ease, transform 0.4s ease;
-    z-index: 100;
+    z-index: 9999;
 }
 
 #message-container.reveal-smooth {

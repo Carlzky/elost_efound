@@ -72,7 +72,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $_SESSION['redirect_active_form'] = "register";
         } 
         elseif (!filter_var($email, FILTER_VALIDATE_EMAIL) || !str_ends_with(strtolower($email), '@cvsu.edu.ph')) {
-            $_SESSION['redirect_message'] = "<div class='msg error'>Registration restricted! Only official @cvsu.edu.ph emails are allowed.</div>";
+            $_SESSION['redirect_message'] = "<div class='msg error'>Registration restricted! Only @cvsu.edu.ph emails are allowed.</div>";
             $_SESSION['redirect_active_form'] = "register";
         } 
         elseif (empty($security_question) || empty($security_answer)) {
@@ -96,7 +96,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $stmt->bind_param("sssss", $email, $username, $hashed_password, $security_question, $hashed_answer);
                 
                 if ($stmt->execute()) {
-                    $_SESSION['redirect_message'] = "<div class='msg success'>Registration successful! Please log in with your new credentials below.</div>";
+                    $_SESSION['redirect_message'] = "<div class='msg success'>Registration successful! Please log in below.</div>";
                     $_SESSION['redirect_active_form'] = "login"; 
                 } else {
                     $_SESSION['redirect_message'] = "<div class='msg error'>Registration failed. Try again.</div>";
