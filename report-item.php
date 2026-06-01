@@ -12,19 +12,28 @@ if(!isset($_SESSION['user_id'])){
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Report Item - E-LOST KOH, E-FOUND MOH</title>
 
-    <link rel="stylesheet" href="assets/css/report-item_style.css">
+    <link rel="stylesheet" href="assets/css/report-item_style.css?v=1">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
     
 </head>
 <body>
 
-    <div class="sidebar">
-        <div class="logo-section">
+    <div class="sidebar" id="sidebar">
+    
+        <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="Toggle Sidebar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+        </button>
+
+        <div class="logo-section" onclick="openSidebarIfCollapsed()">
             <div class="logo-icon">🔍</div>
-            <div class="logo-text">
-                E-LOST <span class="txt-highlight">MOH</span><br>
-                E-FOUND <span class="txt-highlight">KOH</span>
-            </div>
+                <div class="logo-text">
+                    E-LOST <span class="txt-highlight">MOH</span><br>
+                    E-FOUND <span class="txt-highlight">KOH</span>
+                </div>
         </div>
 
         <ul class="nav-menu">

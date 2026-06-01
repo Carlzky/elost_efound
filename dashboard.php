@@ -47,83 +47,8 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard - E-LOST KOH, E-FOUND MOH</title>
 
-<link rel="stylesheet" href="assets/css/dashboard_style.css">
+<link rel="stylesheet" href="assets/css/dashboard_style.css?v=1">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
-
-<style>
-/* ── Sidebar Toggle Button ── */
-.sidebar-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: inherit;
-    padding: 10px;
-    margin-bottom: 8px;
-    border-radius: 8px;
-    width: 100%;
-    transition: background 0.2s;
-}
-.sidebar-toggle:hover {
-    background: rgba(255,255,255,0.1);
-}
-
-/* ── Collapsed State ── */
-.sidebar.collapsed {
-    width: 64px;
-    overflow: hidden;
-    transition: width 0.3s ease;
-}
-.sidebar {
-    transition: width 0.3s ease;
-}
-.sidebar.collapsed .logo-text,
-.sidebar.collapsed .nav-text {
-    display: none;
-}
-.sidebar.collapsed .logo-section {
-    justify-content: center;
-}
-.sidebar.collapsed .nav-item a {
-    justify-content: center;
-    padding: 10px 0;
-}
-
-/* ── Tooltip on hover when collapsed ── */
-.sidebar.collapsed .nav-item {
-    position: relative;
-}
-.sidebar.collapsed .nav-item a::after {
-    content: attr(data-tooltip);
-    position: absolute;
-    left: 70px;
-    top: 50%;
-    transform: translateY(-50%);
-    background: #333;
-    color: #fff;
-    padding: 4px 10px;
-    border-radius: 6px;
-    font-size: 12px;
-    white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.2s;
-    z-index: 999;
-}
-.sidebar.collapsed .nav-item a:hover::after {
-    opacity: 1;
-}
-
-/* ── Slide main content when sidebar collapses ── */
-.sidebar.collapsed ~ .main-content {
-    margin-left: 64px;
-}
-.main-content {
-    transition: margin-left 0.3s ease;
-}
-</style>
 
 </head>
 <body>
@@ -138,7 +63,7 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
         </svg>
     </button>
 
-    <div class="logo-section">
+    <div class="logo-section" onclick="openSidebarIfCollapsed()">
         <div class="logo-icon">🔍</div>
             <div class="logo-text">
                 E-LOST <span class="txt-highlight">MOH</span><br>
@@ -361,6 +286,14 @@ function toggleSidebar() {
     sidebar.classList.toggle('collapsed');
 }
 
+document.querySelector('.logo-section').addEventListener('click', function () {
+    const sidebar = document.getElementById('sidebar');
+
+    if (sidebar.classList.contains('collapsed')) {
+        sidebar.classList.remove('collapsed');
+    }
+});
+
 function openLogoutModal(){
     document.getElementById("logoutOverlay").style.display = "flex";
 }
@@ -371,6 +304,14 @@ function closeLogoutModal(){
 
 function confirmLogout(){
     window.location.href = "actions/logout.php";
+}
+
+function openSidebarIfCollapsed() {
+    const sidebar = document.getElementById('sidebar');
+
+    if (sidebar.classList.contains('collapsed')) {
+        sidebar.classList.remove('collapsed');
+    }
 }
 </script>
 

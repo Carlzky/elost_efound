@@ -42,6 +42,76 @@
         height: 100vh;
         display: flex;
         flex-direction: column;
+        transition: width 0.3s ease;
+    }
+
+    .sidebar-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: inherit;
+        padding: 10px;
+        margin-bottom: 8px;
+        border-radius: 8px;
+        width: 100%;
+        transition: background 0.2s;
+    }
+    .sidebar-toggle:hover {
+        background: rgba(255,255,255,0.1);
+    } 
+
+    .sidebar.collapsed {
+        width: 64px;
+        overflow: hidden;
+        transition: width 0.3s ease;
+    }
+    .sidebar.collapsed .sidebar-toggle {
+        display: none;
+    }
+
+    .sidebar.collapsed .logo-text,
+    .sidebar.collapsed .nav-text {
+        display: none;
+    }
+    .sidebar.collapsed .logo-section {
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .sidebar.collapsed .nav-item a {
+        justify-content: center;
+        padding: 10px 0;
+    }
+
+    .sidebar.collapsed .nav-item {
+        position: relative;
+    }
+    .sidebar.collapsed .nav-item a::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        left: 70px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: #333;
+        color: #fff;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 12px;
+        white-space: nowrap;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.2s;
+        z-index: 999;
+    }
+    .sidebar.collapsed .nav-item a:hover::after {
+        opacity: 1;
+    }
+
+    .sidebar.collapsed ~ .main-content {
+        margin-left: 64px;
     }
 
     .logo-section {
@@ -136,6 +206,7 @@
         margin-left: var(--sidebar-width);
         width: 100%;
         padding: 42px;
+        transition: margin-left 0.3s ease;
     }
 
     /* ========================
