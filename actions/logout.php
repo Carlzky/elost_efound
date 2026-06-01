@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-include 'config/db.php'; // Aligned to your clean directory architecture
+include "../config/db.php";
 
 if (isset($_COOKIE['remember_me'])) {
     if (strpos($_COOKIE['remember_me'], ':') !== false) {
@@ -34,7 +34,7 @@ $_SESSION = [];
 session_unset();
 session_destroy();
 
-// Transitions through your premium linear splash screen back to the sign-in prompt
-header("Location: loading.html?redirect=login");
+
+header("Location: ../loading.html?redirect=login");
 exit();
 ?>

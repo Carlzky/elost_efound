@@ -1,19 +1,18 @@
 <?php
 session_start();
-// Dynamic path aligned to your config folder structure
 include 'config/db.php'; 
 
 $message = "";
 $active_form = "login"; 
 $registration_success = false; 
 
-// 1. Defaults to "Welcome" for first-time visitors, "Welcome Back" for returning users
+// 1. Defaults to "Welcome" for first-time visitors, "Welcome Back" for returning users (not yet working) --Gumagana pala
 $greeting = "Welcome"; 
 if (isset($_COOKIE['has_visited'])) {
     $greeting = "Welcome Back";
 }
 
-// ---- AUTOMATIC "REMEMBER ME" COOKIE CHECK ----
+// ---- AUTOMATIC "REMEMBER ME" COOKIE CHECK (STILL IN PROGRESS) ----
 if (!isset($_SESSION['user_id']) && isset($_COOKIE['remember_me'])) {
     if (strpos($_COOKIE['remember_me'], ':') !== false) {
         list($selector, $validator) = explode(':', $_COOKIE['remember_me']);

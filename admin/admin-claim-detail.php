@@ -1,7 +1,7 @@
 <?php
 session_start();
 header("Cache-Control: no-cache, no-store, must-revalidate");
-include 'config/db.php';
+include '../config/db.php';
 
 $admin_name = "Admin"; // dummy admin name for preview
 

@@ -4,7 +4,7 @@ header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
 
-include 'config/db.php';
+include '../config/db.php';
 
 $message = "";
 

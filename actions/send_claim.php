@@ -1,7 +1,7 @@
 <?php
 session_start();
 date_default_timezone_set('Asia/Manila');
-include "config/db.php";
+include "../config/db.php";
 
 if(!isset($_SESSION['user_id'])){
     die("Login required.");
@@ -25,13 +25,20 @@ if($message == ""){
 $proof_image = null;
 
 if (!empty($_FILES['proof_image']['name'])) {
-
     $fileName = time() . "_" . basename($_FILES["proof_image"]["name"]);
-    $targetPath = "uploads/" . $fileName;
+    
+    // FIXED: Point outward from actions/ directory
+    $targetDir = "../uploads/";
+    if (!is_dir($targetDir)) {
+        mkdir($targetDir, 0777, true);
+    }
+    
+    $targetPath = $targetDir . $fileName;
 
-    move_uploaded_file($_FILES["proof_image"]["tmp_name"], $targetPath);
-
-    $proof_image = $targetPath;
+    if (move_uploaded_file($_FILES["proof_image"]["tmp_name"], $targetPath)) {
+        // Save relative to root for easy HTML rendering
+        $proof_image = "uploads/" . $fileName;
+    }
 }
 
 /* =========================
@@ -105,6 +112,6 @@ $notif->bind_param(
 
 $notif->execute();
 
-header("Location: messages.php?receiver_id=".$receiver_id."&item_id=".$item_id);
+header("Location: ../messages.php?receiver_id=".$receiver_id."&item_id=".$item_id);
 exit();
 ?>

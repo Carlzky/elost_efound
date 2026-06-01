@@ -2,15 +2,30 @@
 session_start();
 include "config/db.php";
 
+// 1. Secure the page
+if(!isset($_SESSION['username'])){
+    header("Location: registration.php");
+    exit();
+}
+$user_id = $_SESSION['user_id'];
+
+// 2. Fetch Profile Image
+$stmt_profile = $conn->prepare("SELECT profile_image FROM users WHERE id = ?");
+$stmt_profile->bind_param("i", $user_id);
+$stmt_profile->execute();
+$profile_res = $stmt_profile->get_result();
+$profile_data = $profile_res->fetch_assoc();
+$avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'] : 'assets/img/defaultProfile.png';
+
+// 3. Original Item Fetching Logic
 if(!isset($_GET['id']) || !isset($_GET['type'])){
     die("Invalid item.");
 }
-
 $id = intval($_GET['id']);
-$type = $_GET['type'];
+$type = strtolower($_GET['type']); // Convert to lowercase for consistent comparison
 
-if($type == 'lost') {
-
+// ---- FIXED: Dynamically define the query string based on item type ----
+if ($type === 'lost') {
     $sql = "
     SELECT 
         lost_id AS item_id,
@@ -25,9 +40,7 @@ if($type == 'lost') {
     FROM lost_items
     WHERE lost_id = ?
     ";
-
-} elseif($type == 'found') {
-
+} elseif ($type === 'found') {
     $sql = "
     SELECT 
         found_id AS item_id,
@@ -42,18 +55,14 @@ if($type == 'lost') {
     FROM found_items
     WHERE found_id = ?
     ";
-
 } else {
-
-    die("Invalid item type.");
+    die("Invalid item type specified.");
 }
 
+// Prepare and execute the dynamic query string
 $stmt = $conn->prepare($sql);
-
 $stmt->bind_param("i", $id);
-
 $stmt->execute();
-
 $result = $stmt->get_result();
 
 if($result->num_rows == 0){
@@ -63,15 +72,10 @@ if($result->num_rows == 0){
 $item = $result->fetch_assoc();
 
 $user_sql = "SELECT username FROM users WHERE id = ?";
-
 $user_stmt = $conn->prepare($user_sql);
-
 $user_stmt->bind_param("i", $item['user_id']);
-
 $user_stmt->execute();
-
 $user_result = $user_stmt->get_result();
-
 $user_data = $user_result->fetch_assoc();
 
 $posted_by = $user_data ? $user_data['username'] : 'Unknown User';
@@ -87,336 +91,56 @@ $image = !empty($item['item_image'])
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Item Details</title>
+
+    <link rel="stylesheet" href="assets/css/item_details_style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Poppins:wght@600&display=swap" rel="stylesheet">
     
-    <style>
-        :root {
-                --primary: #1F5D4A;
-                --primary-dark: #143F32;
-                --gold: #F1B846;
-                --light-green: #BBC34A;
-                --bg: #F4F6F5;
-                --white: #FFFFFF;
-                --text: #1A1A1A;
-                --border: #E5E5E5;
-                --bg-gray: #f2f2f2;
-
-                --lost-bg: #FEE2E2;
-                --lost-text: #B91C1C;
-
-                --found-bg: #DCFCE7;
-                --found-text: #166534;
-
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-gray);
-            color: var(--text);
-            padding: 0; /* changed to allow navbar */
-        }
-
-        /* ================= NAVBAR ADDED (NO MAIN CODE CHANGE) ================= */
-        .header{
-            background:var(--primary);
-            padding:16px 32px;
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            position:sticky;
-            top:0;
-            z-index:100;
-        }
-
-        /* LEFT */
-        .header-left{
-            display:flex;
-            align-items:center;
-        }
-
-        /* LOGO */
-        .logo-section{
-            display:flex;
-            align-items:center;
-            gap:14px;
-        }
-
-        .logo-icon{
-            width:56px;
-            height:56px;
-            background:linear-gradient(135deg,var(--primary),var(--primary-dark));
-            border:2px solid var(--gold);
-            border-radius:16px;
-            display:flex;
-            justify-content:center;
-            align-items:center;
-            font-size:24px;
-            box-shadow:0 10px 25px rgba(0,0,0,0.25), inset 0 2px 4px rgba(255,255,255,0.15);
-            transition:0.3s ease;
-            color:#fff;
-        }
-
-        .logo-icon:hover{
-            transform:scale(1.05) rotate(4deg);
-        }
-
-        .logo-text{
-            font-family:'Poppins', sans-serif;
-            font-size:15px;
-            line-height:1.3;
-            font-weight:700;
-            color:#fff;
-        }
-
-        .txt-highlight{ color:var(--light-green); }
-
-        /* RIGHT */
-        .header-right{
-            display:flex;
-            align-items:center;
-            gap:20px;
-        }
-
-        .notif-bell-btn{
-            color:#fff;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            text-decoration:none;
-            transition:0.2s;
-        }
-        .notif-bell-btn:hover{ transform:scale(1.1); }
-
-        .avatar-link{
-            display:flex; align-items:center; justify-content:center; text-decoration:none;
-        }
-        .avatar{
-            width:42px; height:42px; border-radius:50%; object-fit:cover;
-            border:2px solid rgba(255,255,255,0.6);
-            background:#fff;
-            transition:0.2s ease;
-        }
-        .avatar:hover{ transform:scale(1.06); border-color:#fff; }
-        /* ================= END NAVBAR ================= */
-
-        .container {
-            width: 100%;
-            max-width: 1100px;
-            background-color: var(--white);
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-            padding: 30px;
-            margin: 40px auto;
-        }
-
-        .back-link {
-            display:inline-flex;
-            align-items:center;
-            gap:6px;
-
-            color:var(--primary);
-            text-decoration:none;
-
-            font-weight:600;
-            margin-bottom:24px;
-
-            transition:0.2s;
-        }
-
-        .back-link:hover{
-            opacity:0.8;
-        }
-
-        .grid-layout {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-        }
-
-        .image-container {
-            background-color: #EBEBEB;
-            border-radius: 8px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            min-height: 400px;
-            color: var(--dark-gray);
-            border: 1px dashed #CCCCCC;
-        }
-
-        .details-container {
-            display: flex;
-            flex-direction: column;
-        }
-
-        h1 {
-            font-family: 'Poppins', sans-serif;
-            font-size: 32px;
-            color: var(--text-dark);
-            margin-bottom: 8px;
-        }
-
-        .status-badge {
-            align-self: flex-start;
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 24px;
-        }
-
-        .status-lost {
-            background-color: var(--lost-bg);
-            color: var(--lost-text);
-        }
-
-        .status-found {
-            background-color: var(--found-bg);
-            color: var(--found-text);
-        }
-
-        .info-group {
-            margin-bottom: 20px;
-        }
-
-        .info-label {
-            font-size: 14px;
-            color: var(--dark-gray);
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
-
-        .info-value {
-            font-size: 16px;
-            font-weight: 500;
-        }
-
-        .description-text {
-            font-size: 15px;
-            line-height: 1.6;
-            color: #4A4A4A;
-        }
-
-        .action-buttons {
-            margin-top: auto;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            padding-top: 30px;
-        }
-
-        .btn {
-            font-family: 'Inter', sans-serif;
-            font-size: 16px;
-            font-weight: 400;
-            padding: 14px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            text-align: center;
-            text-decoration: none;
-            width: 100%;
-            transition: 0.2s;
-        }
-
-        .btn-primary {
-            background-color: var(--primary);
-            color: var(--white);
-        }
-
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-        }
-
-        .btn-secondary {
-            background-color: var(--pure-white);
-            color: var(--text-dark);
-            border: 1px solid #CCCCCC;
-        }
-
-        .btn-secondary:hover {
-            background-color: #F9F9F9;
-        }
-    </style>
 </head>
-
 <body>
 
-<!-- HEADER -->
 <div class="header">
-
-    <!-- LEFT -->
     <div class="header-left">
-
         <div class="logo-section">
-
-            <div class="logo-icon">
-                🔍
-            </div>
-
+            <div class="logo-icon">🔍</div>
             <div class="logo-text">
                 E-LOST <span class="txt-highlight">MOH</span><br>
                 E-FOUND <span class="txt-highlight">KOH</span>
             </div>
-
         </div>
-
     </div>
 
-    <!-- RIGHT -->
     <div class="header-right">
-
-        <!-- NOTIFICATION -->
         <a href="notif.php" class="notif-bell-btn">
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
                 stroke="currentColor" stroke-width="2"
                 stroke-linecap="round" stroke-linejoin="round">
-
                 <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-
                 <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-
             </svg>
         </a>
 
-        <!-- PROFILE -->
         <a href="profile.php" class="avatar-link">
-
             <img 
-                src="images/default-avatar.png"
+                src="<?php echo htmlspecialchars($avatar); ?>"
                 alt="Profile Picture"
                 class="avatar"
             >
-
         </a>
-
     </div>
-
 </div>
 
 <div class="container">
-
     <a href="browse-items.php?tab=<?php echo strtolower($item['item_type']); ?>" class="back-link">
     &lt; Back
     </a>
 
     <div class="grid-layout">
-
         <div class="image-container">
             <img src="<?php echo htmlspecialchars($image); ?>"
                  style="width:100%; height:100%; object-fit:cover;">
         </div>
 
         <div class="details-container">
-
             <h1><?php echo htmlspecialchars($item['item_name']); ?></h1>
 
             <?php if($item['item_type'] == "Lost"): ?>
@@ -459,27 +183,32 @@ $image = !empty($item['item_image'])
             </div>
 
             <div class="action-buttons">
+                <?php if($user_id != $item['user_id']): ?>
+                    
+                    <?php if($item['item_type'] == "Found"): ?>
+                    <a href="found_thisitem.php?id=<?php echo $item['item_id']; ?>" class="btn btn-primary">
+                        Claim This Item
+                    </a>
+                    <?php else: ?>
+                    <a href="found_lostitem.php?id=<?php echo $item['item_id']; ?>" class="btn btn-primary">
+                        Found This Item
+                    </a>
+                    <?php endif; ?>
 
-                <?php if($item['item_type'] == "Found"): ?>
-                <a href="found_thisitem.php?id=<?php echo $item['item_id']; ?>" class="btn btn-primary">
-                    Claim This Item
-                </a>
+                    <a href="messages.php?user_id=<?php echo $item['user_id']; ?>&item_id=<?php echo $item['item_id']; ?>" class="btn btn-secondary">
+                        Message Owner
+                    </a>
+
                 <?php else: ?>
-                <a href="found_lostitem.php?id=<?php echo $item['item_id']; ?>" class="btn btn-primary">
-                    Found This Item
-                </a>
+                    
+                    <div style="width: 100%; padding: 14px; background: #e8f5e9; color: #2E7D32; border: 1px solid #c8e6c9; border-radius: 8px; text-align: center; font-weight: 600; font-size: 15px;">
+                        📌 This is your post
+                    </div>
+
                 <?php endif; ?>
-
-                <a href="messages.php?user_id=<?php echo $item['user_id']; ?>" class="btn btn-secondary">
-                    Message Owner
-                </a>
-
             </div>
-
         </div>
-
     </div>
-
 </div>
 
 </body>

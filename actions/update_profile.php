@@ -1,10 +1,12 @@
 <?php
 session_start();
-include "config/db.php";
+// FIXED PATH: Go up one level to reach the config folder
+include "../config/db.php";
 
 // Ensure the user is logged in
 if (!isset($_SESSION['user_id'])) {
-    header("Location: registration.php");
+    // FIXED PATH: Registration page is located in the root folder
+    header("Location: ../registration.php");
     exit();
 }
 
@@ -31,9 +33,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $should_remove_image = isset($_POST['remove_image_flag']) && $_POST['remove_image_flag'] === '1';
 
     if ($should_remove_image) {
+        // FIXED PATH: DB string must remain accessible relative to root views
         $profile_image_path = 'assets/img/defaultProfile.png';
-        if (!empty($current_user['profile_image']) && strpos($current_user['profile_image'], 'defaultProfile.png') === false && file_exists($current_user['profile_image'])) {
-            unlink($current_user['profile_image']);
+        
+        // FIXED PATH: To check/unlink from within this subfolder, append '../'
+        $old_file_system_path = "../" . $current_user['profile_image'];
+        if (!empty($current_user['profile_image']) && strpos($current_user['profile_image'], 'defaultProfile.png') === false && file_exists($old_file_system_path)) {
+            unlink($old_file_system_path);
         }
     }
 
@@ -43,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // CATCH THE SILENT BUG: If the file is larger than the server's php.ini config allows
         if ($file_error === UPLOAD_ERR_INI_SIZE || $file_error === UPLOAD_ERR_FORM_SIZE) {
-            header("Location: profile.php?status=error_size");
+            header("Location: ../profile.php?status=error_size");
             exit();
         }
 
@@ -58,16 +64,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
             // Custom 2MB check
             if ($file_size > 2097152) {
-                header("Location: profile.php?status=error_size");
+                header("Location: ../profile.php?status=error_size");
                 exit();
             }
 
             if (!in_array($file_ext, $allowed_ext)) {
-                header("Location: profile.php?status=error_type");
+                header("Location: ../profile.php?status=error_type");
                 exit();
             }
 
-            $upload_dir = 'assets/img/';
+            // FIXED PATH: Target directory from the perspective of the actions/ folder
+            $upload_dir = '../assets/img/';
             if (!is_dir($upload_dir)) {
                 mkdir($upload_dir, 0777, true);
             }
@@ -76,19 +83,21 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             $destination = $upload_dir . $new_file_name;
 
             if (move_uploaded_file($file_tmp, $destination)) {
-                $profile_image_path = $destination;
+                // Save path without the leading '../' so it remains correct for root files like profile.php
+                $profile_image_path = "assets/img/" . $new_file_name;
                 
-                // Delete old photo
-                if (!empty($current_user['profile_image']) && strpos($current_user['profile_image'], 'defaultProfile.png') === false && file_exists($current_user['profile_image'])) {
-                    unlink($current_user['profile_image']);
+                // FIXED PATH: Delete old photo with proper relative directory tracking
+                $old_file_system_path = "../" . $current_user['profile_image'];
+                if (!empty($current_user['profile_image']) && strpos($current_user['profile_image'], 'defaultProfile.png') === false && file_exists($old_file_system_path)) {
+                    unlink($old_file_system_path);
                 }
             } else {
-                 header("Location: profile.php?status=error_upload");
+                 header("Location: ../profile.php?status=error_upload");
                  exit();
             }
         } else {
              // Catch all other upload errors (like missing temp folder)
-             header("Location: profile.php?status=error_upload");
+             header("Location: ../profile.php?status=error_upload");
              exit();
         }
     }
@@ -100,14 +109,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     
     if ($update_stmt->execute()) {
         $_SESSION['username'] = $new_username;
-        header("Location: profile.php?status=success");
+        header("Location: ../profile.php?status=success");
         exit();
     } else {
-        header("Location: profile.php?status=error");
+        header("Location: ../profile.php?status=error");
         exit();
     }
 } else {
-    header("Location: profile.php");
+    header("Location: ../profile.php");
     exit();
 }
 ?>
