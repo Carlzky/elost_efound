@@ -12,7 +12,7 @@ if(!isset($_SESSION['user_id'])){
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Report Item - E-LOST KOH, E-FOUND MOH</title>
 
-    <link rel="stylesheet" href="assets/css/report-item_style.css?v=1">
+    <link rel="stylesheet" href="assets/css/report-item_style.css?v=2">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
     
 </head>
@@ -247,6 +247,27 @@ if(!isset($_SESSION['user_id'])){
                 uploadStatus.innerHTML = `<strong>Dropped:</strong><br><span style="font-size:12px; color:var(--primary-green);">${e.dataTransfer.files[0].name}</span>`;
             }
         });
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('collapsed');
+        }
+
+        document.querySelector('.logo-section').addEventListener('click', function () {
+            const sidebar = document.getElementById('sidebar');
+
+            if (sidebar.classList.contains('collapsed')) {
+                sidebar.classList.remove('collapsed');
+            }
+        });
+
+        function openSidebarIfCollapsed() {
+            const sidebar = document.getElementById('sidebar');
+
+            if (sidebar.classList.contains('collapsed')) {
+                sidebar.classList.remove('collapsed');
+            }
+        }
 
         function openLogoutModal() { document.getElementById("logoutOverlay").style.display = "flex"; }
         function closeLogoutModal() { document.getElementById("logoutOverlay").style.display = "none"; }
