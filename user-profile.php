@@ -9,6 +9,17 @@ include 'config/db.php';
 // change this depending on your login session
 $current_user_id = $_SESSION['user_id'] ?? 1;
 
+$stmt_me = $conn->prepare("
+    SELECT profile_image
+    FROM users
+    WHERE id = ?
+");
+
+$stmt_me->bind_param("i", $current_user_id);
+$stmt_me->execute();
+$result_me = $stmt_me->get_result();
+$me = $result_me->fetch_assoc();
+
 /* =========================
    GET PROFILE USER ID
 ========================= */
@@ -49,11 +60,15 @@ if($result->num_rows > 0){
    PROFILE AVATAR
 ========================= */
 
-// your database currently has NO profile_picture column
-// so use default avatar for now
 
-$avatar = 'images/default-avatar.png';
-$my_avatar = 'images/default-avatar.png';
+
+$avatar = !empty($profile_user['profile_image'])
+    ? $profile_user['profile_image']
+    : 'assets/img/defaultProfile.png';
+
+$my_avatar = !empty($me['profile_image'])
+    ? $me['profile_image']
+    : 'assets/img/defaultProfile.png';
 
 /* =========================
    ITEMS CLAIMED

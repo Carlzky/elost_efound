@@ -38,8 +38,10 @@ $profile_res = $stmt_profile->get_result();
 $profile_data = $profile_res->fetch_assoc();
 
 // Set the avatar path with your custom default image fallback
-$avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'] : 'assets/img/defaultProfile.png';
-?>
+$avatar = !empty($profile_data['profile_image']) 
+    ? $profile_data['profile_image'] 
+    : 'assets/img/defaultProfile.png';
+    ?>
 
 <!DOCTYPE html>
 <html lang="en">

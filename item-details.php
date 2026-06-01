@@ -176,11 +176,14 @@ $image = !empty($item['item_image'])
             </div>
 
             <div class="info-group">
-                <div class="info-label">Posted by</div>
-                <div class="info-value" style="color: var(--primary-green); font-weight: 600;">
-                    <?php echo htmlspecialchars($posted_by); ?>
-                </div>
-            </div>
+    <div class="info-label">Posted by</div>
+
+    <a href="user-profile.php?id=<?php echo $item['user_id']; ?>"
+       class="info-value"
+       style="color: var(--primary-green); font-weight: 600; text-decoration: none;">
+        <?php echo htmlspecialchars($posted_by); ?>
+    </a>
+</div>
 
             <div class="action-buttons">
                 <?php if($user_id != $item['user_id']): ?>

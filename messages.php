@@ -24,6 +24,7 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
 <link rel="stylesheet" href="assets/css/messages_style.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
 </head>
+
 <body>
 
 <div class="sidebar">
@@ -257,6 +258,27 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 setInterval(loadMessagesAuto, 2000);
+
+function showSystemMessage(title, message) {
+    document.getElementById("systemTitle").innerText = title;
+    document.getElementById("systemMessage").innerText = message;
+    document.getElementById("systemOverlay").style.display = "flex";
+}
+
+function closeSystemModal() {
+    document.getElementById("systemOverlay").style.display = "none";
+}
 </script>
+
+<div class="system-overlay" id="systemOverlay">
+    <div class="system-modal">
+        <h2 id="systemTitle">Message</h2>
+        <p id="systemMessage">Action completed</p>
+
+        <button onclick="closeSystemModal()" class="logout-btn">
+            OK
+        </button>
+    </div>
+</div>
 </body>
 </html>
