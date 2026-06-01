@@ -48,12 +48,45 @@ $description = $_POST['description'] ?? '';
 $image_path = NULL;
 
 if (isset($_FILES['item_image']) && $_FILES['item_image']['error'] == 0) {
-    // FIXED PATH: Target directory from the perspective of the actions/ folder
+
     $upload_dir = "../uploads/";
 
     if (!file_exists($upload_dir)) {
         mkdir($upload_dir, 0777, true);
     }
+
+    // ===== MIME TYPE VALIDATION =====
+
+    $file_type = mime_content_type($_FILES['item_image']['tmp_name']);
+
+    $allowed_mime = [
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/webp'
+    ];
+
+    if (!in_array($file_type, $allowed_mime)) {
+        die("Only JPG, PNG, GIF, and WEBP files are allowed.");
+    }
+
+    // ===== FILE SIZE VALIDATION =====
+
+    $max_size = 10 * 1024 * 1024; // 10 MB
+
+    if ($_FILES['item_image']['size'] > $max_size) {
+    die("Image size must not exceed 5 MB.");
+}
+
+    // ===== SAFE FILE NAME =====
+
+    $image_name = time() . "_" . basename($_FILES["item_image"]["name"]);
+    $target_file = $upload_dir . $image_name;
+
+    if (move_uploaded_file($_FILES["item_image"]["tmp_name"], $target_file)) {
+        $image_path = "uploads/" . $image_name;
+    }
+}
 
     $image_name = time() . "_" . basename($_FILES["item_image"]["name"]);
     $target_file = $upload_dir . $image_name;

@@ -177,8 +177,14 @@ if(!isset($_SESSION['user_id'])){
                         </div>
 
                         <div class="form-group upload-container">
-                            <label>Upload Image</label>
-                            <input type="file" id="file-input" name="item_image" accept="image/*" style="display: none;">
+                            <label>
+                                Upload Image
+                            </label>
+                            <input type="file"
+                            id="file-input"
+                            name="item_image"
+                            accept=".jpg,.jpeg,.png,.gif,.webp"
+                            style="display: none;">
                             
                             <div class="upload-dropzone" id="dropzone">
                                 <div class="upload-icon">
@@ -186,7 +192,10 @@ if(!isset($_SESSION['user_id'])){
                                         <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
                                     </svg>
                                 </div>
-                                <p class="upload-text" id="upload-status">Click to upload<br><span>or drag and drop</span></p>
+                                <p class="upload-text" id="upload-status">
+                                    Click to upload<br>
+                                    <span>JPG, PNG, GIF, WEBP (Max 5 MB)</span>
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -243,7 +252,19 @@ if(!isset($_SESSION['user_id'])){
             dropzone.style.borderColor = "#CCCCCC";
             dropzone.style.backgroundColor = "#FAFAFA";
             if (e.dataTransfer.files.length > 0) {
-                fileInput.files = e.dataTransfer.files;
+                const file = e.dataTransfer.files[0];
+
+            if (!allowedTypes.includes(file.type)) {
+                alert("Invalid file type.");
+                return;
+            }
+
+            if (file.size > maxSize) {
+                alert("File size must not exceed 10 MB.");
+                return;
+            }
+
+            fileInput.files = e.dataTransfer.files;
                 uploadStatus.innerHTML = `<strong>Dropped:</strong><br><span style="font-size:12px; color:var(--primary-green);">${e.dataTransfer.files[0].name}</span>`;
             }
         });
@@ -272,6 +293,46 @@ if(!isset($_SESSION['user_id'])){
         function openLogoutModal() { document.getElementById("logoutOverlay").style.display = "flex"; }
         function closeLogoutModal() { document.getElementById("logoutOverlay").style.display = "none"; }
         function confirmLogout() { window.location.href = "actions/logout.php"; }
+
+        const allowedTypes = [
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/webp',
+    'video/mp4',
+    'video/quicktime',
+    'video/x-msvideo'
+];
+
+const maxSize = 10 * 1024 * 1024; // 10 MB
+
+fileInput.addEventListener('change', validateFile);
+
+function validateFile() {
+    const file = fileInput.files[0];
+
+    if (!file) return;
+
+    if (!allowedTypes.includes(file.type)) {
+        alert("Only JPG, PNG, GIF, WEBP, MP4, MOV, and AVI files are allowed.");
+        fileInput.value = "";
+        uploadStatus.innerHTML = "Click to upload<br><span>or drag and drop</span>";
+        return;
+    }
+
+    if (file.size > maxSize) {
+        alert("File size must not exceed 10 MB.");
+        fileInput.value = "";
+        uploadStatus.innerHTML = "Click to upload<br><span>or drag and drop</span>";
+        return;
+    }
+
+    uploadStatus.innerHTML =
+        `<strong>Selected:</strong><br>
+        <span style="font-size:12px;color:var(--primary-green);">
+            ${file.name}
+        </span>`;
+}
     </script>
     <div class="logout-overlay" id="logoutOverlay">
         <div class="logout-modal">
