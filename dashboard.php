@@ -50,11 +50,94 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
 <link rel="stylesheet" href="assets/css/dashboard_style.css">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
 
+<style>
+/* ── Sidebar Toggle Button ── */
+.sidebar-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: inherit;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 8px;
+    width: 100%;
+    transition: background 0.2s;
+}
+.sidebar-toggle:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+/* ── Collapsed State ── */
+.sidebar.collapsed {
+    width: 64px;
+    overflow: hidden;
+    transition: width 0.3s ease;
+}
+.sidebar {
+    transition: width 0.3s ease;
+}
+.sidebar.collapsed .logo-text,
+.sidebar.collapsed .nav-text {
+    display: none;
+}
+.sidebar.collapsed .logo-section {
+    justify-content: center;
+}
+.sidebar.collapsed .nav-item a {
+    justify-content: center;
+    padding: 10px 0;
+}
+
+/* ── Tooltip on hover when collapsed ── */
+.sidebar.collapsed .nav-item {
+    position: relative;
+}
+.sidebar.collapsed .nav-item a::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    left: 70px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #333;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+    z-index: 999;
+}
+.sidebar.collapsed .nav-item a:hover::after {
+    opacity: 1;
+}
+
+/* ── Slide main content when sidebar collapses ── */
+.sidebar.collapsed ~ .main-content {
+    margin-left: 64px;
+}
+.main-content {
+    transition: margin-left 0.3s ease;
+}
+</style>
 
 </head>
 <body>
 
-<div class="sidebar">
+<div class="sidebar" id="sidebar">
+
+    <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" title="Toggle Sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+    </button>
+
     <div class="logo-section">
         <div class="logo-icon">🔍</div>
             <div class="logo-text">
@@ -65,7 +148,7 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
 
     <ul class="nav-menu">
         <li class="nav-item active">
-            <a href="dashboard.php">
+            <a href="dashboard.php" data-tooltip="Dashboard">
                 <span class="nav-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
                 </span>
@@ -73,7 +156,7 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
             </a>
         </li>
         <li class="nav-item">
-            <a href="report-item.php">
+            <a href="report-item.php" data-tooltip="Report Item">
                 <span class="nav-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="12" y1="18" x2="12" y2="12"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg>
                 </span>
@@ -81,7 +164,7 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
             </a>
         </li>
         <li class="nav-item">
-            <a href="browse-items.php">
+            <a href="browse-items.php" data-tooltip="Browse Items">
                 <span class="nav-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
                 </span>
@@ -89,7 +172,7 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
             </a>
         </li>
         <li class="nav-item">
-            <a href="claim.php">
+            <a href="claim.php" data-tooltip="My Claims">
                 <span class="nav-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line></svg>
                 </span>
@@ -97,7 +180,7 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
             </a>
         </li>
         <li class="nav-item">
-            <a href="notif.php">
+            <a href="notif.php" data-tooltip="Notifications">
                 <span class="nav-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
                 </span>
@@ -105,7 +188,7 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
             </a>
         </li>
         <li class="nav-item">
-            <a href="messages.php">
+            <a href="messages.php" data-tooltip="Messages">
                 <span class="nav-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                 </span>
@@ -113,7 +196,7 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
             </a>
         </li>
         <li class="nav-item" style="margin-top: auto;">
-            <a href="#" onclick="openLogoutModal()">
+            <a href="#" onclick="openLogoutModal()" data-tooltip="Logout">
                 <span class="nav-icon">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                 </span>
@@ -273,6 +356,11 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
 </div>
 
 <script>
+function toggleSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    sidebar.classList.toggle('collapsed');
+}
+
 function openLogoutModal(){
     document.getElementById("logoutOverlay").style.display = "flex";
 }
@@ -287,4 +375,4 @@ function confirmLogout(){
 </script>
 
 </body>
-</html>     
+</html>

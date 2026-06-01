@@ -80,7 +80,7 @@ body{
 }
 
 /* =========================
-   NAVBAR (copied to match found_lostitem)
+   NAVBAR 
 ========================= */
 .header{
     background:var(--primary);

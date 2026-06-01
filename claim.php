@@ -705,6 +705,7 @@ $found_result = $found_stmt->get_result();
         <h1 class="page-title">
             Claim System Page
         </h1>
+        
 
         <div class="claim-card">
 
