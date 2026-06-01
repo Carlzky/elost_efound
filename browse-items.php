@@ -179,7 +179,7 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
         <option value="oldest">Oldest</option>
     </select>
 
-    <button class="btn-filter" onclick="filterItems()">🎛️ Filter</button>
+    <button class="btn-filter" onclick="filterItems()">Filter</button>
 
 </div>
         <div id="no-results-message" style="display: none; text-align: center; color: var(--dark-gray); padding: 40px; font-weight: 500; font-size: 16px;"></div>
@@ -283,7 +283,19 @@ else:
 
 ?>
 
-<p style="color:gray;">No items found.</p>
+<div id="database-empty-message"
+     style="
+        justify-content:center;
+        align-items:center;
+        min-height:150px;
+        padding-left:100px;
+        text-align:right;
+        color:var(--dark-gray);
+        font-weight:500;
+        font-size:16px;
+     ">
+    No items found.
+</div>
 
 <?php endif; ?>
 
@@ -429,14 +441,18 @@ function filterItems() {
     });
 
 
-    if(visibleCards.length === 0) {
+   const cards = document.querySelectorAll('.item-card');
 
-        noResultsMessage.style.display = 'block';
+if(cards.length > 0 && visibleCards.length === 0) {
 
-        noResultsMessage.textContent =
-            "No matching items found.";
+    noResultsMessage.style.display = 'block';
+    noResultsMessage.textContent = "No matching items found.";
 
-    } else {
+} else {
+
+    noResultsMessage.style.display = 'none';
+
+} else {
 
         noResultsMessage.style.display = 'none';
     }
