@@ -441,8 +441,6 @@ function filterItems() {
     });
 
 
-   const cards = document.querySelectorAll('.item-card');
-
 if(cards.length > 0 && visibleCards.length === 0) {
 
     noResultsMessage.style.display = 'block';
@@ -451,11 +449,8 @@ if(cards.length > 0 && visibleCards.length === 0) {
 } else {
 
     noResultsMessage.style.display = 'none';
+}
 
-} else {
-
-        noResultsMessage.style.display = 'none';
-    }
 }
 
 tabs.forEach(tab => {
