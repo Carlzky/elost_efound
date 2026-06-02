@@ -204,15 +204,95 @@ $image = !empty($item['item_image'])
 
                 <?php else: ?>
                     
-                    <div style="width: 100%; padding: 14px; background: #e8f5e9; color: #2E7D32; border: 1px solid #c8e6c9; border-radius: 8px; text-align: center; font-weight: 600; font-size: 15px;">
-                        📌 This is your post
-                    </div>
+                    <div style="width: 100%; display:flex; flex-direction:column; gap:10px;">
+
+    <div style="
+        padding: 14px;
+        background: #e8f5e9;
+        color: #2E7D32;
+        border: 1px solid #c8e6c9;
+        border-radius: 8px;
+        text-align: center;
+        font-weight: 600;
+        font-size: 15px;
+    ">
+        This is your post
+    </div>
+
+    <button
+        class="btn-delete-post"
+        onclick="openDeleteModal()">
+        Delete Posted Item
+    </button>
+
+</div>
 
                 <?php endif; ?>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Delete Modal -->
+<div class="delete-overlay" id="deleteOverlay">
+
+    <div class="delete-modal">
+
+        <h2>Delete Item</h2>
+
+        <p>
+            Are you sure you want to delete this item?
+            <br><br>
+            <strong>Changes cannot be undone.</strong>
+        </p>
+
+        <div class="delete-buttons">
+
+            <button
+                class="cancel-btn"
+                onclick="closeDeleteModal()">
+                Cancel
+            </button>
+
+            <form
+                action="actions/delete_item.php"
+                method="POST">
+
+                <input
+                    type="hidden"
+                    name="item_id"
+                    value="<?php echo $item['item_id']; ?>">
+
+                <input
+                    type="hidden"
+                    name="item_type"
+                    value="<?php echo strtolower($item['item_type']); ?>">
+
+                <button
+                    type="submit"
+                    class="delete-btn">
+                    Delete
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+function openDeleteModal(){
+    document.getElementById('deleteOverlay').style.display = 'flex';
+}
+
+function closeDeleteModal(){
+    document.getElementById('deleteOverlay').style.display = 'none';
+}
+
+</script>
 
 </body>
 </html>
