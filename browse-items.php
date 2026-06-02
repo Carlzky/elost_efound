@@ -187,7 +187,7 @@ $avatar = !empty($profile_data['profile_image'])
 
 $sql = "
 
-SELECT 
+SELECT
     lost_id AS item_id,
     item_name,
     category,
@@ -196,10 +196,11 @@ SELECT
     item_image,
     'lost' AS item_type
 FROM lost_items
+WHERE status != 'Claimed'
 
 UNION ALL
 
-SELECT 
+SELECT
     found_id AS item_id,
     item_name,
     category,
@@ -208,6 +209,7 @@ SELECT
     item_image,
     'found' AS item_type
 FROM found_items
+WHERE status != 'Claimed'
 
 ORDER BY item_date DESC
 
