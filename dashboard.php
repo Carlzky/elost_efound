@@ -133,6 +133,10 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
 
 <div class="main-content">
     <div class="top-bar">
+        <div class="welcome">
+            <h1 class="page-title">Dashboard</h1>
+            <p class="page-subtitle">Welcome back, <?php echo htmlspecialchars($user); ?>!</p>
+        </div>
         <div class="user-profile">
             <a href="notif.php" class="notif-bell-btn">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
@@ -149,9 +153,6 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
 
         </div>
     </div>
-
-    <h1 class="page-title">Dashboard</h1>
-    <p class="page-subtitle">Welcome back, <?php echo htmlspecialchars($user); ?>!</p>
 
     <div class="stats-grid">
         <div class="stat-card">
