@@ -12,7 +12,7 @@ if(!isset($_SESSION['user_id'])){
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Report Item - E-LOST KOH, E-FOUND MOH</title>
 
-    <link rel="stylesheet" href="assets/css/report-item_style.css?v=2">
+    <link rel="stylesheet" href="assets/css/report-item_style.css?v=4">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
     
 </head>

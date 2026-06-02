@@ -50,7 +50,7 @@ $avatar = !empty($profile_data['profile_image'])
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Browse Items - E-LOST KOH, E-FOUND MOH</title>
 
-    <link rel="stylesheet" href="assets/css/browse-items_style.css">
+    <link rel="stylesheet" href="assets/css/browse-items_style.css?v=1">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
     
 </head>
@@ -122,10 +122,10 @@ $avatar = !empty($profile_data['profile_image'])
 
     <div class="main-content">
         <div class="top-bar">
-            <div class="search-wrapper">
-                <span class="search-icon">🔍</span>
-                <input type="text" placeholder="Search items...">
-            </div>
+        <div class="search-wrapper">
+            <svg class="search-icon-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            <input type="text" id="searchInput" placeholder="Search notifications..." oninput="filterNotifications()">
+        </div>
             <div class="user-profile">
                 <a href="notif.php" class="notif-bell-btn">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none"

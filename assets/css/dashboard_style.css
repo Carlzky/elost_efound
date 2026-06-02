@@ -119,6 +119,12 @@ body {
     margin-left: 64px;
 }
 
+.sidebar.collapsed .logo-icon {
+        width: 45px;
+        height: 45px;
+        min-width: 45px;
+}
+
 .logo-section {
     display: flex;
     align-items: center;
