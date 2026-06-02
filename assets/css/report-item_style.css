@@ -36,9 +36,10 @@
             flex-direction: column;
             position: fixed;
             height: 100vh;
-            z-index: 10;
             transition: width 0.3s ease;
+            overflow: hidden;
         }
+        
         .sidebar-toggle {
             display: flex;
             align-items: center;
@@ -46,43 +47,46 @@
             background: none;
             border: none;
             cursor: pointer;
-            color: inherit;
+            color: white;
             padding: 10px;
             margin-bottom: 8px;
             border-radius: 8px;
             width: 100%;
             transition: background 0.2s;
+            flex-shrink: 0;
         }
+        
         .sidebar-toggle:hover {
-            background: rgba(255,255,255,0.1);
-        } 
-
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
         .sidebar.collapsed {
             width: 64px;
-            overflow: hidden;
-            transition: width 0.3s ease;
+            padding: 24px 12px;
         }
         .sidebar.collapsed .sidebar-toggle {
             display: none;
         }
-
+        
         .sidebar.collapsed .logo-text,
         .sidebar.collapsed .nav-text {
             display: none;
         }
+        
         .sidebar.collapsed .logo-section {
             justify-content: center;
             cursor: pointer;
         }
-
+        
         .sidebar.collapsed .nav-item a {
             justify-content: center;
             padding: 10px 0;
         }
-
+        
         .sidebar.collapsed .nav-item {
             position: relative;
         }
+        
         .sidebar.collapsed .nav-item a::after {
             content: attr(data-tooltip);
             position: absolute;
@@ -100,24 +104,28 @@
             transition: opacity 0.2s;
             z-index: 999;
         }
+        
         .sidebar.collapsed .nav-item a:hover::after {
             opacity: 1;
         }
-
+        
         .sidebar.collapsed ~ .main-content {
             margin-left: 64px;
         }
-
+        
+        
         .logo-section {
             display: flex;
             align-items: center;
             gap: 14px;
             margin-bottom: 40px;
+            white-space: nowrap;
         }
-
+        
         .logo-icon {
             width: 58px;
             height: 58px;
+            min-width: 58px;
             background: linear-gradient(135deg, #1F5D4A, #143F32);
             border: 2px solid #F1B846;
             border-radius: 16px;
@@ -125,13 +133,19 @@
             justify-content: center;
             align-items: center;
             font-size: 26px;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35), inset 0 3px 6px rgba(255, 255, 255, 0.18);
-            transition: transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
+            box-shadow:
+                0 12px 30px rgba(0, 0, 0, 0.35),
+                inset 0 3px 6px rgba(255, 255, 255, 0.18);
+            transition:
+                transform 0.7s cubic-bezier(0.2, 0.8, 0.2, 1),
+                box-shadow 0.7s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
-
+        
         .logo-icon:hover {
             transform: scale(1.08) translateY(-5px) rotate(4deg);
-            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45), inset 0 3px 6px rgba(255, 255, 255, 0.25);
+            box-shadow:
+                0 18px 40px rgba(0, 0, 0, 0.45),
+                inset 0 3px 6px rgba(255, 255, 255, 0.25);
         }
         
         .logo-text {
@@ -141,19 +155,19 @@
             font-weight: 700;
             color: #FFFFFF;
         }
-
+        
         .logo-text .txt-highlight {
             color: #BBC34A;
         }
-
+        
         .nav-menu {
             list-style: none;
             display: flex;
             flex-direction: column;
             gap: 8px;
-            height:100%;
+            height: 100%;
         }
-
+        
         .nav-item a {
             text-decoration: none;
             color: rgba(255, 255, 255, 0.82);
@@ -165,28 +179,29 @@
             transition: 0.25s ease;
             font-size: 14px;
             font-weight: 500;
+            white-space: nowrap;
         }
-
+        
         .nav-item a:hover {
             background: rgba(255, 255, 255, 0.05);
             color: white;
         }
-
+        
         .nav-item.active a {
             background: rgba(255, 255, 255, 0.12);
             color: white;
             font-weight: 500;
         }
-
+        
         .nav-icon {
             display: flex;
             align-items: center;
             justify-content: center;
             width: 20px;
             height: 20px;
+            min-width: 20px;
             opacity: 0.8;
         }
-
         .main-content {
             margin-left: var(--sidebar-width);
             flex: 1;
