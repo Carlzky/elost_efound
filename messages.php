@@ -2,7 +2,7 @@
 session_start();
 include "config/db.php";
 
-if(!isset($_SESSION['username'])){
+if(!isset($_SESSION['user_id'])){
     header("Location: registration.php");
     exit();
 }
@@ -186,9 +186,22 @@ document.querySelectorAll('.conversation-card').forEach(card => {
         fetch("actions/load_messages.php?receiver_id=" + receiverId)
         .then(response => response.text())
         .then(data => {
-            streamBox.innerHTML = data;
+
+    if (!data) return;
+
+    const shouldStickBottom =
+        streamBox.scrollHeight - streamBox.scrollTop <= streamBox.clientHeight + 150;
+
+    // only redraw if chat changed
+    if (streamBox.innerHTML !== data) {
+
+        streamBox.innerHTML = data;
+
+        if (shouldStickBottom) {
             streamBox.scrollTop = streamBox.scrollHeight;
-        });
+        }
+    }
+});
     });
 });
 
@@ -224,23 +237,37 @@ function sendMessage() {
 sendBtn.addEventListener('click', sendMessage);
 messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
 
+let isLoading = false;
+
 function loadMessagesAuto() {
+    if (isLoading) return;
+
     const activeCard = document.querySelector('.conversation-card.active');
     if (!activeCard) return;
+
+    isLoading = true;
 
     const receiverId = activeCard.dataset.userid;
 
     fetch("actions/load_messages.php?receiver_id=" + receiverId)
-    .then(response => response.text())
+    .then(res => res.text())
     .then(data => {
-        if (streamBox.innerHTML !== data) {
-            const wasNearBottom = streamBox.scrollHeight - streamBox.scrollTop <= streamBox.clientHeight + 200;
-            streamBox.innerHTML = data;
-            if (wasNearBottom) {
-                streamBox.scrollTop = streamBox.scrollHeight;
-            }
+
+    if (!data) return;
+
+    const shouldStickBottom =
+        streamBox.scrollHeight - streamBox.scrollTop <= streamBox.clientHeight + 150;
+
+    if (streamBox.innerHTML !== data) {
+
+        streamBox.innerHTML = data;
+
+        if (shouldStickBottom) {
+            streamBox.scrollTop = streamBox.scrollHeight;
         }
-    });
+    }
+})
+    .finally(() => isLoading = false);
 }
 
 // --- FIXED AUTO-CLICKER ---
@@ -257,12 +284,18 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-setInterval(loadMessagesAuto, 2000);
+setInterval(loadMessagesAuto, 5000);
 
 function showSystemMessage(title, message) {
-    document.getElementById("systemTitle").innerText = title;
-    document.getElementById("systemMessage").innerText = message;
-    document.getElementById("systemOverlay").style.display = "flex";
+    const overlay = document.getElementById("systemOverlay");
+    const titleEl = document.getElementById("systemTitle");
+    const msgEl = document.getElementById("systemMessage");
+
+    if (!overlay || !titleEl || !msgEl) return;
+
+    titleEl.innerText = title;
+    msgEl.innerText = message;
+    overlay.style.display = "flex";
 }
 
 function closeSystemModal() {
@@ -270,15 +303,6 @@ function closeSystemModal() {
 }
 </script>
 
-<div class="system-overlay" id="systemOverlay">
-    <div class="system-modal">
-        <h2 id="systemTitle">Message</h2>
-        <p id="systemMessage">Action completed</p>
 
-        <button onclick="closeSystemModal()" class="logout-btn">
-            OK
-        </button>
-    </div>
-</div>
 </body>
 </html>
