@@ -21,7 +21,7 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Messages - E-LOST KOH, E-FOUND MOH</title>
-<link rel="stylesheet" href="assets/css/messages_style.css?v=3">
+<link rel="stylesheet" href="assets/css/messages_style.css?v=4">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
 </head>
 
@@ -103,6 +103,46 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
             </a>
         </li>
     </ul>
+</div>
+
+<!-- ITEM DETAILS MODAL -->
+<div class="item-details-overlay" id="itemDetailsOverlay">
+    <div class="item-details-modal">
+        <button class="item-details-close" onclick="closeItemDetailsModal()">&times;</button>
+        <div class="item-details-grid">
+            <div class="item-details-image">
+                <img id="modalItemImage" src="" alt="Item Image">
+            </div>
+            <div class="item-details-info">
+                <h1 id="modalItemName"></h1>
+                <div id="modalItemBadge" class="status-badge"></div>
+                <div class="info-group">
+                    <div class="info-label">Category</div>
+                    <div class="info-value" id="modalItemCategory"></div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">Location</div>
+                    <div class="info-value" id="modalItemLocation"></div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label" id="modalItemDateLabel">Date</div>
+                    <div class="info-value" id="modalItemDate"></div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">Description</div>
+                    <div class="info-value description-text" id="modalItemDescription"></div>
+                </div>
+                <div class="info-group">
+                    <div class="info-label">Posted by</div>
+                    <div class="info-value" id="modalItemPostedBy" style="color:#1F5D4A;font-weight:600;"></div>
+                </div>
+                <div class="item-details-actions">
+                    <a id="modalClaimBtn" href="#" class="idbtn idbtn-primary" style="display:none;"></a>
+                    <a id="modalMessageBtn" href="#" class="idbtn idbtn-secondary" style="display:none;">Message Owner</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="logout-overlay" id="logoutOverlay">
@@ -404,6 +444,46 @@ function closeLogoutModal(){
 function confirmLogout(){
     window.location.href = "actions/logout.php";
 }
+function openItemDetailsModal(data) {
+    document.getElementById('modalItemName').textContent = data.item_name;
+    document.getElementById('modalItemCategory').textContent = data.category;
+    document.getElementById('modalItemLocation').textContent = data.location;
+    document.getElementById('modalItemDate').textContent = data.item_date;
+    document.getElementById('modalItemDateLabel').textContent = data.type === 'lost' ? 'Date Lost' : 'Date Found';
+    document.getElementById('modalItemDescription').textContent = data.description;
+    document.getElementById('modalItemPostedBy').textContent = data.posted_by;
+    document.getElementById('modalItemImage').src = data.item_image || 'uploads/default.png';
+
+    const badge = document.getElementById('modalItemBadge');
+    badge.textContent = data.type === 'lost' ? 'Lost' : 'Found';
+    badge.className = 'status-badge ' + data.type;
+
+    const claimBtn = document.getElementById('modalClaimBtn');
+    const msgBtn  = document.getElementById('modalMessageBtn');
+
+    if (data.is_owner) {
+        claimBtn.style.display = 'none';
+        msgBtn.style.display   = 'none';
+    } else {
+        claimBtn.style.display = 'inline-block';
+        claimBtn.textContent   = data.type === 'found' ? 'Claim This Item' : 'Found This Item';
+        claimBtn.href          = data.type === 'found'
+            ? 'found_thisitem.php?id=' + data.item_id
+            : 'found_lostitem.php?id='  + data.item_id;
+        msgBtn.style.display   = 'inline-block';
+        msgBtn.href            = 'messages.php?user_id=' + data.owner_id;
+    }
+
+    document.getElementById('itemDetailsOverlay').classList.add('active');
+}
+
+function closeItemDetailsModal() {
+    document.getElementById('itemDetailsOverlay').classList.remove('active');
+}
+
+document.getElementById('itemDetailsOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeItemDetailsModal();
+});
 
 </script>
 

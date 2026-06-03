@@ -50,7 +50,6 @@ while ($row = $result->fetch_assoc()) {
 
     $class = ($row['sender_id'] == $current_user_id) ? "outgoing" : "incoming";
 
-    /* CHECK IF MESSAGE IS A CLAIM MESSAGE */
     if (isset($row['message_type']) && $row['message_type'] == 'claim') {
         $claim_stmt = $conn->prepare("SELECT * FROM claims WHERE claim_id = ?");
         $claim_stmt->bind_param("i", $row['claim_id']);
@@ -68,6 +67,26 @@ while ($row = $result->fetch_assoc()) {
             default => 'pending'
         };
 
+        // Fetch found item details for modal
+        $item_detail_stmt = $conn->prepare("SELECT fi.*, u.username as posted_by FROM found_items fi JOIN users u ON fi.user_id = u.id WHERE fi.found_id = ?");
+        $item_detail_stmt->bind_param("i", $claim['found_item_id']);
+        $item_detail_stmt->execute();
+        $item_detail = $item_detail_stmt->get_result()->fetch_assoc();
+
+        $modal_data = json_encode([
+            "item_id"     => $claim['found_item_id'],
+            "item_name"   => $item_detail['item_name'] ?? '',
+            "category"    => $item_detail['category'] ?? '',
+            "location"    => $item_detail['location_found'] ?? '',
+            "item_date"   => isset($item_detail['date_found']) ? date("F d, Y", strtotime($item_detail['date_found'])) : '',
+            "description" => $item_detail['description'] ?? '',
+            "item_image"  => $item_detail['item_image'] ?? '',
+            "posted_by"   => $item_detail['posted_by'] ?? '',
+            "owner_id"    => $item_detail['user_id'] ?? '',
+            "type"        => "found",
+            "is_owner"    => ($current_user_id == ($item_detail['user_id'] ?? 0))
+        ], JSON_HEX_APOS | JSON_HEX_QUOT);
+
         echo '
         <div class="claim-card-wrapper '.$class.'">
             <div class="claim-card">
@@ -81,12 +100,7 @@ while ($row = $result->fetch_assoc()) {
         }
 
         echo '<div class="report-footer">';
-        echo '
-        <a href="/elost_efound/item-details.php?id='.$claim['found_item_id'].'&type=found"
-            class="view-details-btn">
-            View Details
-        </a>';
-
+        echo '<button class="view-details-btn" onclick="openItemDetailsModal(' . htmlspecialchars($modal_data, ENT_QUOTES) . ')">View Details</button>';
         echo '<div class="claim-status '.$statusClass.'">'.htmlspecialchars($claim['claim_status']).'</div>';
         echo '</div>';
 
@@ -132,6 +146,26 @@ while ($row = $result->fetch_assoc()) {
             default => 'pending'
         };
 
+        // Fetch lost item details for modal
+        $lost_detail_stmt = $conn->prepare("SELECT li.*, u.username as posted_by FROM lost_items li JOIN users u ON li.user_id = u.id WHERE li.lost_id = ?");
+        $lost_detail_stmt->bind_param("i", $report['lost_item_id']);
+        $lost_detail_stmt->execute();
+        $lost_detail = $lost_detail_stmt->get_result()->fetch_assoc();
+
+        $modal_data_lost = json_encode([
+            "item_id"     => $report['lost_item_id'],
+            "item_name"   => $lost_detail['item_name'] ?? '',
+            "category"    => $lost_detail['category'] ?? '',
+            "location"    => $lost_detail['location_lost'] ?? '',
+            "item_date"   => isset($lost_detail['date_lost']) ? date("F d, Y", strtotime($lost_detail['date_lost'])) : '',
+            "description" => $lost_detail['description'] ?? '',
+            "item_image"  => $lost_detail['item_image'] ?? '',
+            "posted_by"   => $lost_detail['posted_by'] ?? '',
+            "owner_id"    => $lost_detail['user_id'] ?? '',
+            "type"        => "lost",
+            "is_owner"    => ($current_user_id == ($lost_detail['user_id'] ?? 0))
+        ], JSON_HEX_APOS | JSON_HEX_QUOT);
+
         echo '
         <div class="claim-card-wrapper '.$class.'">
             <div class="claim-card">
@@ -145,13 +179,7 @@ while ($row = $result->fetch_assoc()) {
         }
 
         echo '<div class="report-footer">';
-
-        echo '
-            <a href="/elost_efound/item-details.php?id='.$report['lost_item_id'].'&type=lost"
-            class="view-details-btn">
-            View Details
-            </a>';
-
+        echo '<button class="view-details-btn" onclick="openItemDetailsModal(' . htmlspecialchars($modal_data_lost, ENT_QUOTES) . ')">View Details</button>';
         echo '<div class="claim-status '.$statusClass.'">'.htmlspecialchars($report['report_status']).'</div>';
         echo '</div>';
 
@@ -178,8 +206,8 @@ while ($row = $result->fetch_assoc()) {
             }
         }
         echo '</div></div>';
+
     } else {
-        /* NORMAL MESSAGE */
         echo '
         <div class="bubble-wrapper '.$class.'">
             <div class="message-bubble">'.htmlspecialchars($row['message_text']).'</div>
