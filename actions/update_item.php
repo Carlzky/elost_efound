@@ -76,5 +76,5 @@ if ($new_image) {
 
 $stmt->execute();
 
-header("Location: http://localhost/elost_efound/item_details.php?id=$item_id&type=$item_type");
+header("Location: http://localhost/elost_efound/item-details.php?id=$item_id&type=$item_type");
 exit();
