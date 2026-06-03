@@ -133,7 +133,7 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
             width: 52px;
             height: 52px;
             border-radius: 50%;
-            background: #f0f4ff;
+            background: rgba(31, 93, 74, 0.12);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -142,7 +142,7 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
         .notif-modal-icon svg {
             width: 26px;
             height: 26px;
-            stroke: #4f6ef7;
+            stroke: var(--primary-green);
         }
 
         .notif-modal-title {
@@ -216,14 +216,17 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
             padding: 10px 22px;
             border-radius: 8px;
             border: none;
-            background: #4f6ef7;
+            background: var(--primary-green);
             color: #fff;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
             transition: background 0.15s, transform 0.1s;
         }
-        .notif-modal-mark-read:hover { background: #3a57d4; transform: translateY(-1px); }
+        .notif-modal-mark-read:hover { 
+            background: var(--primary-dark); 
+            transform: translateY(-1px); 
+        }
         .notif-modal-mark-read:disabled {
             background: #d1f7e0;
             color: #166534;
