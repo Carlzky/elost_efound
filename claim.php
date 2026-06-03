@@ -74,7 +74,7 @@ $found_result = $found_stmt->get_result();
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Claim System - E-LOST KOH, E-FOUND MOH</title>
-    <link rel="stylesheet" href="assets/css/claim_style.css?v=3">
+    <link rel="stylesheet" href="assets/css/claim_style.css?v=5">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
 </head>
 
@@ -176,18 +176,18 @@ $found_result = $found_stmt->get_result();
                 </a>
             </li>
 
-            <li class="nav-item" style="margin-top:auto;">
-                <a href="#" onclick="openLogoutModal()">
-                    <span class="nav-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                            <polyline points="16 17 21 12 16 7"></polyline>
-                            <line x1="21" y1="12" x2="9" y2="12"></line>
-                        </svg>
-                    </span>
-                    <span class="nav-text">Logout</span>
-                </a>
-            </li>
+<li class="nav-item" style="margin-top: auto;">
+    <a href="#" onclick="openLogoutModal()" data-tooltip="Logout">
+        <span class="nav-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+        </span>
+        <span class="nav-text">Logout</span>
+    </a>
+</li>
 
         </ul>
     </div>
