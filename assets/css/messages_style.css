@@ -502,7 +502,7 @@
     }
 
     .incoming .message-bubble {
-        background: #EEDFD3;
+        background: #dbd9d9;
         color: #1A1A1A;
         border-top-left-radius: 2px;
     }
@@ -965,3 +965,4 @@
 @media (max-width: 640px) {
     .item-details-grid { grid-template-columns: 1fr; }
 }
+

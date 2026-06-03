@@ -21,7 +21,7 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Messages - E-LOST KOH, E-FOUND MOH</title>
-<link rel="stylesheet" href="assets/css/messages_style.css?v=4">
+<link rel="stylesheet" href="assets/css/messages_style.css?v=5">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
 </head>
 
@@ -145,6 +145,7 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
     </div>
 </div>
 
+<!-- LOGOUT MODAL -->
 <div class="logout-overlay" id="logoutOverlay">
     <div class="logout-modal">
         <h2>Logout</h2>
@@ -152,6 +153,30 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
         <div class="logout-buttons">
             <button class="cancel-btn" onclick="closeLogoutModal()">Cancel</button>
             <button class="logout-btn" onclick="confirmLogout()">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<!-- APPROVE MODAL -->
+<div class="logout-overlay" id="approveOverlay">
+    <div class="logout-modal">
+        <h2>Approve Claim</h2>
+        <p>Are you sure you want to approve this claim?</p>
+        <div class="logout-buttons">
+            <button class="cancel-btn" onclick="closeApproveModal()">Cancel</button>
+            <button class="logout-btn" id="approveConfirmBtn">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<!-- REJECT MODAL -->
+<div class="logout-overlay" id="rejectOverlay">
+    <div class="logout-modal">
+        <h2 style="color:#DC3545;">Reject Claim</h2>
+        <p>Are you sure you want to reject this claim?</p>
+        <div class="logout-buttons">
+            <button class="cancel-btn" onclick="closeRejectModal()">Cancel</button>
+            <button class="logout-btn" style="background:#DC3545;" id="rejectConfirmBtn">Confirm</button>
         </div>
     </div>
 </div>
@@ -180,7 +205,6 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
 
             <div class="conversations-scroll-box" id="conversationsBox">
 <?php
-// 1. Get existing conversations GROUPED ONLY BY USER to prevent duplicate chat heads
 $sql = "
 SELECT users.id, users.username, users.profile_image
 FROM users
@@ -188,7 +212,6 @@ JOIN messages ON users.id = IF(messages.sender_id = ?, messages.receiver_id, mes
 WHERE messages.sender_id = ? OR messages.receiver_id = ?
 GROUP BY users.id
 ";
-
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("iii", $current_user_id, $current_user_id, $current_user_id);
 $stmt->execute();
@@ -200,7 +223,6 @@ while($row = $result->fetch_assoc()) {
 }
 $stmt->close();
 
-// 2. Catch incoming click intent (Checking for either user_id or receiver_id params)
 $url_user_id = isset($_GET['user_id']) ? intval($_GET['user_id']) : (isset($_GET['receiver_id']) ? intval($_GET['receiver_id']) : null);
 
 if ($url_user_id && $url_user_id !== $current_user_id) {
@@ -210,14 +232,12 @@ if ($url_user_id && $url_user_id !== $current_user_id) {
         $user_stmt->execute();
         $user_info = $user_stmt->get_result()->fetch_assoc();
         $user_stmt->close();
-        
         if ($user_info) {
             $existing_chats = array($url_user_id => $user_info) + $existing_chats;
         }
     }
 }
 
-// 3. Render the unified conversation sidebar list
 foreach ($existing_chats as $chat):
     $chat_avatar = !empty($chat['profile_image']) ? $chat['profile_image'] : 'assets/img/defaultProfile.png';
     $isActive = ($url_user_id == $chat['id']) ? ' active' : '';
@@ -267,16 +287,16 @@ foreach ($existing_chats as $chat):
 
 <script>
 const activeChatWindow = document.getElementById('activeChatWindow');
-const emptyChatState = document.getElementById('emptyChatState');
-const chatCards = document.querySelectorAll('.conversation-card');
-const sendBtn = document.getElementById('sendBtn');
-const messageInput = document.getElementById('messageInput');
-const streamBox = document.getElementById('chatStreamBox');
+const emptyChatState   = document.getElementById('emptyChatState');
+const chatCards        = document.querySelectorAll('.conversation-card');
+const sendBtn          = document.getElementById('sendBtn');
+const messageInput     = document.getElementById('messageInput');
+const streamBox        = document.getElementById('chatStreamBox');
 const chatHeaderAvatar = document.getElementById('chatHeaderAvatar');
 
 function openChatWorkspace() {
     activeChatWindow.style.display = 'flex';
-    emptyChatState.style.display = 'none';
+    emptyChatState.style.display   = 'none';
 }
 
 document.querySelectorAll('.conversation-card').forEach(card => {
@@ -285,8 +305,8 @@ document.querySelectorAll('.conversation-card').forEach(card => {
         this.classList.add('active');
 
         const clickedUser = this.getAttribute('data-username');
-        const receiverId = this.getAttribute('data-userid');
-        const userAvatar = this.getAttribute('data-avatar');
+        const receiverId  = this.getAttribute('data-userid');
+        const userAvatar  = this.getAttribute('data-avatar');
 
         document.getElementById('chatHeaderName').textContent = clickedUser;
         document.getElementById('chatHeaderItem').textContent = 'Direct Message';
@@ -294,33 +314,23 @@ document.querySelectorAll('.conversation-card').forEach(card => {
         openChatWorkspace();
 
         fetch("actions/load_messages.php?receiver_id=" + receiverId)
-        .then(response => response.text())
+        .then(r => r.text())
         .then(data => {
-
-    if (!data) return;
-
-    const shouldStickBottom =
-        streamBox.scrollHeight - streamBox.scrollTop <= streamBox.clientHeight + 150;
-
-    // only redraw if chat changed
-    if (streamBox.innerHTML !== data) {
-
-        streamBox.innerHTML = data;
-
-        if (shouldStickBottom) {
-            streamBox.scrollTop = streamBox.scrollHeight;
-        }
-    }
-});
+            if (!data) return;
+            const shouldStick = streamBox.scrollHeight - streamBox.scrollTop <= streamBox.clientHeight + 150;
+            if (streamBox.innerHTML !== data) {
+                streamBox.innerHTML = data;
+                if (shouldStick) streamBox.scrollTop = streamBox.scrollHeight;
+            }
+        });
     });
 });
 
 function sendMessage() {
     const text = messageInput.value.trim();
-    if(text === "") return;
-
+    if (text === "") return;
     const activeCard = document.querySelector('.conversation-card.active');
-    if(!activeCard) return;
+    if (!activeCard) return;
     const receiverId = activeCard.dataset.userid;
 
     fetch("actions/send_message.php", {
@@ -328,15 +338,12 @@ function sendMessage() {
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: "receiver_id=" + receiverId + "&message=" + encodeURIComponent(text)
     })
-    .then(response => response.text())
+    .then(r => r.text())
     .then(data => {
-        if(data.trim() === "success") {
+        if (data.trim() === "success") {
             const bubble = document.createElement('div');
             bubble.className = 'bubble-wrapper outgoing';
-            bubble.innerHTML = `
-                <div class="message-bubble">${text}</div>
-                <span class="bubble-timestamp">Just now</span>
-            `;
+            bubble.innerHTML = '<div class="message-bubble">' + text + '</div><span class="bubble-timestamp">Just now</span>';
             streamBox.appendChild(bubble);
             messageInput.value = "";
             streamBox.scrollTop = streamBox.scrollHeight;
@@ -345,121 +352,110 @@ function sendMessage() {
 }
 
 sendBtn.addEventListener('click', sendMessage);
-messageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') sendMessage(); });
+messageInput.addEventListener('keypress', e => { if (e.key === 'Enter') sendMessage(); });
 
 let isLoading = false;
 
 function loadMessagesAuto() {
     if (isLoading) return;
-
     const activeCard = document.querySelector('.conversation-card.active');
     if (!activeCard) return;
-
     isLoading = true;
-
     const receiverId = activeCard.dataset.userid;
 
     fetch("actions/load_messages.php?receiver_id=" + receiverId)
-    .then(res => res.text())
+    .then(r => r.text())
     .then(data => {
-
-    if (!data) return;
-
-    const shouldStickBottom =
-        streamBox.scrollHeight - streamBox.scrollTop <= streamBox.clientHeight + 150;
-
-    if (streamBox.innerHTML !== data) {
-
-        streamBox.innerHTML = data;
-
-        if (shouldStickBottom) {
-            streamBox.scrollTop = streamBox.scrollHeight;
+        if (!data) return;
+        const shouldStick = streamBox.scrollHeight - streamBox.scrollTop <= streamBox.clientHeight + 150;
+        if (streamBox.innerHTML !== data) {
+            streamBox.innerHTML = data;
+            if (shouldStick) streamBox.scrollTop = streamBox.scrollHeight;
         }
-    }
-})
+    })
     .finally(() => isLoading = false);
 }
 
-// --- FIXED AUTO-CLICKER ---
-// Checks for whichever parameter triggered the redirect
 window.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const targetUid = urlParams.get('user_id') || urlParams.get('receiver_id');
-
     if (targetUid) {
-        const matchingCard = document.querySelector(`.conversation-card[data-userid="${targetUid}"]`);
-        if (matchingCard) {
-            matchingCard.click();
-        }
+        const matchingCard = document.querySelector('.conversation-card[data-userid="' + targetUid + '"]');
+        if (matchingCard) matchingCard.click();
     }
 });
 
 setInterval(loadMessagesAuto, 2000);
 
-function showSystemMessage(title, message) {
-    const overlay = document.getElementById("systemOverlay");
-    const titleEl = document.getElementById("systemTitle");
-    const msgEl = document.getElementById("systemMessage");
-
-    if (!overlay || !titleEl || !msgEl) return;
-
-    titleEl.innerText = title;
-    msgEl.innerText = message;
-    overlay.style.display = "flex";
+/* ── SIDEBAR ── */
+function toggleSidebar() {
+    document.getElementById('sidebar').classList.toggle('collapsed');
 }
-
-function closeSystemModal() {
-    document.getElementById("systemOverlay").style.display = "none";
-}
-
-    function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    sidebar.classList.toggle('collapsed');
-}
-
-document.querySelector('.logo-section').addEventListener('click', function () {
-    const sidebar = document.getElementById('sidebar');
-
-    if (sidebar.classList.contains('collapsed')) {
-        sidebar.classList.remove('collapsed');
-    }
-});
-
 function openSidebarIfCollapsed() {
     const sidebar = document.getElementById('sidebar');
+    if (sidebar.classList.contains('collapsed')) sidebar.classList.remove('collapsed');
+}
+document.querySelector('.logo-section').addEventListener('click', function () {
+    openSidebarIfCollapsed();
+});
 
-    if (sidebar.classList.contains('collapsed')) {
-        sidebar.classList.remove('collapsed');
-    }
+/* ── LOGOUT MODAL ── */
+function openLogoutModal()  { document.getElementById('logoutOverlay').style.display = 'flex'; }
+function closeLogoutModal() { document.getElementById('logoutOverlay').style.display = 'none'; }
+function confirmLogout()    { window.location.href = "actions/logout.php"; }
+
+/* ── APPROVE / REJECT MODAL ── */
+var _pendingId  = null;
+var _pendingUrl = null;
+
+function openApproveModal(id, url) {
+    _pendingId  = id;
+    _pendingUrl = url;
+    document.getElementById('approveOverlay').style.display = 'flex';
+}
+function closeApproveModal() {
+    document.getElementById('approveOverlay').style.display = 'none';
+}
+function openRejectModal(id, url) {
+    _pendingId  = id;
+    _pendingUrl = url;
+    document.getElementById('rejectOverlay').style.display = 'flex';
+}
+function closeRejectModal() {
+    document.getElementById('rejectOverlay').style.display = 'none';
 }
 
-function openLogoutModal(){
-    document.getElementById("logoutOverlay").style.display = "flex";
-}
+document.getElementById('approveConfirmBtn').addEventListener('click', function () {
+    var fd = new FormData();
+    fd.append(_pendingUrl.includes('found_report') ? 'report_id' : 'claim_id', _pendingId);
+    closeApproveModal();
+    fetch(_pendingUrl, { method: 'POST', body: fd }).then(function () { loadMessagesAuto(); });
+});
 
-function closeLogoutModal(){
-    document.getElementById("logoutOverlay").style.display = "none";
-}
+document.getElementById('rejectConfirmBtn').addEventListener('click', function () {
+    var fd = new FormData();
+    fd.append(_pendingUrl.includes('found_report') ? 'report_id' : 'claim_id', _pendingId);
+    closeRejectModal();
+    fetch(_pendingUrl, { method: 'POST', body: fd }).then(function () { loadMessagesAuto(); });
+});
 
-function confirmLogout(){
-    window.location.href = "actions/logout.php";
-}
+/* ── ITEM DETAILS MODAL ── */
 function openItemDetailsModal(data) {
-    document.getElementById('modalItemName').textContent = data.item_name;
-    document.getElementById('modalItemCategory').textContent = data.category;
-    document.getElementById('modalItemLocation').textContent = data.location;
-    document.getElementById('modalItemDate').textContent = data.item_date;
-    document.getElementById('modalItemDateLabel').textContent = data.type === 'lost' ? 'Date Lost' : 'Date Found';
+    document.getElementById('modalItemName').textContent        = data.item_name;
+    document.getElementById('modalItemCategory').textContent    = data.category;
+    document.getElementById('modalItemLocation').textContent    = data.location;
+    document.getElementById('modalItemDate').textContent        = data.item_date;
+    document.getElementById('modalItemDateLabel').textContent   = data.type === 'lost' ? 'Date Lost' : 'Date Found';
     document.getElementById('modalItemDescription').textContent = data.description;
-    document.getElementById('modalItemPostedBy').textContent = data.posted_by;
-    document.getElementById('modalItemImage').src = data.item_image || 'uploads/default.png';
+    document.getElementById('modalItemPostedBy').textContent    = data.posted_by;
+    document.getElementById('modalItemImage').src               = data.item_image || 'uploads/default.png';
 
     const badge = document.getElementById('modalItemBadge');
     badge.textContent = data.type === 'lost' ? 'Lost' : 'Found';
-    badge.className = 'status-badge ' + data.type;
+    badge.className   = 'status-badge ' + data.type;
 
     const claimBtn = document.getElementById('modalClaimBtn');
-    const msgBtn  = document.getElementById('modalMessageBtn');
+    const msgBtn   = document.getElementById('modalMessageBtn');
 
     if (data.is_owner) {
         claimBtn.style.display = 'none';
@@ -467,26 +463,20 @@ function openItemDetailsModal(data) {
     } else {
         claimBtn.style.display = 'inline-block';
         claimBtn.textContent   = data.type === 'found' ? 'Claim This Item' : 'Found This Item';
-        claimBtn.href          = data.type === 'found'
-            ? 'found_thisitem.php?id=' + data.item_id
-            : 'found_lostitem.php?id='  + data.item_id;
+        claimBtn.href          = data.type === 'found' ? 'found_thisitem.php?id=' + data.item_id : 'found_lostitem.php?id=' + data.item_id;
         msgBtn.style.display   = 'inline-block';
         msgBtn.href            = 'messages.php?user_id=' + data.owner_id;
     }
 
     document.getElementById('itemDetailsOverlay').classList.add('active');
 }
-
 function closeItemDetailsModal() {
     document.getElementById('itemDetailsOverlay').classList.remove('active');
 }
-
 document.getElementById('itemDetailsOverlay').addEventListener('click', function(e) {
     if (e.target === this) closeItemDetailsModal();
 });
-
 </script>
-
 
 </body>
 </html>
