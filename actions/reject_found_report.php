@@ -81,6 +81,39 @@ $notif->bind_param(
 
 $notif->execute();
 
-header("Location: ../messages.php?receiver_id=".$receiver_id."&item_id=".$item_id);
+$msg = $conn->prepare("
+INSERT INTO messages
+(
+    sender_id,
+    receiver_id,
+    item_id,
+    report_id,
+    message_type,
+    message_text
+)
+VALUES
+(
+    ?, ?, ?, ?, 'found_report', ?
+)
+");
+
+$message_text = "Your found item report was rejected.";
+
+$msg->bind_param(
+    "iiiis",
+    $_SESSION['user_id'],
+    $report['finder_user_id'],
+    $report['lost_item_id'],
+    $report_id,
+    $message_text
+);
+
+$msg->execute();
+
+header(
+    "Location: ../messages.php?receiver_id="
+    .$report['finder_user_id'].
+    "&item_id=".$report['lost_item_id']
+);
 exit();
 ?>
