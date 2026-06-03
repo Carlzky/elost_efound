@@ -2,8 +2,9 @@
 session_start();
 include "config/db.php";
 
+
 // 1. Secure the page
-if(!isset($_SESSION['username'])){
+if(!isset($_SESSION['user_id'])){
     header("Location: registration.php");
     exit();
 }
@@ -22,9 +23,8 @@ if(!isset($_GET['id']) || !isset($_GET['type'])){
     die("Invalid item.");
 }
 $id = intval($_GET['id']);
-$type = strtolower($_GET['type']); // Convert to lowercase for consistent comparison
+$type = strtolower($_GET['type']);
 
-// ---- FIXED: Dynamically define the query string based on item type ----
 if ($type === 'lost') {
     $sql = "
     SELECT 
@@ -59,7 +59,6 @@ if ($type === 'lost') {
     die("Invalid item type specified.");
 }
 
-// Prepare and execute the dynamic query string
 $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $id);
 $stmt->execute();
@@ -176,14 +175,13 @@ $image = !empty($item['item_image'])
             </div>
 
             <div class="info-group">
-    <div class="info-label">Posted by</div>
-
-    <a href="user-profile.php?id=<?php echo $item['user_id']; ?>"
-       class="info-value"
-       style="color: var(--primary-green); font-weight: 600; text-decoration: none;">
-        <?php echo htmlspecialchars($posted_by); ?>
-    </a>
-</div>
+                <div class="info-label">Posted by</div>
+                <a href="user-profile.php?id=<?php echo $item['user_id']; ?>"
+                   class="info-value"
+                   style="color: var(--primary); font-weight: 600; text-decoration: none;">
+                    <?php echo htmlspecialchars($posted_by); ?>
+                </a>
+            </div>
 
             <div class="action-buttons">
                 <?php if($user_id != $item['user_id']): ?>
@@ -203,29 +201,15 @@ $image = !empty($item['item_image'])
                     </a>
 
                 <?php else: ?>
-                    
-                    <div style="width: 100%; display:flex; flex-direction:column; gap:10px;">
 
-    <div style="
-        padding: 14px;
-        background: #e8f5e9;
-        color: #2E7D32;
-        border: 1px solid #c8e6c9;
-        border-radius: 8px;
-        text-align: center;
-        font-weight: 600;
-        font-size: 15px;
-    ">
-        This is your post
-    </div>
+                    <a href="report-item.php?edit=1&id=<?php echo $item['item_id']; ?>&type=<?php echo strtolower($item['item_type']); ?>"
+                       class="btn btn-secondary">
+                        Edit Post
+                    </a>
 
-    <button
-        class="btn-delete-post"
-        onclick="openDeleteModal()">
-        Delete Posted Item
-    </button>
-
-</div>
+                    <button class="btn btn-delete-post" onclick="openDeleteModal()">
+                        Delete Post
+                    </button>
 
                 <?php endif; ?>
             </div>

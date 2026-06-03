@@ -14,7 +14,6 @@
 
     --found-bg: #DCFCE7;
     --found-text: #166534;
-
 }
 
 * {
@@ -28,11 +27,9 @@ body {
     background-color: var(--bg-gray);
     color: var(--text);
     padding: 0;
-    /* changed to allow navbar */
 }
 
-
-/* ================= NAVBAR ADDED (NO MAIN CODE CHANGE) ================= */
+/* ================= NAVBAR ================= */
 .header {
     background: var(--primary);
     padding: 16px 32px;
@@ -44,13 +41,11 @@ body {
     z-index: 100;
 }
 
-/* LEFT */
 .header-left {
     display: flex;
     align-items: center;
 }
 
-/* LOGO */
 .logo-section {
     display: flex;
     align-items: center;
@@ -88,7 +83,6 @@ body {
     color: var(--light-green);
 }
 
-/* RIGHT */
 .header-right {
     display: flex;
     align-items: center;
@@ -129,7 +123,6 @@ body {
     transform: scale(1.06);
     border-color: #fff;
 }
-
 /* ================= END NAVBAR ================= */
 
 .container {
@@ -146,13 +139,10 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-
     color: var(--primary);
     text-decoration: none;
-
     font-weight: 600;
     margin-bottom: 24px;
-
     transition: 0.2s;
 }
 
@@ -232,24 +222,6 @@ h1 {
     color: #4A4A4A;
 }
 
-
-
-.btn-delete-post {
-    width: 100% !important;
-    padding: 14px !important;
-    border: none !important;
-    border-radius: 10px !important;
-    background: #d32f2f !important;
-    color: white !important;
-    font-weight: 600 !important;
-    cursor: pointer !important;
-    transition: .3s !important;
-}
-
-.btn-delete-post:hover {
-    background: #b71c1c !important;
-}
-
 .delete-overlay {
     position: fixed;
     inset: 0;
@@ -326,6 +298,7 @@ h1 {
     text-decoration: none;
     width: 100%;
     transition: 0.2s;
+    display: inline-block;
 }
 
 .btn-primary {
@@ -338,11 +311,30 @@ h1 {
 }
 
 .btn-secondary {
-    background-color: var(--pure-white);
-    color: var(--text-dark);
+    background-color: var(--white);
+    color: var(--text);
     border: 1px solid #CCCCCC;
 }
 
 .btn-secondary:hover {
     background-color: #F9F9F9;
+}
+
+/* Matches .btn sizing exactly — no !important needed */
+.btn-delete-post {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    padding: 14px;
+    border-radius: 6px;
+    border: none;
+    background: #d32f2f;
+    color: white;
+    cursor: pointer;
+    width: 100%;
+    transition: 0.2s;
+}
+
+.btn-delete-post:hover {
+    background: #b71c1c;
 }
