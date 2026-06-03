@@ -28,6 +28,37 @@ $claim_stmt->bind_param("i", $claim_id);
 $claim_stmt->execute();
 $claim = $claim_stmt->get_result()->fetch_assoc();
 
+$updateItem = $conn->prepare("
+    UPDATE found_items
+    SET status = 'Claimed'
+    WHERE found_id = ?
+");
+
+$updateItem->bind_param(
+    "i",
+    $claim['found_item_id']
+);
+
+
+$updateItem->execute();
+
+$rejectOthers = $conn->prepare("
+    UPDATE claims
+    SET claim_status = 'Rejected'
+    WHERE found_item_id = ?
+    AND claim_id != ?
+");
+
+$rejectOthers->bind_param(
+    "ii",
+    $claim['found_item_id'],
+    $claim_id
+);
+
+$rejectOthers->execute();
+
+
+
 $item_stmt = $conn->prepare("
     SELECT user_id
     FROM found_items
@@ -59,7 +90,9 @@ $notif->bind_param(
 
 $notif->execute();
 
-
-header("Location: ../messages.php?receiver_id=".$receiver_id."&item_id=".$item_id);
+header(
+    "Location: ../messages.php?receiver_id="
+    .$claim['claimant_user_id']
+);
 exit();
 ?>

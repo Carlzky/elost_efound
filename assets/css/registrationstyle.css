@@ -97,7 +97,7 @@ body {
     border-radius: 36px; 
     box-shadow: 0 35px 75px -15px rgba(0, 0, 0, 0.45);
     position: relative;
-    overflow: visible;
+    overflow: hidden;
     animation: slideUpCard 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
     width: 500px;      
     height: 510px; /* FIXED: Reduced from 560px to remove the empty bottom gap */
@@ -120,6 +120,8 @@ body {
     height: 7px;
     background: linear-gradient(90deg, var(--primary), var(--gold), var(--accent-green));
     z-index: 10;
+    border-top-left-radius: 36px;
+    border-top-right-radius: 36px;
 }
 
 .form-padding-wrapper {
@@ -336,7 +338,7 @@ body {
 /* Floating Notification alerts overlay */
 #message-container {
     position: fixed;
-    top: -190px;
+    top: 20px;
     left: 50%;
     width: 400px;
     max-width: 90%;

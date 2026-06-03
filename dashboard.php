@@ -47,7 +47,7 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard - E-LOST KOH, E-FOUND MOH</title>
 
-<link rel="stylesheet" href="assets/css/dashboard_style.css?v=1">
+<link rel="stylesheet" href="assets/css/dashboard_style.css?v=2">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
 
 </head>
@@ -133,6 +133,10 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
 
 <div class="main-content">
     <div class="top-bar">
+        <div class="welcome">
+            <h1 class="page-title">Dashboard</h1>
+            <p class="page-subtitle">Welcome back, <?php echo htmlspecialchars($user); ?>!</p>
+        </div>
         <div class="user-profile">
             <a href="notif.php" class="notif-bell-btn">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
@@ -149,9 +153,6 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
 
         </div>
     </div>
-
-    <h1 class="page-title">Dashboard</h1>
-    <p class="page-subtitle">Welcome back, <?php echo htmlspecialchars($user); ?>!</p>
 
     <div class="stats-grid">
         <div class="stat-card">

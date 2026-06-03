@@ -80,7 +80,15 @@ while ($row = $result->fetch_assoc()) {
             echo '<img src="'.htmlspecialchars($claim['proof_image']).'" class="claim-proof">';
         }
 
+        echo '<div class="report-footer">';
+        echo '
+        <a href="/elost_efound/item-details.php?id='.$claim['found_item_id'].'&type=found"
+            class="view-details-btn">
+            View Details
+        </a>';
+
         echo '<div class="claim-status '.$statusClass.'">'.htmlspecialchars($claim['claim_status']).'</div>';
+        echo '</div>';
 
         $item_stmt = $conn->prepare("SELECT user_id FROM found_items WHERE found_id = ?");
         $item_stmt->bind_param("i", $claim['found_item_id']);
@@ -136,7 +144,16 @@ while ($row = $result->fetch_assoc()) {
             echo '<img src="'.htmlspecialchars($report['proof_image']).'" class="claim-proof">';
         }
 
+        echo '<div class="report-footer">';
+
+        echo '
+            <a href="/elost_efound/item-details.php?id='.$report['lost_item_id'].'&type=lost"
+            class="view-details-btn">
+            View Details
+            </a>';
+
         echo '<div class="claim-status '.$statusClass.'">'.htmlspecialchars($report['report_status']).'</div>';
+        echo '</div>';
 
         $item_stmt = $conn->prepare("SELECT user_id FROM lost_items WHERE lost_id = ?");
         $item_stmt->bind_param("i", $report['lost_item_id']);

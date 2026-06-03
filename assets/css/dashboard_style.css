@@ -119,6 +119,12 @@ body {
     margin-left: 64px;
 }
 
+.sidebar.collapsed .logo-icon {
+        width: 45px;
+        height: 45px;
+        min-width: 45px;
+}
+
 .logo-section {
     display: flex;
     align-items: center;
@@ -224,15 +230,21 @@ body {
 .top-bar {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 32px;
+    width: 100%
+}
+
+.welcome {
+    display: flex;
+    flex-direction: column;
 }
 
 .user-profile {
-    margin-left: auto;
     display: flex;
     align-items: center;
     gap: 18px;
+    flex-shrink: 0;
 }
 
 .notif-bell-btn {
@@ -282,13 +294,15 @@ body {
 .page-title {
     font-family: 'Poppins', sans-serif;
     font-size: 30px;
-    margin-bottom: 4px;
+    margin: 0;
+    line-height: 1.2;
 }
 
 .page-subtitle {
     color: #7A7A7A;
-    font-size: 14px;
-    margin-bottom: 30px;
+    font-size: 18px;
+    margin-top: 6px;
+    margin-bottom: 0;
 }
 
 .stats-grid {

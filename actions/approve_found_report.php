@@ -68,6 +68,34 @@ $update_stmt->bind_param("i", $report_id);
 
 $update_stmt->execute();
 
+$markRecovered = $conn->prepare("
+    UPDATE lost_items
+    SET status = 'Claimed'
+    WHERE lost_id = ?
+");
+
+$markRecovered->bind_param(
+    "i",
+    $report['lost_item_id']
+);
+
+$markRecovered->execute();
+
+$rejectOthers = $conn->prepare("
+    UPDATE found_reports
+    SET report_status = 'Rejected'
+    WHERE lost_item_id = ?
+    AND report_id != ?
+");
+
+$rejectOthers->bind_param(
+    "ii",
+    $report['lost_item_id'],
+    $report_id
+);
+
+$rejectOthers->execute();
+
 $notif_text = "Your found item report was approved.";
 
 $notif = $conn->prepare("
@@ -85,6 +113,10 @@ $notif->bind_param(
 $notif->execute();
 
 
-header("Location: ../messages.php?receiver_id=".$receiver_id."&item_id=".$item_id);
+
+header(
+    "Location: ../messages.php?receiver_id="
+    .$report['finder_user_id']
+);
 exit();
 ?>

@@ -171,7 +171,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>E-LOST MOH, E-FOUND KOH</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="assets/css/registrationstyle.css">
+    <link rel="stylesheet" href="assets/css/registrationstyle.css?v=1">
 </head>
 <body>
 
@@ -300,9 +300,18 @@ function toggleForm(formType) {
 
 window.addEventListener('DOMContentLoaded', () => {
     const msgContainer = document.getElementById('message-container');
+
     if (msgContainer && msgContainer.innerHTML.trim() !== "") {
-        setTimeout(() => { msgContainer.classList.add('reveal-smooth'); }, 50);
-        setTimeout(() => { hideMessageSmoothly(); }, 4000); 
+        requestAnimationFrame(() => {
+            msgContainer.classList.add('reveal-smooth');
+        });
+
+        setTimeout(() => {
+            msgContainer.classList.remove('reveal-smooth');
+            setTimeout(() => {
+                msgContainer.innerHTML = '';
+            }, 400);
+        }, 4000);
     }
 });
 </script>

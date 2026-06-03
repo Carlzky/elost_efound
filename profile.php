@@ -149,7 +149,7 @@ $cvsu_email = htmlspecialchars($profile['cvsu_email'] ?? '');
     <button class="hamburger-btn" onclick="openSidebar()">
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
-    <div class="top-bar-center">
+    <div class="top-bar-center" >
         <div class="top-logo-icon">🔍</div>
     </div>
     <div class="top-bar-right">
@@ -161,7 +161,6 @@ $cvsu_email = htmlspecialchars($profile['cvsu_email'] ?? '');
 </div>
 
 <div class="page-content">
-    <div class="page-label">Account</div>
     <h1 class="page-title">My Profile</h1>
 
     <div class="profile-banner">

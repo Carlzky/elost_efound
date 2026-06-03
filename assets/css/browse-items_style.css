@@ -115,7 +115,11 @@ body {
 .sidebar.collapsed ~ .main-content {
     margin-left: 64px;
 }
-
+.sidebar.collapsed .logo-icon {
+        width: 45px;
+        height: 45px;
+        min-width: 45px;
+}
 
 .logo-section {
     display: flex;
@@ -223,19 +227,30 @@ body {
     margin-bottom: 32px;
 }
 
-.search-wrapper {
-    position: relative;
-    width: 300px;
-}
+        .search-wrapper {
+            position: relative;
+            width: 300px;
+            display: flex;
+            align-items: center;
+        }
 
-.search-wrapper input {
-    width: 100%;
-    padding: 10px 16px 10px 40px;
-    border: 1px solid #E0E0E0;
-    border-radius: 8px;
-    font-family: 'Inter', sans-serif;
-    background-color: var(--pure-white);
-}
+        .search-wrapper input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            background: var(--pure-white);
+            outline: none;
+        }
+
+        .search-icon-svg {
+            position: absolute;
+            left: 14px;
+            color: #888;
+            pointer-events: none;
+        }
 
 .search-icon {
     position: absolute;
