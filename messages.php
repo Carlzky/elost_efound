@@ -343,7 +343,7 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-setInterval(loadMessagesAuto, 5000);
+setInterval(loadMessagesAuto, 2000);
 
 function showSystemMessage(title, message) {
     const overlay = document.getElementById("systemOverlay");
