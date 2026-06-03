@@ -105,6 +105,17 @@ $avatar = !empty($profile_data['profile_image']) ? $profile_data['profile_image'
     </ul>
 </div>
 
+<div class="logout-overlay" id="logoutOverlay">
+    <div class="logout-modal">
+        <h2>Logout</h2>
+        <p>Are you sure you want to logout?</p>
+        <div class="logout-buttons">
+            <button class="cancel-btn" onclick="closeLogoutModal()">Cancel</button>
+            <button class="logout-btn" onclick="confirmLogout()">Confirm</button>
+        </div>
+    </div>
+</div>
+
 <div class="main-content">
     <div class="top-bar">
         <h1 class="page-title">Messages</h1>
@@ -380,6 +391,18 @@ function openSidebarIfCollapsed() {
     if (sidebar.classList.contains('collapsed')) {
         sidebar.classList.remove('collapsed');
     }
+}
+
+function openLogoutModal(){
+    document.getElementById("logoutOverlay").style.display = "flex";
+}
+
+function closeLogoutModal(){
+    document.getElementById("logoutOverlay").style.display = "none";
+}
+
+function confirmLogout(){
+    window.location.href = "actions/logout.php";
 }
 
 </script>
